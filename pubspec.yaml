@@ -1,0 +1,54 @@
+name: bagh_mama
+description: A new Flutter application.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  provider:
+  font_awesome_flutter:
+  shared_preferences:
+  carousel_slider:
+  fab_circular_menu:
+  flutter_rating_bar:
+  flutter_animated_dialog:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+# The following section is specific to Flutter.
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/banner_image/bm1.jpg
+    - assets/banner_image/bm2.jpg
+    - assets/banner_image/bm3.jpg
+    - assets/banner_image/bm4.png
+  #Product Image
+    - assets/product_image/cycle.jpg
+    - assets/product_image/shoes.jpg
+    - assets/product_image/product.jpg
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+
