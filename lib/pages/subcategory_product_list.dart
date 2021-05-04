@@ -1,5 +1,6 @@
 import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
 import 'package:bagh_mama/widget/category_product_cart_tile.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,7 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
                   ),
                 )
               ] ),
-              onTap: (){},
+              onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen())),
             ),
           )
         ],

@@ -18,6 +18,11 @@ dependencies:
   fab_circular_menu:
   flutter_rating_bar:
   flutter_animated_dialog:
+  vertical_barchart:
+  pie_chart:
+  expandable_text:
+  cached_network_image:
+  image_picker:
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,11 @@
 import 'package:bagh_mama/pages/search_page.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
 import 'package:bagh_mama/variables/public_data.dart';
 import 'package:bagh_mama/widget/category_product_cart_tile.dart';
 import 'package:bagh_mama/widget/home_product_cart_tile.dart';
+import 'package:bagh_mama/widget/navigation_drawer.dart';
 import 'package:bagh_mama/widget/round_subcategory_tile.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -30,9 +32,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       backgroundColor: themeProvider.toggleBgColor(),
+      drawer: NavigationDrawer(),
       appBar: AppBar(
         backgroundColor: themeProvider.toggleBgColor(),
         elevation: 0.0,
+        iconTheme: IconThemeData(
+          color: Colors.grey
+        ),
         title: Container(
           width: size.width,
           height: 45,
@@ -41,15 +47,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               InkWell(
-                  child: Icon(FontAwesomeIcons.bars,color: Colors.grey),
-                onTap: (){},
-              ),
-
-              InkWell(
                 onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchPage())),
                 borderRadius: BorderRadius.all(Radius.circular(50)),
                 child: Container(
-                  width: size.width*.68,
+                  width: size.width*.66,
                   height: 40,
                   // color: Colors.green,
                   padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
@@ -90,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                     )
                   ] ),
-                onTap: (){},
+                onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen())),
               )
             ],
           ),

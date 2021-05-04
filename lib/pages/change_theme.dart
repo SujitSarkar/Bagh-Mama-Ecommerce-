@@ -90,7 +90,7 @@ class _ChangeThemePageState extends State<ChangeThemePage> with SingleTickerProv
             ),
             SizedBox(height: height * 0.05),
             Text(
-              'Choose a style',
+              'Choose a Theme',
               style: TextStyle(
                   fontSize: width * .06, fontWeight: FontWeight.bold,color: themeProvider.toggleTextColor()),
             ),

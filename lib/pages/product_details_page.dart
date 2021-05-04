@@ -1,10 +1,16 @@
+import 'package:bagh_mama/pages/customer_review_list.dart';
+import 'package:bagh_mama/pages/product_question_list.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/widget/home_product_cart_tile.dart';
+import 'package:bagh_mama/widget/product_review_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:vertical_barchart/vertical-barchart.dart';
+import 'package:vertical_barchart/vertical-barchartmodel.dart';
 
 class ProductDetails extends StatefulWidget {
   @override
@@ -17,6 +23,34 @@ class _ProductDetailsState extends State<ProductDetails> {
   bool _isAdded=false;
   double _starRating;
   TextEditingController _ratingCommentController = TextEditingController();
+
+  final List<VBarChartModel> barData = [
+    VBarChartModel(
+      index: 0,
+      label: "Delivery Speed:",
+      colors: [Colors.orange, Colors.deepOrange],
+      jumlah: 20,
+      tooltip: "20",
+      // description: Text(
+      //   "Most selling fruit last week",
+      //   style: TextStyle(fontSize: 10),
+      // ),
+    ),
+    VBarChartModel(
+      index: 1,
+      label: "Positive Rating:",
+      colors: [Colors.orange, Colors.deepOrange],
+      jumlah: 55,
+      tooltip: "55",
+    ),
+    VBarChartModel(
+      index: 2,
+      label: "Response Rate:",
+      colors: [Colors.teal, Colors.indigo],
+      jumlah: 12,
+      tooltip: "12",
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -153,11 +187,11 @@ class _ProductDetailsState extends State<ProductDetails> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('Customer Reviews (6)',style: TextStyle(fontSize: size.width*.06),),
+                Text('Customer Reviews (50)',style: TextStyle(fontSize: size.width*.06),),
                 Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.08,)
               ],
             ),
-            onPressed: (){},
+            onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>CustomerReviewList())),
           ),
           SizedBox(height: size.width*.01),
 
@@ -188,7 +222,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),
           SizedBox(height: size.width*.01),
 
-          ///Customer Reviews
+          ///Write Your Review
           TextButton(
             style: TextButton.styleFrom(
                 primary: themeProvider.toggleTextColor()),
@@ -202,6 +236,47 @@ class _ProductDetailsState extends State<ProductDetails> {
             ),
             onPressed: (){_showRatingDialog(size, themeProvider);},
           ),
+          ///Seller Review
+          TextButton(
+            style: TextButton.styleFrom(
+                primary: themeProvider.toggleTextColor()),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('Seller Review',style: TextStyle(fontSize: size.width*.044),),
+                Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
+              ],
+            ),
+            onPressed: (){_showSellerReviewDialog(size, themeProvider);},
+          ),
+
+          ///Product Questions
+          TextButton(
+            style: TextButton.styleFrom(
+                primary: themeProvider.toggleTextColor()),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('Product Questions',style: TextStyle(fontSize: size.width*.044),),
+                Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
+              ],
+            ),
+            onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductQuestionList())),
+          ),
+          SizedBox(height: size.width*.01),
+          Divider(color: Colors.grey,height:1),
+          SizedBox(height: size.width*.1),
+
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: 10,
+            physics: ClampingScrollPhysics(),
+            itemBuilder: (context,index){
+              return ProductReviewTile(index, 4);
+            },
+          )
         ],
       ),
     ),
@@ -228,7 +303,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               children:[
             IconButton(
               icon: Icon(FontAwesomeIcons.shoppingCart),color: Colors.white,
-              onPressed: (){},
+              onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen())),
             ),
             Positioned(
               top: 8.0,
@@ -309,7 +384,6 @@ class _ProductDetailsState extends State<ProductDetails> {
       ],
     ),
   );
-
 
 // show the dialog
   void _showRatingDialog(Size size, ThemeProvider themeProvider){
@@ -409,5 +483,63 @@ class _ProductDetailsState extends State<ProductDetails> {
             ),
           );
     });
+  }
+
+  void _showSellerReviewDialog(Size size, ThemeProvider themeProvider){
+    showAnimatedDialog(
+        context: context,
+        animationType: DialogTransitionType.slideFromBottomFade,
+        curve: Curves.fastOutSlowIn,
+        duration: Duration(milliseconds: 500),
+        builder: (context){
+          return AlertDialog(
+            backgroundColor: themeProvider.toggleBgColor(),
+            contentPadding: EdgeInsets.symmetric(horizontal: 5),
+            scrollable: true,
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding:  EdgeInsets.only(left: 8.0),
+                      child: Text('Seller Review',style: TextStyle(fontSize: size.width*.05,fontWeight: FontWeight.w500,color: themeProvider.toggleTextColor()),),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.cancel_outlined,color: Colors.grey,size: size.width*.06,),
+                      onPressed: (){Navigator.pop(context);_ratingCommentController.clear();},
+                    )
+                  ],
+                ),
+                SizedBox(height: size.width*.05),
+                VerticalBarchart(
+                  maxX: 55,
+                  data: barData,
+                  //showLegend: true,
+                  alwaysShowDescription: true,
+                  showBackdrop: true,
+                  background:  themeProvider.toggleBgColor(),
+                  //labelColor: themeProvider.toggleTextColor(),
+                  tooltipColor: Colors.grey,
+                  // legend: [
+                  //   Vlegend(
+                  //     isSquare: false,
+                  //     color: Colors.orange,
+                  //     text: "Fruits",
+                  //   ),
+                  //   Vlegend(
+                  //     isSquare: false,
+                  //     color: Colors.teal,
+                  //     text: "Vegetables",
+                  //   )
+                  // ],
+                ),
+                SizedBox(height: size.width*.05),
+              ],
+            ),
+          );
+        });
   }
 }

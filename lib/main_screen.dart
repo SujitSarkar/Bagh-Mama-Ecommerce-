@@ -3,8 +3,7 @@ import 'package:bagh_mama/screens/account_screen.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/screens/category_screen.dart';
 import 'package:bagh_mama/screens/home_screen.dart';
-import 'package:bagh_mama/screens/store_screen.dart';
-import 'package:bagh_mama/variables/color_variables.dart';
+import 'package:bagh_mama/screens/track_order_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   static List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
     CategoryScreen(),
-    StoreScreen(),
+    TrackOrderScreen(),
     CartScreen(),
     AccountScreen()
   ];
@@ -44,8 +43,8 @@ class _MainScreenState extends State<MainScreen> {
                 label: 'Category',
               ),
               BottomNavigationBarItem(
-                icon: Icon(FontAwesomeIcons.store),
-                label: 'Shop',
+                icon: Icon(FontAwesomeIcons.truck),
+                label: 'Track',
               ),
               BottomNavigationBarItem(
                 icon: Icon(FontAwesomeIcons.shoppingBasket),

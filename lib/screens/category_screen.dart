@@ -23,6 +23,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
         backgroundColor: themeProvider.whiteBlackToggleColor(),
         elevation: 0.0,
         centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Colors.grey,
+        ),
         title: Text(
           'Categories',
           style: TextStyle(

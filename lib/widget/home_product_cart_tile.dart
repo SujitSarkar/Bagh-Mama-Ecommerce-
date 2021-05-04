@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 // ignore: must_be_immutable
 class HomeProductCartTile extends StatelessWidget {
   int index;
-
   HomeProductCartTile({this.index});
-
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;

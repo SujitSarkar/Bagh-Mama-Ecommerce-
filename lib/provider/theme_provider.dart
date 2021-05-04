@@ -65,6 +65,7 @@ class ThemeProvider extends ChangeNotifier{
   Color fabToggleBgColor()=> _isLight? CColor.lightThemeColor :Colors.grey[600];
   Color toggleFabRingBgColor()=> _isLight? CColor.lightThemeColor :Colors.grey[600];
   Color toggleCartColor()=> _isLight? Colors.white :Colors.grey[800];
+  Color liteDeepGreyToggleColor()=> _isLight? Colors.grey[700] :Colors.grey[800];
 
   ThemeColor themeMode() {
     return ThemeColor(
