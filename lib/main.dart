@@ -1,6 +1,5 @@
 import 'package:bagh_mama/main_screen.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
-import 'package:bagh_mama/variables/color_variables.dart';
 import 'package:bagh_mama/variables/theme_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +34,7 @@ class _MyAppState extends State<MyApp> {
             debugShowCheckedModeBanner: false,
             theme: themeProvider.themeData,
             title: 'Bagh Mama',
+            //home: LoginPage(),
             home: MainScreen(),
           );
         },

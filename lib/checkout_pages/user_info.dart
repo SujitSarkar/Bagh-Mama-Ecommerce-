@@ -73,7 +73,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   child: DropdownButton(
                     value: _deliveryOption,
                     isExpanded: true,
-                    hint: Text("Delivery Option",style: TextStyle(
+                    hint: Text("Select Delivery Option",style: TextStyle(
                         color: Colors.grey,
                         fontSize: size.width*.04)),
                     items: PublicData.deliveryOptionList.map((category){

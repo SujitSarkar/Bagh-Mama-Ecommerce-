@@ -1,15 +1,16 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/form_decoration.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ChangePassword extends StatefulWidget {
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key key}) : super(key: key);
+
   @override
-  _ChangePasswordState createState() => _ChangePasswordState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _ChangePasswordState extends State<ChangePassword> {
+class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -23,8 +24,9 @@ class _ChangePasswordState extends State<ChangePassword> {
         iconTheme: IconThemeData(
           color: Colors.grey,
         ),
+        centerTitle: true,
         title: Text(
-          'Change Password',
+          'Login',
           style: TextStyle(
               color: themeProvider.toggleTextColor(),
               fontSize: size.width * .045),
@@ -36,7 +38,7 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   Widget _bodyUI(ThemeProvider themeProvider, Size size)=>Center(
     child: Container(
-      height: size.width*.8,
+      height: size.width,
       margin: EdgeInsets.symmetric(horizontal: size.width*.06),
       padding: EdgeInsets.symmetric(horizontal: size.width*.03),
       decoration: BoxDecoration(
@@ -47,30 +49,39 @@ class _ChangePasswordState extends State<ChangePassword> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _textFieldBuilder(themeProvider, size, 'New Password'),
+          _textFieldBuilder(themeProvider, size, 'Your Email Address'),
           SizedBox(height: size.width*.03),
-          _textFieldBuilder(themeProvider, size, 'Confirm New Password'),
-          SizedBox(height: size.width*.03),
+          _textFieldBuilder(themeProvider, size, 'Password'),
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
-                  ),
-                  onPressed: (){},
-                  child: Text('Update',style: TextStyle(fontSize: size.width*.04),)
+              TextButton(
+                onPressed: (){},
+                child: Text('Create new account',style: TextStyle(
+                    color: themeProvider.orangeWhiteToggleColor(),
+                    fontSize: size.width*.035
+                ),),
               ),
-              ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[600])
-                  ),
-                  onPressed: ()=>Navigator.pop(context),
-                  child: Text('Cancel',style: TextStyle(fontSize: size.width*.04),)
+
+              TextButton(
+                  onPressed: (){},
+                  child: Text('Forgot password?',style: TextStyle(
+                      color: themeProvider.orangeWhiteToggleColor(),
+                      fontSize: size.width*.035
+                  ),),
               ),
             ],
-          )
+          ),
+          SizedBox(height: size.width*.03),
+
+          ElevatedButton(
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
+              ),
+              onPressed: (){},
+              child: Text('Log In',style: TextStyle(fontSize: size.width*.04),)
+          ),
         ],
       ),
     ),
@@ -78,8 +89,8 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   Widget _textFieldBuilder(ThemeProvider themeProvider, Size size, String hint)=> TextFormField(
     style: TextStyle(
-      color: themeProvider.toggleTextColor(),
-      fontSize: size.width*.04
+        color: themeProvider.toggleTextColor(),
+        fontSize: size.width*.04
     ),
     decoration: boxFormDecoration.copyWith(
       labelText: hint,
