@@ -7,7 +7,7 @@ class SThemeData{
       primarySwatch: MaterialColor(0xffFF5C00, CColor.lightThemeMapColor),
       canvasColor: Colors.transparent,
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          //backgroundColor: Colors.white,
+          backgroundColor: Colors.white,
           elevation: 0.0,
           showSelectedLabels: true,
           showUnselectedLabels: true,
@@ -17,7 +17,7 @@ class SThemeData{
   );
 
   static final ThemeData darkThemeData= ThemeData(
-      //backgroundColor: Colors.black,
+      backgroundColor: CColor.darkThemeColor,
       primarySwatch: MaterialColor(0xff1F221F, CColor.darkThemeMapColor),
       canvasColor: Colors.transparent,
       textSelectionTheme: TextSelectionThemeData(

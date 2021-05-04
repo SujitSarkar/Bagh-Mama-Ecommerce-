@@ -1,3 +1,4 @@
+import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -77,16 +78,27 @@ class _WishlistTileState extends State<WishlistTile> {
                       style: TextStyle(
                           fontSize:  size.width*.04, color: themeProvider.toggleTextColor(),fontWeight: FontWeight.w500),
                     ),
-                    SizedBox(height: size.width*.02),
+                    SizedBox(height: size.width*.04),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        OutlinedButton(
-
-                            onPressed: (){}, child: Text('Details',style: TextStyle(color: themeProvider.orangeWhiteToggleColor(),fontSize: size.width*.035),
-                        )
+                        InkWell(
+                          onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails())),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey,width: 0.5),
+                                borderRadius: BorderRadius.all(Radius.circular(5))
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: size.width * .03,vertical: size.width * .015),
+                            child: Text('Details',
+                              style: TextStyle(
+                                  color: themeProvider.orangeWhiteToggleColor(),
+                                  fontSize: size.width*.033),
+                            ),
+                          ),
+                          borderRadius:BorderRadius.all(Radius.circular(5)),
                         ),
                         InkWell(
                           child: Icon(Icons.delete_outline,size: size.width*.07,color: themeProvider.toggleTextColor(),),

@@ -17,7 +17,7 @@ class ProductCartTile extends StatelessWidget {
       // height: size.width*.3,
       decoration: BoxDecoration(
         color: themeProvider.toggleCartColor(),
-        borderRadius: BorderRadius.all(Radius.circular(10))
+        borderRadius: BorderRadius.all(Radius.circular(5))
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -25,8 +25,8 @@ class ProductCartTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10)
+                topLeft: Radius.circular(5),
+                topRight: Radius.circular(5)
             ),
             child: Image.asset(
               index%2==0?'assets/product_image/cycle.jpg':'assets/product_image/product.jpg',

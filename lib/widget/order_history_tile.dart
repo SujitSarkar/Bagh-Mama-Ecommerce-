@@ -46,15 +46,25 @@ class _OrderHistoryTileState extends State<OrderHistoryTile> {
               ],
             ),
           ),
+          SizedBox(height: size.width * .02),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
-                child: Padding(
-                  padding:  EdgeInsets.symmetric(vertical: 5),
-                  child: Text('View Products',style: TextStyle(color: themeProvider.orangeWhiteToggleColor(),fontSize: size.width*.035),),
-                ),
                 onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderedProductList())),
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey,width: 0.5),
+                      borderRadius: BorderRadius.all(Radius.circular(5))
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: size.width * .01,vertical: size.width * .01),
+                  child: Text('View Products',
+                    style: TextStyle(
+                        color: themeProvider.orangeWhiteToggleColor(),
+                        fontSize: size.width*.035),
+                  ),
+                ),
+                borderRadius:BorderRadius.all(Radius.circular(5)),
               ),
               InkWell(
                 child: Padding(

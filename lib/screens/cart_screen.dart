@@ -1,3 +1,4 @@
+import 'package:bagh_mama/checkout_pages/user_info.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/cart_tile.dart';
 import 'package:flutter/cupertino.dart';
@@ -49,7 +50,7 @@ class _CartScreenState extends State<CartScreen> {
         margin: EdgeInsets.symmetric(horizontal: size.width*.03),
         decoration: BoxDecoration(
             color: themeProvider.whiteBlackToggleColor(),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderRadius: BorderRadius.all(Radius.circular(5)),
             border: Border.all(color: Colors.grey,width: 0.5)
         ),
         child: Row(
@@ -60,12 +61,14 @@ class _CartScreenState extends State<CartScreen> {
               height: size.width*.12,
               // color: Colors.red,
               padding: EdgeInsets.only(left: 10),
-              child: TextFormField(
+              child: TextField(
                 style: TextStyle(
                     color: themeProvider.toggleTextColor(),
                     fontSize: size.width*.04
                 ),
                 decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: size.width*.034), //Change this value to custom as you like
+                  isDense: true,
                   alignLabelWithHint: true,
                   hintText: 'Type your voucher code',
                   hintStyle: TextStyle(
@@ -84,8 +87,8 @@ class _CartScreenState extends State<CartScreen> {
               decoration: BoxDecoration(
                   color: themeProvider.fabToggleBgColor(),
                   borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(10),
-                      bottomRight: Radius.circular(10)
+                      topRight: Radius.circular(5),
+                      bottomRight: Radius.circular(5)
                   )
               ),
               child: TextButton(
@@ -186,7 +189,7 @@ class _CartScreenState extends State<CartScreen> {
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
           ),
-            onPressed: (){},
+            onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>UserInfoPage())),
             child: Text('Proceed To Checkout',style: TextStyle(fontSize: size.width*.04),)
         ),
       ),

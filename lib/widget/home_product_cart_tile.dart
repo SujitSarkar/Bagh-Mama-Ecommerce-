@@ -20,8 +20,8 @@ class HomeProductCartTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(10)
+              topLeft: Radius.circular(5),
+              topRight: Radius.circular(5)
             ),
             child: Image.asset(
               'assets/product_image/cycle.jpg',

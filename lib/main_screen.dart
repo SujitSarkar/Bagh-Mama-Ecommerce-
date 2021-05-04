@@ -32,31 +32,34 @@ class _MainScreenState extends State<MainScreen> {
         return Scaffold(
           backgroundColor: themeProvider.toggleBgColor(),
           body:  _widgetOptions.elementAt(_selectedIndex),
-          bottomNavigationBar: BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(FontAwesomeIcons.home),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(FontAwesomeIcons.box),
-                label: 'Category',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(FontAwesomeIcons.truck),
-                label: 'Track',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(FontAwesomeIcons.shoppingBasket),
-                label: 'Cart',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(FontAwesomeIcons.userAlt),
-                label: 'Account',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
+          bottomNavigationBar: Material(
+            color: themeProvider.toggleBgColor(),
+            child: BottomNavigationBar(
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(FontAwesomeIcons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(FontAwesomeIcons.box),
+                  label: 'Category',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(FontAwesomeIcons.truck),
+                  label: 'Track',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(FontAwesomeIcons.shoppingBasket),
+                  label: 'Cart',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(FontAwesomeIcons.userAlt),
+                  label: 'Account',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+            ),
           ),
         );
       },

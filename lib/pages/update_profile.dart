@@ -1,4 +1,5 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,31 +35,32 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
   Widget _bodyUI(ThemeProvider themeProvider, Size size) => SingleChildScrollView(
     child: Container(
-      margin: EdgeInsets.symmetric(horizontal: size.width*.06),
+      margin: EdgeInsets.symmetric(horizontal: size.width*.03),
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'First Name'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Last Name'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Email'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Mobile Number'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Password'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Confirm Password'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Address'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Division/State'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'District/City'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Postal Code'),
-                SizedBox(height: size.width * .03),
+                SizedBox(height: size.width * .04),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -89,30 +91,12 @@ class _UpdateProfileState extends State<UpdateProfile> {
       TextFormField(
         style: TextStyle(
             color: themeProvider.toggleTextColor(), fontSize: size.width * .04),
-        decoration: InputDecoration(
-            labelText: hint,
-            labelStyle:
-                TextStyle(color: Colors.grey, fontSize: size.width * .04),
-          border: UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.grey
-            )
-          ),
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: Colors.grey
-              )
-          ),
-          disabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: Colors.grey
-              )
-          ),
-          focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: Colors.grey
-              )
-          ),
+        decoration: boxFormDecoration.copyWith(
+          labelText: hint,
+          labelStyle:
+          TextStyle(color: Colors.grey, fontSize: size.width * .04),
+          contentPadding: EdgeInsets.symmetric(vertical: size.width*.038,horizontal: size.width*.038), //Change this value to custom as you like
+          isDense: true,
         ),
       );
 }

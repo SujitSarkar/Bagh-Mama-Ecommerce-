@@ -1,4 +1,5 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +17,7 @@ class RoundSubcategoryTile extends StatelessWidget {
       margin: EdgeInsets.only(right: 15),
       decoration: BoxDecoration(
           color: themeProvider.whiteBlackToggleColor(),
-          borderRadius: BorderRadius.all(Radius.circular(10))
+          borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -27,7 +28,8 @@ class RoundSubcategoryTile extends StatelessWidget {
             width: size.width*.2,
             decoration: BoxDecoration(
               color: Colors.grey,
-              borderRadius: BorderRadius.all(Radius.circular(size.width*.2)),
+              borderRadius: BorderRadius.all(Radius.circular(size.width*.1)),
+                border: Border.all(color: themeProvider.orangeWhiteToggleColor(),width: 1),
               image: DecorationImage(
                 image: AssetImage( index%2==0?'assets/product_image/cycle.jpg':'assets/product_image/product.jpg'),
                 fit: BoxFit.cover

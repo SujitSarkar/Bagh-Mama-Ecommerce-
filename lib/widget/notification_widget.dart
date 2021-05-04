@@ -1,12 +1,13 @@
+import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
 
-void showSnackBar(BuildContext context,String message){
+void showSnackBar(BuildContext context,String message,ThemeProvider themeProvider){
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     content: Container(
       alignment: Alignment.center,
       height: 50,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.7),
+        color: themeProvider.toggleSnackBgColor(),
         borderRadius: BorderRadius.all(Radius.circular(10))
       ),
       child: Text(message,style: TextStyle(color: Colors.white),),

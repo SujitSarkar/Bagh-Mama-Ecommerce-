@@ -80,9 +80,7 @@ class _ChangeThemePageState extends State<ChangeThemePage> with SingleTickerProv
                       height: width * .26,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: themeProvider.isLight
-                              ? Colors.white
-                              : Color(0xFF26242e)),
+                          color: themeProvider.whiteBlackToggleColor()),
                     ),
                   ),
                 )

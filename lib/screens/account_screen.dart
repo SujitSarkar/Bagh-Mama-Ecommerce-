@@ -160,12 +160,12 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
       );
 
-  Future<void> _getImageFromGallery()async{
+  Future<void> _getImageFromGallery(ThemeProvider themeProvider)async{
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.gallery,maxWidth: 400,maxHeight: 400);
     if(pickedFile!=null)
       setState(()=> _image = File(pickedFile.path));
-    else showSnackBar(context,'No image selected!');
+    else showSnackBar(context,'No image selected!',themeProvider);
   }
 
   Widget _buttonBuilder(ThemeProvider themeProvider, Size size, IconData iconData)=>Container(
@@ -183,7 +183,7 @@ class _AccountScreenState extends State<AccountScreen> {
       ),
       child: Icon(iconData,color: Colors.white,size: size.width*.07),
       onPressed: (){
-        if(iconData==Icons.camera_alt) _getImageFromGallery();
+        if(iconData==Icons.camera_alt) _getImageFromGallery(themeProvider);
         else if(iconData==Icons.vpn_key_sharp) Navigator.push(context,
             MaterialPageRoute(builder: (context) => ChangePassword()));
         else if(iconData==Icons.edit) Navigator.push(context,
@@ -219,7 +219,7 @@ class _AccountScreenState extends State<AccountScreen> {
         trailing: Icon(
           Icons.arrow_forward_ios_rounded,
           color: Colors.grey,
-          size: size.width * .06,
+          size: size.width * .044,
         ),
       );
 

@@ -21,7 +21,7 @@ class ThemeProvider extends ChangeNotifier{
           primarySwatch: MaterialColor(0xffFF5C00, CColor.lightThemeMapColor),
           canvasColor: Colors.transparent,
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              //backgroundColor: Colors.white,
+              backgroundColor: Colors.white,
               elevation: 0.0,
               showSelectedLabels: true,
               showUnselectedLabels: true,
@@ -34,14 +34,14 @@ class ThemeProvider extends ChangeNotifier{
       pref.setBool('isLight', true);
     }else{
       _themeData = ThemeData(
-          backgroundColor: Colors.black,
+          backgroundColor: CColor.darkThemeColor,
           primarySwatch: MaterialColor(0xff1F221F, CColor.darkThemeMapColor),
           canvasColor: Colors.transparent,
           textSelectionTheme: TextSelectionThemeData(
             cursorColor: Colors.white,
           ),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              //backgroundColor: CColor.darkThemeColor,
+              backgroundColor: CColor.darkThemeColor,
               elevation: 0.0,
               showSelectedLabels: true,
               showUnselectedLabels: true,
@@ -66,6 +66,7 @@ class ThemeProvider extends ChangeNotifier{
   Color toggleFabRingBgColor()=> _isLight? CColor.lightThemeColor :Colors.grey[600];
   Color toggleCartColor()=> _isLight? Colors.white :Colors.grey[800];
   Color liteDeepGreyToggleColor()=> _isLight? Colors.grey[700] :Colors.grey[800];
+  Color toggleSnackBgColor()=> _isLight? Colors.black.withOpacity(0.7) :Colors.grey[600].withOpacity(0.7);
 
   ThemeColor themeMode() {
     return ThemeColor(

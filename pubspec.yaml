@@ -23,6 +23,7 @@ dependencies:
   expandable_text:
   cached_network_image:
   image_picker:
+  dotted_decoration:
 
 dev_dependencies:
   flutter_test:
@@ -35,6 +36,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/logo.png
     - assets/banner_image/bm1.jpg
     - assets/banner_image/bm2.jpg
     - assets/banner_image/bm3.jpg

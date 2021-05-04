@@ -16,7 +16,7 @@ class MainSubcategoryTile extends StatelessWidget {
       margin: EdgeInsets.only(right: 15),
       decoration: BoxDecoration(
           color: themeProvider.whiteBlackToggleColor(),
-          borderRadius: BorderRadius.all(Radius.circular(10))
+          borderRadius: BorderRadius.all(Radius.circular(5))
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -27,7 +27,7 @@ class MainSubcategoryTile extends StatelessWidget {
             width: size.width*.15,
             decoration: BoxDecoration(
                 color: Colors.grey,
-                borderRadius: BorderRadius.all(Radius.circular(8)),
+                borderRadius: BorderRadius.all(Radius.circular(5)),
                 image: DecorationImage(
                     image: AssetImage( index%2==0?'assets/product_image/cycle.jpg':'assets/product_image/product.jpg'),
                     fit: BoxFit.cover
@@ -40,7 +40,7 @@ class MainSubcategoryTile extends StatelessWidget {
             child: Text('Juice &\nDrink',
                 maxLines: 2,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.03,fontWeight: FontWeight.w500)),
+                style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.028,fontWeight: FontWeight.w500)),
           ),
         ],
       ),

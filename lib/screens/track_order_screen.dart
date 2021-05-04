@@ -65,7 +65,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
             width: size.width*.8,
             decoration: BoxDecoration(
                 color: themeProvider.whiteBlackToggleColor(),
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: BorderRadius.all(Radius.circular(5)),
                 border: Border.all(color: Colors.grey,width: 0.5)
             ),
             child: Row(
@@ -85,9 +85,11 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                       hintText: 'Type your order no/invoice id here',
                       hintStyle: TextStyle(
                           color: themeProvider.toggleTextColor(),
-                          fontSize: size.width*.04
+                          fontSize: size.width*.038
                       ),
                       enabled: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: size.width*.04,horizontal: size.width*.01), //Change this value to custom as you like
+                      isDense: true,
                       border: UnderlineInputBorder(
                           borderSide: BorderSide.none
                       ),
@@ -99,8 +101,8 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                   decoration: BoxDecoration(
                       color: themeProvider.fabToggleBgColor(),
                       borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(10),
-                          bottomRight: Radius.circular(10)
+                          topRight: Radius.circular(5),
+                          bottomRight: Radius.circular(5)
                       )
                   ),
                   child: TextButton(

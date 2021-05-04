@@ -1,5 +1,6 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/product_question_tile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +42,7 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
     margin: EdgeInsets.symmetric(horizontal: size.width*.03),
     decoration: BoxDecoration(
       color: themeProvider.whiteBlackToggleColor(),
-      borderRadius: BorderRadius.all(Radius.circular(10)),
+      borderRadius: BorderRadius.all(Radius.circular(5)),
       border: Border.all(color: Colors.grey,width: 0.5)
     ),
     child: Row(
@@ -51,12 +52,14 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
           width: size.width*.72,
           height: size.width*.15,
           padding: EdgeInsets.only(left: 10),
-          child: TextFormField(
+          child: TextField(
             style: TextStyle(
                 color: themeProvider.toggleTextColor(),
                 fontSize: size.width*.04
             ),
             decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(vertical: size.width*.038), //Change this value to custom as you like
+              isDense: true,
               alignLabelWithHint: true,
               hintText: 'Ask a question',
               hintStyle: TextStyle(
@@ -75,8 +78,8 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
           decoration: BoxDecoration(
               color: themeProvider.fabToggleBgColor(),
               borderRadius: BorderRadius.only(
-                topRight: Radius.circular(10),
-                bottomRight: Radius.circular(10)
+                topRight: Radius.circular(5),
+                bottomRight: Radius.circular(5)
               )
           ),
           child: TextButton(

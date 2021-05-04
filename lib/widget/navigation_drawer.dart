@@ -1,4 +1,8 @@
-import 'package:bagh_mama/pages/change_theme.dart';
+import 'package:bagh_mama/drawer_pages/about_us.dart';
+import 'package:bagh_mama/drawer_pages/complain_page.dart';
+import 'package:bagh_mama/drawer_pages/faq_page.dart';
+import 'package:bagh_mama/drawer_pages/how_to_order.dart';
+import 'package:bagh_mama/drawer_pages/shop_page.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -28,16 +32,23 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                   BoxDecoration(color: themeProvider.whiteBlackToggleColor()),
                   margin: EdgeInsets.symmetric(horizontal: size.width*.03),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _functionBuilder(themeProvider, size, 'WishLists', FontAwesomeIcons.solidHeart),
+                      SizedBox(height: size.width*.03),
+                      Image.asset('assets/logo.png',height: size.width*.12,fit: BoxFit.cover),
+                      SizedBox(height: size.width*.07),
+
                       Divider(color: Colors.grey,height: 0.5),
-                      _functionBuilder(themeProvider, size, 'Order History', FontAwesomeIcons.shoppingBasket),
+                      _functionBuilder(themeProvider, size, 'Shop', FontAwesomeIcons.store),
                       Divider(color: Colors.grey,height: 0.5),
-                      _functionBuilder(themeProvider, size, 'Notifications', FontAwesomeIcons.bell),
+                      _functionBuilder(themeProvider, size, 'How To Order', FontAwesomeIcons.shoppingBasket),
                       Divider(color: Colors.grey,height: 0.5),
-                      _functionBuilder(themeProvider, size, 'Settings', FontAwesomeIcons.cog),
+                      _functionBuilder(themeProvider, size, 'About Us', FontAwesomeIcons.infoCircle),
                       Divider(color: Colors.grey,height: 0.5),
-                      _functionBuilder(themeProvider, size, 'Logout', FontAwesomeIcons.signOutAlt),
+                      _functionBuilder(themeProvider, size, 'Common FAQ', FontAwesomeIcons.solidQuestionCircle),
+                      Divider(color: Colors.grey,height: 0.5),
+                      _functionBuilder(themeProvider, size, 'Complain', FontAwesomeIcons.exclamationTriangle),
+                      Divider(color: Colors.grey,height: 0.5),
 
                     ],
                   ),
@@ -52,15 +63,16 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
 
   Widget _functionBuilder(ThemeProvider themeProvider, Size size, String name, IconData iconData) => ListTile(
     onTap: (){
-      if(name=='Settings') Navigator.push(context,
-          MaterialPageRoute(builder: (context) => ChangeThemePage()));
-      else if(name=='WishLists') Navigator.push(context,
-          MaterialPageRoute(builder: (context) => ChangeThemePage()));
-      else if(name=='Order History') Navigator.push(context,
-          MaterialPageRoute(builder: (context) => ChangeThemePage()));
-      else if(name=='Notifications') Navigator.push(context,
-          MaterialPageRoute(builder: (context) => ChangeThemePage()));
-
+      if(name=='Shop') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ShopPage()));
+      else if(name=='How To Order') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => HowToOrder()));
+      else if(name=='About Us') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => AboutUsPage()));
+      else if(name=='Complain') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ComplainPage()));
+      else if(name=='Common FAQ') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => FaqPage()));
     },
     leading: Icon(
       iconData,
@@ -77,7 +89,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     trailing: Icon(
       Icons.arrow_forward_ios_rounded,
       color: Colors.grey,
-      size: size.width * .06,
+      size: size.width * .044,
     ),
   );
 }
