@@ -22,7 +22,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
       appBar: AppBar(
         backgroundColor: themeProvider.whiteBlackToggleColor(),
         elevation: 0.0,
-        centerTitle: true,
         iconTheme: IconThemeData(
           color: Colors.grey,
         ),

@@ -1,4 +1,6 @@
+import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/pages/search_page.dart';
+import 'package:bagh_mama/pages/subcategory_product_list.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
@@ -173,7 +175,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Text('Deals of the day',
                 style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
             InkWell(
-              onTap: (){},
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
+              },
               child: Text('View All',
                   style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
             ),
@@ -190,7 +194,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           scrollDirection: Axis.horizontal,
           itemCount: 10,
           itemBuilder: (context, index)=>InkWell(
-            onTap: (){},
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+            },
               child: HomeProductCartTile(index: index)),
         ),
       ),
@@ -208,7 +214,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Text('New Arrivals',
                 style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
             InkWell(
-              onTap: (){},
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
+              },
               child: Text('View All',
                   style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
             ),
@@ -225,7 +233,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           scrollDirection: Axis.horizontal,
           itemCount: 10,
           itemBuilder: (context, index)=>InkWell(
-              onTap: (){},
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+              },
               child: HomeProductCartTile(index: index)),
         ),
       ),
@@ -242,7 +252,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Text('Just For You',
                 style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
             InkWell(
-              onTap: (){},
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
+              },
               child: Text('View All',
                   style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
             ),
@@ -259,7 +271,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           scrollDirection: Axis.horizontal,
           itemCount: 10,
           itemBuilder: (context, index)=>InkWell(
-              onTap: (){},
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+              },
               child: HomeProductCartTile(index: index)),
         ),
       ),
@@ -277,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         width: size.width,
         padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
         child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: BorderRadius.all(Radius.circular(5)),
           child: Image.asset('assets/banner_image/bm3.jpg',fit: BoxFit.fitWidth,),
         ),
       ),
@@ -291,7 +305,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: 10,
-          itemBuilder: (context, index)=>RoundSubcategoryTile(index: index),
+          itemBuilder: (context, index)=>InkWell(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
+              },
+              child: RoundSubcategoryTile(index: index)),
         ),
       ),
 
@@ -310,7 +328,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           itemCount: 8,
           itemBuilder: (context, index){
               return InkWell(
-                onTap: (){},
+                onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+                },
                   child: ProductCartTile(index: index,));
           },
         ),

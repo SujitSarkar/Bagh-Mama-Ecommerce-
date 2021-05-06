@@ -24,6 +24,7 @@ dependencies:
   cached_network_image:
   image_picker:
   dotted_decoration:
+  url_launcher:
 
 dev_dependencies:
   flutter_test:

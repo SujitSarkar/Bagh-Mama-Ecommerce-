@@ -81,12 +81,8 @@ class _ChangePasswordState extends State<ChangePassword> {
       color: themeProvider.toggleTextColor(),
       fontSize: size.width*.04
     ),
-    decoration: boxFormDecoration.copyWith(
+    decoration: boxFormDecoration(size).copyWith(
       labelText: hint,
-      labelStyle: TextStyle(
-          color: Colors.grey,
-          fontSize: size.width*.04
-      ),
       contentPadding: EdgeInsets.symmetric(vertical: size.width*.038,horizontal: size.width*.038), //Change this value to custom as you like
       isDense: true,
     ),
