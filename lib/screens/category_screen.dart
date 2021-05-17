@@ -88,7 +88,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     height: size.width * .3,
                     // width: size.width*.74,
                     padding: EdgeInsets.only(right: 10),
-                    child: Image.asset('assets/banner_image/bm3.jpg',
+                    child: Image.network('https://i.pinimg.com/originals/cc/18/8c/cc188c604e58cffd36e1d183c7198d21.jpg',
                         fit: BoxFit.fitWidth),
                   ),
                   SizedBox(height: size.width * .03),

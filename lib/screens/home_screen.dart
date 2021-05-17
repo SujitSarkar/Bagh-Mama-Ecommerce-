@@ -1,6 +1,8 @@
+import 'package:bagh_mama/models/products_model.dart';
 import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/pages/search_page.dart';
 import 'package:bagh_mama/pages/subcategory_product_list.dart';
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
@@ -9,7 +11,8 @@ import 'package:bagh_mama/widget/category_product_cart_tile.dart';
 import 'package:bagh_mama/widget/home_product_cart_tile.dart';
 import 'package:bagh_mama/widget/navigation_drawer.dart';
 import 'package:bagh_mama/widget/round_subcategory_tile.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_pro/carousel_pro.dart';
+// import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -22,16 +25,27 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin{
   TabController _controller;
   int _tabIndex=0;
+  int _counter=0;
+  bool _isLoading=true;
 
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: 7, vsync: this);
   }
+
+  _customInit(APIProvider apiProvider)async{
+    setState(()=>_counter++);
+     await apiProvider.getProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    if(_counter==0) _customInit(apiProvider);
+
     return Scaffold(
       backgroundColor: themeProvider.toggleBgColor(),
       drawer: NavigationDrawer(),
@@ -142,24 +156,46 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ),
       ),
 
-      body: _tabIndex==0? _bodyUI_1(size,themeProvider):_bodyUI_2(size, themeProvider),
+      body: _tabIndex==0? _bodyUI_1(size,themeProvider,apiProvider):_bodyUI_2(size, themeProvider),
     );
   }
 
-  Widget _bodyUI_1(Size size,ThemeProvider themeProvider)=> ListView(
+  Widget _bodyUI_1(Size size,ThemeProvider themeProvider,APIProvider apiProvider)=> ListView(
     children: [
       SizedBox(height: size.width*.04),
       ///Image Slider
+      // Container(
+      //   height: size.width * .4,
+      //   width: size.width,
+      //   child: CarouselSlider(
+      //     options: CarouselOptions(
+      //       autoPlay: true,
+      //       aspectRatio: 2.0,
+      //       enlargeCenterPage: true,
+      //     ),
+      //     items: PublicData.imageSliders,
+      //   ),
+      // ),
       Container(
-        height: size.width * .4,
+        margin: EdgeInsets.symmetric(horizontal: size.width*.03),
+        height: size.height*.2,
         width: size.width,
-        child: CarouselSlider(
-          options: CarouselOptions(
-            autoPlay: true,
-            aspectRatio: 2.0,
-            enlargeCenterPage: true,
-          ),
-          items: PublicData.imageSliders,
+        color: Colors.white,
+        child: Carousel(
+          boxFit: BoxFit.fitWidth,
+          dotSize: 2.0,
+          autoplayDuration: Duration(seconds: 7),
+          dotIncreaseSize: 5.0,
+          dotBgColor: Colors.transparent,
+          // dotColor: Colors.green,
+          // dotIncreasedColor: Colors.red,
+          //images: apiProvider.networkImageList,
+          images: [
+            NetworkImage('https://i.pinimg.com/originals/cc/18/8c/cc188c604e58cffd36e1d183c7198d21.jpg'),
+            NetworkImage('https://i.pinimg.com/originals/cc/18/8c/cc188c604e58cffd36e1d183c7198d21.jpg'),
+            NetworkImage('https://resources.matcha-jp.com/resize/720x2000/2020/04/23-101958.jpeg'),
+
+          ],
         ),
       ),
       SizedBox(height: size.width*.04),
@@ -190,94 +226,94 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         height: size.width*.5,
         //color: Colors.red,
         padding: EdgeInsets.symmetric(horizontal: 10),
-        child: ListView.builder(
+        child: apiProvider.productsModel==null? Center(child: CircularProgressIndicator()): ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: 10,
+          itemCount: apiProvider.productsModel.content.length,
           itemBuilder: (context, index)=>InkWell(
             onTap: (){
               Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
             },
-              child: HomeProductCartTile(index: index)),
+              child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
         ),
       ),
       SizedBox(height: size.width*.08),
 
 
-      ///New Arrivals
-      //header
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text('New Arrivals',
-                style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-            InkWell(
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
-              },
-              child: Text('View All',
-                  style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
-            ),
-
-          ],
-        ),
-      ),
-      SizedBox(height: size.width*.03),
-      Container(
-        height: size.width*.5,
-        //color: Colors.red,
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 10,
-          itemBuilder: (context, index)=>InkWell(
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
-              },
-              child: HomeProductCartTile(index: index)),
-        ),
-      ),
-      SizedBox(height: size.width*.08),
-
-      ///Just For You
-      //header
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text('Just For You',
-                style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-            InkWell(
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
-              },
-              child: Text('View All',
-                  style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
-            ),
-
-          ],
-        ),
-      ),
-      SizedBox(height: size.width*.03),
-      Container(
-        height: size.width*.5,
-        //color: Colors.red,
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 10,
-          itemBuilder: (context, index)=>InkWell(
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
-              },
-              child: HomeProductCartTile(index: index)),
-        ),
-      ),
-      SizedBox(height: size.width*.08),
+      // ///New Arrivals
+      // //header
+      // Container(
+      //   padding: EdgeInsets.symmetric(horizontal: 10),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //     crossAxisAlignment: CrossAxisAlignment.center,
+      //     children: [
+      //       Text('New Arrivals',
+      //           style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
+      //       InkWell(
+      //         onTap: (){
+      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
+      //         },
+      //         child: Text('View All',
+      //             style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
+      //       ),
+      //
+      //     ],
+      //   ),
+      // ),
+      // SizedBox(height: size.width*.03),
+      // Container(
+      //   height: size.width*.5,
+      //   //color: Colors.red,
+      //   padding: EdgeInsets.symmetric(horizontal: 10),
+      //   child: ListView.builder(
+      //     scrollDirection: Axis.horizontal,
+      //     itemCount: 10,
+      //     itemBuilder: (context, index)=>InkWell(
+      //         onTap: (){
+      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+      //         },
+      //         child: HomeProductCartTile(index: index)),
+      //   ),
+      // ),
+      // SizedBox(height: size.width*.08),
+      //
+      // ///Just For You
+      // //header
+      // Container(
+      //   padding: EdgeInsets.symmetric(horizontal: 10),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //     crossAxisAlignment: CrossAxisAlignment.center,
+      //     children: [
+      //       Text('Just For You',
+      //           style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
+      //       InkWell(
+      //         onTap: (){
+      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
+      //         },
+      //         child: Text('View All',
+      //             style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
+      //       ),
+      //
+      //     ],
+      //   ),
+      // ),
+      // SizedBox(height: size.width*.03),
+      // Container(
+      //   height: size.width*.5,
+      //   //color: Colors.red,
+      //   padding: EdgeInsets.symmetric(horizontal: 10),
+      //   child: ListView.builder(
+      //     scrollDirection: Axis.horizontal,
+      //     itemCount: 10,
+      //     itemBuilder: (context, index)=>InkWell(
+      //         onTap: (){
+      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+      //         },
+      //         child: HomeProductCartTile(index: index)),
+      //   ),
+      // ),
+      // SizedBox(height: size.width*.08),
 
     ],
   );

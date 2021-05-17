@@ -21,7 +21,7 @@ class ThemeProvider extends ChangeNotifier{
           primarySwatch: MaterialColor(0xffFF5C00, CColor.lightThemeMapColor),
           canvasColor: Colors.transparent,
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: Colors.white,
+              backgroundColor: Colors.transparent,
               elevation: 0.0,
               showSelectedLabels: true,
               showUnselectedLabels: true,
@@ -41,7 +41,7 @@ class ThemeProvider extends ChangeNotifier{
             cursorColor: Colors.white,
           ),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: CColor.darkThemeColor,
+              backgroundColor: Colors.transparent,
               elevation: 0.0,
               showSelectedLabels: true,
               showUnselectedLabels: true,
@@ -59,6 +59,7 @@ class ThemeProvider extends ChangeNotifier{
   Color toggleBgColor()=> _isLight? Colors.white:CColor.darkThemeColor;
   Color toggleTextColor()=> _isLight? Colors.grey[800]:Colors.grey[300];
   Color orangeWhiteToggleColor()=> _isLight? CColor.lightThemeColor:Colors.white;
+  Color orangeBlackToggleColor()=> _isLight? CColor.lightThemeColor:Colors.black;
   Color togglePageBgColor()=> _isLight? Color(0xffEFF3F4) :CColor.darkThemeColor;
   Color whiteBlackToggleColor()=> _isLight? Colors.white :CColor.darkThemeColor;
   Color selectedToggleColor()=> _isLight? Color(0xffEFF3F4) :Colors.grey[800];

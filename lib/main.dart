@@ -1,4 +1,5 @@
 import 'package:bagh_mama/main_screen.dart';
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/variables/theme_data.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_)=>ThemeProvider(widget.isLight?SThemeData.lightThemeData:SThemeData.darkThemeData,widget.isLight))
+        ChangeNotifierProvider(create: (_)=>ThemeProvider(widget.isLight?SThemeData.lightThemeData:SThemeData.darkThemeData,widget.isLight)),
+        ChangeNotifierProvider(create: (_)=>APIProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child){

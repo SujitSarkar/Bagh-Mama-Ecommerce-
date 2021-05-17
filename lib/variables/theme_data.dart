@@ -7,7 +7,7 @@ class SThemeData{
       primarySwatch: MaterialColor(0xffFF5C00, CColor.lightThemeMapColor),
       canvasColor: Colors.transparent,
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           elevation: 0.0,
           showSelectedLabels: true,
           showUnselectedLabels: true,
@@ -24,7 +24,7 @@ class SThemeData{
         cursorColor: Colors.white,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: CColor.darkThemeColor,
+          backgroundColor: Colors.transparent,
           elevation: 0.0,
           showSelectedLabels: true,
           showUnselectedLabels: true,

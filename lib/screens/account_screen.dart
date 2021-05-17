@@ -26,25 +26,27 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: themeProvider.togglePageBgColor(),
-      appBar: AppBar(
-        backgroundColor: themeProvider.whiteBlackToggleColor(),
-        elevation: 0.0,
-        iconTheme: IconThemeData(
-          color: Colors.grey,
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        //backgroundColor: themeProvider.togglePageBgColor(),
+        appBar: AppBar(
+          backgroundColor: themeProvider.whiteBlackToggleColor(),
+          elevation: 0.0,
+          iconTheme: IconThemeData(
+            color: Colors.grey,
+          ),
+          title: Text(
+            'My Account',
+            style: TextStyle(
+                color: themeProvider.toggleTextColor(),
+                fontSize: size.width * .045),
+          ),
         ),
-        title: Text(
-          'My Account',
-          style: TextStyle(
-              color: themeProvider.toggleTextColor(),
-              fontSize: size.width * .045),
+        body: _bodyUI(size, themeProvider),
+        floatingActionButton: Builder(
+          builder: (context) => _floatingActionButton(size, themeProvider),
         ),
-      ),
-      body: _bodyUI(size, themeProvider),
-      floatingActionButton: Builder(
-        builder: (context) => _floatingActionButton(size, themeProvider),
       ),
     );
   }

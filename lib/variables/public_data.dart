@@ -1,6 +1,22 @@
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class PublicData {
+
+  static final navBarIconList = <IconData>[
+    FontAwesomeIcons.home,
+    FontAwesomeIcons.box,
+    FontAwesomeIcons.shoppingBasket,
+    FontAwesomeIcons.userAlt,
+  ];
+  static final navBarNameList = <String>[
+    'Home',
+    'Category',
+    'Cart',
+    'Account'
+  ];
+
   static final List<String> productCategoryList = [
     'Women’s Clothing',
     'Men’s Clothing',
@@ -18,10 +34,11 @@ class PublicData {
   ];
 
   static final List<String> imgList = [
-    'assets/banner_image/bm1.jpg',
-    'assets/banner_image/bm2.jpg',
-    'assets/banner_image/bm3.jpg',
-    'assets/banner_image/bm4.png',
+    'https://cdn.pixabay.com/photo/2020/04/04/13/41/corona-5002341_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2020/09/21/16/43/coronavirus-5590560_960_720.png',
+    'https://cdn.pixabay.com/photo/2016/08/12/14/25/abstract-1588720_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2020/05/10/05/16/covid-19-5152341_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2020/03/30/10/27/wash-your-hands-4983789_960_720.png',
   ];
 
   static final List<String> deliveryOptionList = [
@@ -38,7 +55,7 @@ class PublicData {
               margin: EdgeInsets.all(5.0),
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                child: Image.asset(item, fit: BoxFit.cover, width: 500.0),
+                child: Image.network(item, fit: BoxFit.cover, width: 500.0),
                 // child: Stack(
                 //   children: <Widget>[
                 //     Image.asset(item, fit: BoxFit.cover, width: 500.0),
@@ -75,4 +92,6 @@ class PublicData {
             ),
           ))
       .toList();
+
+
 }
