@@ -20,6 +20,7 @@ class SThemeData{
       backgroundColor: CColor.darkThemeColor,
       primarySwatch: MaterialColor(0xff1F221F, CColor.darkThemeMapColor),
       canvasColor: Colors.transparent,
+      indicatorColor: Colors.grey,
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: Colors.white,
       ),

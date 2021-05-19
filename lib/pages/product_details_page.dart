@@ -29,7 +29,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   double _starRating;
   int _sizeIndex, _colorIndex, _counter=0;
   String _selectedSize, _selectedColor;
-  bool _isLoading=true;
+  bool _isLoading=false;
   TextEditingController _ratingCommentController = TextEditingController();
 
   final List<VBarChartModel> barData = [
@@ -77,7 +77,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
-    if(_counter==0) _customInit(apiProvider);
+    //if(_counter==0) _customInit(apiProvider);
     return Scaffold(
       backgroundColor: themeProvider.whiteBlackToggleColor(),
         resizeToAvoidBottomInset: false,
