@@ -1,5 +1,7 @@
+import 'package:bagh_mama/models/product_info_model.dart';
 import 'package:bagh_mama/pages/customer_review_list.dart';
 import 'package:bagh_mama/pages/product_question_list.dart';
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/widget/home_product_cart_tile.dart';
@@ -12,7 +14,10 @@ import 'package:provider/provider.dart';
 import 'package:vertical_barchart/vertical-barchart.dart';
 import 'package:vertical_barchart/vertical-barchartmodel.dart';
 
+// ignore: must_be_immutable
 class ProductDetails extends StatefulWidget {
+  int productId;
+  ProductDetails({this.productId});
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
 }
@@ -22,6 +27,9 @@ class _ProductDetailsState extends State<ProductDetails> {
   int _pQuantity=1;
   bool _isAdded=false;
   double _starRating;
+  int _sizeIndex, _colorIndex, _counter=0;
+  String _selectedSize, _selectedColor;
+  bool _isLoading=true;
   TextEditingController _ratingCommentController = TextEditingController();
 
   final List<VBarChartModel> barData = [
@@ -52,14 +60,28 @@ class _ProductDetailsState extends State<ProductDetails> {
     ),
   ];
 
+  void _customInit(APIProvider apiProvider)async{
+    //ProductInfoModel productInfoModel;
+    setState(() {
+      _counter++;
+    });
+    await apiProvider.getProductInfo(widget.productId).then((value){
+      setState(() {
+        _isLoading=false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    if(_counter==0) _customInit(apiProvider);
     return Scaffold(
       backgroundColor: themeProvider.whiteBlackToggleColor(),
         resizeToAvoidBottomInset: false,
-        body: SafeArea(
+        body: _isLoading? Center(child: CircularProgressIndicator()): SafeArea(
           child: DefaultTabController(
             length: 2,
             child: NestedScrollView(
@@ -120,7 +142,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   ),
                 ];
               },
-              body: _bodyUI(size, themeProvider),
+              body:_bodyUI(size, themeProvider,apiProvider),
             ),
           ),
         ),
@@ -129,13 +151,15 @@ class _ProductDetailsState extends State<ProductDetails> {
     );
   }
   
-  Widget _bodyUI(Size size, ThemeProvider themeProvider)=> Container(
+  Widget _bodyUI(Size size, ThemeProvider themeProvider,APIProvider apiProvider)=> Container(
     padding: EdgeInsets.symmetric(horizontal: 10),
     child: SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
+
+          ///Product Name
           Text('Here you can view all the images Lorem Picsum provides.'
               'Get a specific image by adding /id/{image} to the start of the url.'
               'Here you can view all the images Lorem Picsum provides.',
@@ -144,11 +168,27 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),
           SizedBox(height: size.width*.03),
 
-          Text('Tk.1000',
-            textAlign: TextAlign.justify,
-            style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold),),
-          SizedBox(height: size.width*.02),
 
+          ///Price Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('Tk.1000',
+                textAlign: TextAlign.justify,
+                style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold),),
+              SizedBox(width: size.width*.02),
+              Text('Tk.1200',
+                  maxLines: 1,
+                  style: TextStyle(color: themeProvider.toggleTextColor(),
+                      fontSize: size.width*.03,fontWeight: FontWeight.w400,
+                      decoration: TextDecoration.lineThrough))
+            ],
+          ),
+          Divider(height: 5.0,color: Colors.grey,thickness: 0.5),
+          SizedBox(height: size.width*.04),
+
+          ///Product code
           RichText(
             textAlign: TextAlign.justify,
             text: TextSpan(
@@ -160,6 +200,98 @@ class _ProductDetailsState extends State<ProductDetails> {
               ],
             ),
           ),
+          SizedBox(height: size.width*.04),
+
+          ///Available Size
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('Select Size:',
+                  style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
+              Container(
+                // color: Colors.red,
+                height: size.width*.1,
+                width: size.width,
+                padding: EdgeInsets.all(size.width*.01),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemCount: 4,
+                    itemBuilder: (context, index){
+                    return InkWell(
+                      onTap: (){
+                        setState(() {
+                          _sizeIndex=index;
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.only(right: 10),
+                        padding: EdgeInsets.symmetric(horizontal: size.width*.02),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: _sizeIndex==index? themeProvider.orangeWhiteToggleColor(): Colors.grey,
+                              width: _sizeIndex==index? 1.5:1),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        child: Text('XL',style: TextStyle(
+                          fontSize: size.width*.04,
+                          color: _sizeIndex==index? themeProvider.orangeWhiteToggleColor(): themeProvider.toggleTextColor()
+                        )),
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    );
+                    }
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: size.width*.04),
+
+          ///Available Color
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('Select Color:',
+                  style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
+              Container(
+                // color: Colors.red,
+                height: size.width*.1,
+                width: size.width,
+                padding: EdgeInsets.all(size.width*.01),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemCount: 4,
+                    itemBuilder: (context, index){
+                    return InkWell(
+                      onTap: (){
+                        setState(() {
+                          _colorIndex=index;
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.only(right: 10),
+                        padding: EdgeInsets.symmetric(horizontal: size.width*.02),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: _colorIndex==index? themeProvider.orangeWhiteToggleColor(): Colors.grey,
+                              width: _colorIndex==index? 1.5:1),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        child: Text('Green',style: TextStyle(
+                            fontSize: size.width*.04,
+                            color: _colorIndex==index? themeProvider.orangeWhiteToggleColor(): themeProvider.toggleTextColor()
+                        )),
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    );
+                    }
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: size.width*.1),
 
           ///Related Product
@@ -168,13 +300,16 @@ class _ProductDetailsState extends State<ProductDetails> {
           SizedBox(height: size.width*.04),
           Container(
             height: size.width*.5,
-            child: ListView.builder(
-              physics: ClampingScrollPhysics(),
+            //color: Colors.red,
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: apiProvider.productsModel==null? Center(child: CircularProgressIndicator()): ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: 10,
+              itemCount: apiProvider.productsModel.content.length,
               itemBuilder: (context, index)=>InkWell(
-                  onTap: (){},
-                  child: HomeProductCartTile(index: index)),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+                  },
+                  child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
             ),
           ),
           SizedBox(height: size.width*.1),
@@ -236,6 +371,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             ),
             onPressed: (){_showRatingDialog(size, themeProvider);},
           ),
+
           ///Seller Review
           TextButton(
             style: TextButton.styleFrom(

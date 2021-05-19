@@ -61,23 +61,23 @@ class HomeProductCartTile extends StatelessWidget {
             ),
           ),
 
-          Positioned(
+          productsModel.content[index].discount!=0? Positioned(
             right: 0,
             top: 0,
             child: Container(
-              height: size.width*.06,
+              height: size.width*.07,
               width: size.width*.1,
-              alignment: Alignment.center,
+              alignment: Alignment.centerRight,
               decoration: BoxDecoration(
                 color: themeProvider.orangeBlackToggleColor().withOpacity(0.8),
                 borderRadius: BorderRadius.only(
                     topRight: Radius.circular(5),
-                    bottomLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(size.width*.1),
                 ),
               ),
               child: Text('-${productsModel.content[index].discount}%',style: TextStyle(color: Colors.white,fontSize: size.width*.03),),
             ),
-          )
+          ):Container()
         ],
       ),
     );

@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:bagh_mama/pages/change_password.dart';
 import 'package:bagh_mama/pages/change_theme.dart';
+import 'package:bagh_mama/pages/login_page.dart';
 import 'package:bagh_mama/pages/notification_list.dart';
 import 'package:bagh_mama/pages/order_history_list.dart';
 import 'package:bagh_mama/pages/update_profile.dart';
 import 'package:bagh_mama/pages/wishlist_page.dart';
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
@@ -12,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountScreen extends StatefulWidget {
   @override
@@ -21,15 +24,29 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
   File _image;
+  int _counter=0;
+
+  void _customInit(APIProvider apiProvider)async{
+    setState(()=> _counter++);
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    if(pref.getString('username')!=null){
+      if(apiProvider.userInfoModel==null){
+        print(pref.getString('username'));
+        await apiProvider.getUserInfo(pref.getString('username'));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    if(_counter==0) _customInit(apiProvider);
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        //backgroundColor: themeProvider.togglePageBgColor(),
         appBar: AppBar(
           backgroundColor: themeProvider.whiteBlackToggleColor(),
           elevation: 0.0,
@@ -43,7 +60,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 fontSize: size.width * .045),
           ),
         ),
-        body: _bodyUI(size, themeProvider),
+        body: _bodyUI(size, themeProvider,apiProvider),
         floatingActionButton: Builder(
           builder: (context) => _floatingActionButton(size, themeProvider),
         ),
@@ -51,7 +68,7 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Widget _bodyUI(Size size, ThemeProvider themeProvider) => Container(
+  Widget _bodyUI(Size size, ThemeProvider themeProvider,APIProvider apiProvider) => Container(
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -80,7 +97,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                     borderRadius:
                                     BorderRadius.all(Radius.circular(10),),
                                     image: DecorationImage(
-                                        image: _image==null? NetworkImage('https://i.picsum.photos/id/1027/2848/4272.jpg?hmac=EAR-f6uEqI1iZJjB6-NzoZTnmaX0oI0th3z8Y78UpKM')
+                                        image: _image==null? NetworkImage('https://i.picsum.photos/id/1079/4496/3000.jpg?hmac=G-dJcpU08vEMqjUz2rb3IxjOG99rcePqW9BF1IsPLf0')
                                             :FileImage(_image),
                                         fit: BoxFit.cover)),
                               ),
@@ -89,7 +106,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         ),
 
                         ///User Information
-                        Container(
+                        apiProvider.userInfoModel!=null? Container(
                           width: size.width*.45,
                           child:RichText(
                             textAlign: TextAlign.justify,
@@ -97,23 +114,25 @@ class _AccountScreenState extends State<AccountScreen> {
                               //text: 'Hello ',
                               style: TextStyle(fontSize: size.width*.038,color: themeProvider.toggleTextColor()),
                               children: <TextSpan>[
-                                TextSpan(text: 'Mr. Tanvir Ahmed\n',style: TextStyle(fontSize: size.width*.05,fontWeight: FontWeight.w500)),
-                                TextSpan(text: 'example@gmail.com\n'),
-                                TextSpan(text: '+8801830200087\n\n'),
+                                TextSpan(text: '${apiProvider.userInfoModel.content.firstName} ${apiProvider.userInfoModel.content.lastName}\n',style: TextStyle(fontSize: size.width*.05,fontWeight: FontWeight.w500)),
+                                TextSpan(text: '${apiProvider.userInfoModel.content.email}\n'),
+                                TextSpan(text: '${apiProvider.userInfoModel.content.mobileNumber}\n\n'),
                                 TextSpan(text: 'Address: ',style: TextStyle(fontWeight: FontWeight.w500)),
-                                TextSpan(text: 'Dhaka\n'),
+                                apiProvider.userInfoModel.content.address.isNotEmpty? TextSpan(text: '${apiProvider.userInfoModel.content.address}\n'):TextSpan(),
                                 TextSpan(text: 'City: ',style: TextStyle(fontWeight: FontWeight.w500)),
-                                TextSpan(text: 'Dhaka\n'),
+                                apiProvider.userInfoModel.content.city.isNotEmpty? TextSpan(text: '${apiProvider.userInfoModel.content.city}\n'):TextSpan(),
                                 TextSpan(text: 'State: ',style: TextStyle(fontWeight: FontWeight.w500)),
-                                TextSpan(text: 'Dhaka\n'),
+                                apiProvider.userInfoModel.content.state.isNotEmpty? TextSpan(text: '${apiProvider.userInfoModel.content.state}\n'):TextSpan(),
                                 TextSpan(text: 'Postal Code: ',style: TextStyle(fontWeight: FontWeight.w500)),
-                                TextSpan(text: '1700\n'),
+                                apiProvider.userInfoModel.content.postalcode.isNotEmpty?TextSpan(text: '${apiProvider.userInfoModel.content.postalcode}\n'):TextSpan(),
                                 TextSpan(text: 'From: ',style: TextStyle(fontWeight: FontWeight.w500)),
-                                TextSpan(text: 'Bangladesh\n'),
+                                apiProvider.userInfoModel.content.country.isNotEmpty? TextSpan(text: '${apiProvider.userInfoModel.content.country}\n'):TextSpan(),
                               ],
                             ),
                           ),
-                        )
+                        ):TextButton(
+                            onPressed: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage())),
+                            child: Text('Login',style: TextStyle(color: themeProvider.orangeWhiteToggleColor()),))
                       ],
                     ),
                     SizedBox(height: size.width*.02),

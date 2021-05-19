@@ -1,16 +1,17 @@
 import 'package:bagh_mama/variables/color_variables.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier{
   ThemeData _themeData;
   bool _isLight;
-
   ThemeProvider(this._themeData,this._isLight);
+  bool _internetConnected=true;
 
   get themeData => _themeData;
-
   get isLight => _isLight;
+  get internetConnected=> _internetConnected;
 
   Future<void> toggleThemeData()async{
     SharedPreferences pref= await SharedPreferences.getInstance();
@@ -52,6 +53,20 @@ class ThemeProvider extends ChangeNotifier{
       //_isLight=false;
       notifyListeners();
       pref.setBool('isLight', false);
+    }
+  }
+
+  Future<void> checkConnectivity() async {
+    var result = await (Connectivity().checkConnectivity());
+    if (result == ConnectivityResult.none) {
+      _internetConnected = false;
+      notifyListeners();
+    } else if (result == ConnectivityResult.mobile) {
+      _internetConnected = true;
+      notifyListeners();
+    } else if (result == ConnectivityResult.wifi) {
+      _internetConnected = true;
+      notifyListeners();
     }
   }
 

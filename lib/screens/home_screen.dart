@@ -204,22 +204,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       //header
       Container(
         padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text('Deals of the day',
-                style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-            InkWell(
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
-              },
-              child: Text('View All',
-                  style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
-            ),
-
-          ],
-        ),
+        child: Text('Deals of the day',
+            style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
       ),
       SizedBox(height: size.width*.03),
       Container(
@@ -231,7 +217,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           itemCount: apiProvider.productsModel.content.length,
           itemBuilder: (context, index)=>InkWell(
             onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+              print(apiProvider.productsModel.content[index].id);
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                productId: apiProvider.productsModel.content[index].id,
+              )));
             },
               child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
         ),
@@ -239,81 +228,31 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       SizedBox(height: size.width*.08),
 
 
-      // ///New Arrivals
-      // //header
-      // Container(
-      //   padding: EdgeInsets.symmetric(horizontal: 10),
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //     crossAxisAlignment: CrossAxisAlignment.center,
-      //     children: [
-      //       Text('New Arrivals',
-      //           style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-      //       InkWell(
-      //         onTap: (){
-      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
-      //         },
-      //         child: Text('View All',
-      //             style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
-      //       ),
-      //
-      //     ],
-      //   ),
-      // ),
-      // SizedBox(height: size.width*.03),
-      // Container(
-      //   height: size.width*.5,
-      //   //color: Colors.red,
-      //   padding: EdgeInsets.symmetric(horizontal: 10),
-      //   child: ListView.builder(
-      //     scrollDirection: Axis.horizontal,
-      //     itemCount: 10,
-      //     itemBuilder: (context, index)=>InkWell(
-      //         onTap: (){
-      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
-      //         },
-      //         child: HomeProductCartTile(index: index)),
-      //   ),
-      // ),
-      // SizedBox(height: size.width*.08),
-      //
-      // ///Just For You
-      // //header
-      // Container(
-      //   padding: EdgeInsets.symmetric(horizontal: 10),
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //     crossAxisAlignment: CrossAxisAlignment.center,
-      //     children: [
-      //       Text('Just For You',
-      //           style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-      //       InkWell(
-      //         onTap: (){
-      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
-      //         },
-      //         child: Text('View All',
-      //             style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
-      //       ),
-      //
-      //     ],
-      //   ),
-      // ),
-      // SizedBox(height: size.width*.03),
-      // Container(
-      //   height: size.width*.5,
-      //   //color: Colors.red,
-      //   padding: EdgeInsets.symmetric(horizontal: 10),
-      //   child: ListView.builder(
-      //     scrollDirection: Axis.horizontal,
-      //     itemCount: 10,
-      //     itemBuilder: (context, index)=>InkWell(
-      //         onTap: (){
-      //           Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
-      //         },
-      //         child: HomeProductCartTile(index: index)),
-      //   ),
-      // ),
-      // SizedBox(height: size.width*.08),
+      ///New Arrivals
+      //header
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: Text('New Arrivals',
+            style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
+      ),
+      SizedBox(height: size.width*.03),
+      Container(
+        height: size.width*.5,
+        //color: Colors.red,
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: apiProvider.productsModel==null? Center(child: CircularProgressIndicator()): ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: apiProvider.productsModel.content.length,
+          itemBuilder: (context, index)=>InkWell(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                  productId: apiProvider.productsModel.content[index].id,
+                )));
+              },
+              child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
+        ),
+      ),
+      SizedBox(height: size.width*.08),
 
     ],
   );
@@ -328,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
         child: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(5)),
-          child: Image.asset('assets/banner_image/bm3.jpg',fit: BoxFit.fitWidth,),
+          child: Image.network('https://resources.matcha-jp.com/resize/720x2000/2020/04/23-101958.jpeg',fit: BoxFit.fitWidth,),
         ),
       ),
       SizedBox(height: size.width*.03),

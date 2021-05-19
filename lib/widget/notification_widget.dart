@@ -1,5 +1,6 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 void showSnackBar(BuildContext context,String message,ThemeProvider themeProvider){
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -17,3 +18,15 @@ void showSnackBar(BuildContext context,String message,ThemeProvider themeProvide
     duration: Duration(milliseconds: 4000),
   ));
 }
+
+void showLoadingDialog(String status)=> EasyLoading.show(status: status);
+
+void closeLoadingDialog()=> EasyLoading.dismiss();
+
+void showSuccessMgs(String status)=> EasyLoading.showSuccess(status);
+
+void showErrorMgs(String status)=> EasyLoading.showError(status);
+
+void showToast(String status)=> EasyLoading.showToast(status);
+
+void showInfo(String status)=> EasyLoading.showInfo(status);

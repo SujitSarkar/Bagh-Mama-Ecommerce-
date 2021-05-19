@@ -14,6 +14,7 @@ dependencies:
   provider:
   font_awesome_flutter:
   shared_preferences:
+  flutter_easyloading:
 #  carousel_slider:
   carousel_pro:
   fab_circular_menu:
@@ -30,6 +31,7 @@ dependencies:
   circular_reveal_animation:
   auto_size_text:
   http:
+  connectivity:
 
 dev_dependencies:
   flutter_test:
