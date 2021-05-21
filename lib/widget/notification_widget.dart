@@ -1,6 +1,7 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 void showSnackBar(BuildContext context,String message,ThemeProvider themeProvider){
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -18,6 +19,13 @@ void showSnackBar(BuildContext context,String message,ThemeProvider themeProvide
     duration: Duration(milliseconds: 4000),
   ));
 }
+
+ Widget threeBounce(ThemeProvider themeProvider){
+  return SpinKitThreeBounce(
+    color: themeProvider.fabToggleBgColor(),
+    size: 35.0,
+  );
+ }
 
 void showLoadingDialog(String status)=> EasyLoading.show(status: status);
 

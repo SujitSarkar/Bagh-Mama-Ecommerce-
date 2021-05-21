@@ -1,3 +1,4 @@
+import 'package:bagh_mama/models/product_category_model.dart';
 import 'package:bagh_mama/models/product_info_model.dart';
 import 'package:bagh_mama/models/products_model.dart';
 import 'package:bagh_mama/models/user_info_model.dart';
@@ -9,10 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class APIProvider extends ChangeNotifier{
 
-  Uri _baseUri = Uri.parse('https://baghmama.com.bd/graph/api/v3');
-  String _apiToken = 'aHR0cHN+YmFnaG1hbWEuY29tLmJkfmFwaQ';
-  List<String> _bannerImageList = [];
+  final Uri _baseUri = Uri.parse('https://baghmama.com.bd/graph/api/v3');
+  final String _apiToken = 'aHR0cHN+YmFnaG1hbWEuY29tLmJkfmFwaQ';
+  List<String> _bannerImageList=[];
   List<dynamic> _networkImageList=[];
+  ProductCategoriesModel _productCategoriesModel;
+  List<String> _productCategoryList=[];
   ProductsModel _productsModel;
   ProductInfoModel _productInfoModel;
   UserInfoModel _userInfoModel;
@@ -21,6 +24,13 @@ class APIProvider extends ChangeNotifier{
   get productsModel => _productsModel;
   get productInfoModel => _productInfoModel;
   get userInfoModel => _userInfoModel;
+  get productCategoriesModel => _productCategoriesModel;
+  get productCategoryList => _productCategoryList;
+
+  set userInfoModel(UserInfoModel value){
+    _userInfoModel = value;
+    notifyListeners();
+  }
 
   Future<void> getBannerImageList()async{
     await http.post(
@@ -41,12 +51,30 @@ class APIProvider extends ChangeNotifier{
             .map((item) => NetworkImage('https://baghmama.com.bd/$item')
         ).toList();
         notifyListeners();
-      }else{
-        print('cant get Banner Image');
       }
-    },onError: (error){
-      print(error.toString());
     });
+  }
+
+  Future<void> getProductCategories()async{
+    final response = await http.post(
+        _baseUri,
+        body: {
+          'api_token': _apiToken,
+          'determiner': 'productCategories',
+          'fetch_scope': 'main'
+        });
+    if(response.statusCode==200){
+      final String responseString = response.body;
+      final Set _categorySet=Set();
+      _productCategoriesModel= productCategoriesModelFromJson(responseString);
+      _productCategoriesModel.content.forEach((element) {
+        _categorySet.add(element.main);
+      });
+      _categorySet.forEach((element) {
+        _productCategoryList.add(element);
+      });
+      notifyListeners();
+    }
   }
 
   Future<void> getProducts()async{
@@ -94,6 +122,7 @@ class APIProvider extends ChangeNotifier{
       _userInfoModel = userInfoModelFromJson(responseString);
       notifyListeners();
       pref.setString('username', username);
+      pref.setString('userId', _userInfoModel.content.id.toString());
       return true;
     }else{
       return false;
@@ -115,6 +144,33 @@ class APIProvider extends ChangeNotifier{
     }
     else return false;
   }
+
+  Future<bool> updateUserInfo(String firstName, String lastName, String email,
+      String phone, String address, String state, String city, String postalCode)async{
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    final response = await http.post(
+        _baseUri,
+        body: {
+          'api_token': _apiToken,
+          'determiner': 'updadeMyAccount',
+          'id': pref.getString('userId'),
+          'first_name': firstName,
+          'last_name': lastName,
+          'email': email,
+          'address_line_1': address,
+          'city': city,
+          'state': state,
+          'postalcode': postalCode,
+          'phone': phone
+        });
+    if(response.statusCode==200){
+      // var jsonData = jsonDecode(response.body);
+      return true;
+    }
+    else return false;
+  }
+
+
 
 }
 

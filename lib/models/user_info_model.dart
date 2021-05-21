@@ -75,7 +75,7 @@ class Content {
   String country;
   String postalcode;
   String mobileNumber;
-  String wishlists;
+  Map<String, String> wishlists;
   List<CustomerOrder> customerOrders;
   List<Notification> notifications;
 
@@ -94,7 +94,7 @@ class Content {
     country: json["country"],
     postalcode: json["postalcode"],
     mobileNumber: json["mobile_number"],
-    wishlists: json["wishlists"],
+    wishlists: Map.from(json["wishlists"]).map((k, v) => MapEntry<String, String>(k, v)),
     customerOrders: List<CustomerOrder>.from(json["customer_orders"].map((x) => CustomerOrder.fromJson(x))),
     notifications: List<Notification>.from(json["notifications"].map((x) => Notification.fromJson(x))),
   );
@@ -114,7 +114,7 @@ class Content {
     "country": country,
     "postalcode": postalcode,
     "mobile_number": mobileNumber,
-    "wishlists": wishlists,
+    "wishlists": Map.from(wishlists).map((k, v) => MapEntry<String, dynamic>(k, v)),
     "customer_orders": List<dynamic>.from(customerOrders.map((x) => x.toJson())),
     "notifications": List<dynamic>.from(notifications.map((x) => x.toJson())),
   };

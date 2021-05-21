@@ -1,6 +1,6 @@
 import 'package:bagh_mama/pages/subcategory_product_list.dart';
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
-import 'package:bagh_mama/variables/public_data.dart';
 import 'package:bagh_mama/widget/main_subcategory_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +13,21 @@ class CategoryScreen extends StatefulWidget {
 
 class _CategoryScreenState extends State<CategoryScreen> {
   int _selectedIndex = 0;
+  int _counter=0;
+
+  _customInit(APIProvider apiProvider)async{
+    setState(()=>_counter++);
+    if(apiProvider.productCategoryList.isEmpty) await apiProvider.getProductCategories();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    if(_counter==0) _customInit(apiProvider);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: themeProvider.whiteBlackToggleColor(),
@@ -32,11 +42,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
               fontSize: size.width * .045),
         ),
       ),
-      body: _bodyUI(size, themeProvider),
+      body: _bodyUI(size, themeProvider,apiProvider),
     );
   }
 
-  Widget _bodyUI(Size size, ThemeProvider themeProvider) => Container(
+  Widget _bodyUI(Size size, ThemeProvider themeProvider,APIProvider apiProvider) => Container(
         height: size.height,
         width: size.width,
         color: themeProvider.togglePageBgColor(),
@@ -49,7 +59,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               width: size.width * .24,
               color: themeProvider.whiteBlackToggleColor(),
               child: ListView.builder(
-                itemCount: PublicData.productCategoryList.length,
+                itemCount: apiProvider.productCategoryList.length,
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
@@ -61,7 +71,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           : themeProvider.whiteBlackToggleColor(),
                       padding: EdgeInsets.all(10),
                       child: Text(
-                        PublicData.productCategoryList[index],
+                        apiProvider.productCategoryList[index],
                         style: TextStyle(
                             fontSize: size.width * .03,
                             fontWeight: index == _selectedIndex

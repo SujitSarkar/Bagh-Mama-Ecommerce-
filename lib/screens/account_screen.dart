@@ -25,13 +25,13 @@ class _AccountScreenState extends State<AccountScreen> {
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
   File _image;
   int _counter=0;
+  SharedPreferences pref;
 
   void _customInit(APIProvider apiProvider)async{
     setState(()=> _counter++);
-    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref = await SharedPreferences.getInstance();
     if(pref.getString('username')!=null){
       if(apiProvider.userInfoModel==null){
-        print(pref.getString('username'));
         await apiProvider.getUserInfo(pref.getString('username'));
       }
     }
@@ -138,7 +138,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     SizedBox(height: size.width*.02),
 
                     ///Update Buttons
-                   Row(
+                    apiProvider.userInfoModel!=null? Row(
                      mainAxisAlignment: MainAxisAlignment.start,
                      crossAxisAlignment: CrossAxisAlignment.center,
                      children: [
@@ -148,7 +148,7 @@ class _AccountScreenState extends State<AccountScreen> {
                        SizedBox(width: size.width*.03),
                        _buttonBuilder(themeProvider, size, Icons.vpn_key_sharp),
                      ],
-                   )
+                   ):Container()
 
 
                   ],
@@ -163,15 +163,15 @@ class _AccountScreenState extends State<AccountScreen> {
                 margin: EdgeInsets.symmetric(horizontal: size.width*.03),
                 child: Column(
                   children: [
-                    _functionBuilder(themeProvider, size, 'WishLists', FontAwesomeIcons.solidHeart),
+                    _functionBuilder(apiProvider, themeProvider, size, 'WishLists', FontAwesomeIcons.solidHeart),
                     Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(themeProvider, size, 'Order History', FontAwesomeIcons.shoppingBasket),
+                    _functionBuilder(apiProvider,themeProvider, size, 'Order History', FontAwesomeIcons.shoppingBasket),
                     Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(themeProvider, size, 'Notifications', FontAwesomeIcons.bell),
+                    _functionBuilder(apiProvider,themeProvider, size, 'Notifications', FontAwesomeIcons.bell),
                     Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(themeProvider, size, 'Settings', FontAwesomeIcons.cog),
+                    _functionBuilder(apiProvider,themeProvider, size, 'Settings', FontAwesomeIcons.cog),
                     Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(themeProvider, size, 'Logout', FontAwesomeIcons.signOutAlt),
+                    _functionBuilder(apiProvider,themeProvider, size, 'Logout', FontAwesomeIcons.signOutAlt),
 
                   ],
                 ),
@@ -213,7 +213,7 @@ class _AccountScreenState extends State<AccountScreen> {
     ),
   );
 
-  Widget _functionBuilder(ThemeProvider themeProvider, Size size, String name, IconData iconData) => ListTile(
+  Widget _functionBuilder(APIProvider apiProvider, ThemeProvider themeProvider, Size size, String name, IconData iconData) => ListTile(
         onTap: (){
           if(name=='Settings') Navigator.push(context,
               MaterialPageRoute(builder: (context) => ChangeThemePage()));
@@ -223,6 +223,10 @@ class _AccountScreenState extends State<AccountScreen> {
               MaterialPageRoute(builder: (context) => OrderHistory()));
           else if(name=='Notifications') Navigator.push(context,
               MaterialPageRoute(builder: (context) => NotificationList()));
+          else if(name=='Logout') {
+            pref.clear();
+            apiProvider.userInfoModel=null;
+          }
 
         },
         leading: Icon(

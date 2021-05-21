@@ -1,4 +1,3 @@
-import 'package:bagh_mama/models/products_model.dart';
 import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/pages/search_page.dart';
 import 'package:bagh_mama/pages/subcategory_product_list.dart';
@@ -10,12 +9,13 @@ import 'package:bagh_mama/variables/public_data.dart';
 import 'package:bagh_mama/widget/category_product_cart_tile.dart';
 import 'package:bagh_mama/widget/home_product_cart_tile.dart';
 import 'package:bagh_mama/widget/navigation_drawer.dart';
+import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:bagh_mama/widget/round_subcategory_tile.dart';
 import 'package:carousel_pro/carousel_pro.dart';
-// import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -26,17 +26,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   TabController _controller;
   int _tabIndex=0;
   int _counter=0;
-  bool _isLoading=true;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = TabController(length: 7, vsync: this);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _controller = TabController(length: 7, vsync: this);
+  // }
 
   _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
-     await apiProvider.getProducts();
+    if(apiProvider.productCategoriesModel==null) await apiProvider.getProductCategories();
+    _controller = TabController(length: apiProvider.productCategoryList.length, vsync: this);
+    if(apiProvider.networkImageList.isEmpty) await apiProvider.getBannerImageList();
+    if(apiProvider.productsModel==null) await apiProvider.getProducts();
+
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    if(pref.getString('username')!=null){
+      if(apiProvider.userInfoModel==null){
+        await apiProvider.getUserInfo(pref.getString('username'));
+      }
+    }
   }
 
   @override
@@ -113,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ),
 
-        bottom: TabBar(
+        bottom: apiProvider.productCategoryList.isNotEmpty? TabBar(
           onTap: (covariant){
             setState(()=> _tabIndex = covariant);
           },
@@ -128,32 +137,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
          ),
           //indicatorColor: Colors.green,
           indicatorSize: TabBarIndicatorSize.label,
-          tabs: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text('All',style: TextStyle(color: themeProvider.toggleTextColor()),),
-            ), Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text('Sports & Outdoor Fun',style: TextStyle(color: themeProvider.toggleTextColor()),),
-            ), Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text('Automobiles & Motorcycles',style: TextStyle(color: themeProvider.toggleTextColor()),),
-            ), Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text('Home Improvement & Tools',style: TextStyle(color: themeProvider.toggleTextColor()),),
-            ), Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text('Consumer Electronics',style: TextStyle(color: themeProvider.toggleTextColor()),),
-            ), Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text('Health & Beauty, Hair',style: TextStyle(color: themeProvider.toggleTextColor()),),
-            ), Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text('Home, Appliances & Pet',style: TextStyle(color: themeProvider.toggleTextColor()),),
-            ),
-
-          ],
-        ),
+          tabs: PublicData.categoryWidgetList(apiProvider,themeProvider),
+        ):PreferredSize(
+            child: threeBounce(themeProvider), preferredSize: Size.fromHeight(50.0)),
       ),
 
       body: _tabIndex==0? _bodyUI_1(size,themeProvider,apiProvider):_bodyUI_2(size, themeProvider),
@@ -164,19 +150,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     children: [
       SizedBox(height: size.width*.04),
       ///Image Slider
-      // Container(
-      //   height: size.width * .4,
-      //   width: size.width,
-      //   child: CarouselSlider(
-      //     options: CarouselOptions(
-      //       autoPlay: true,
-      //       aspectRatio: 2.0,
-      //       enlargeCenterPage: true,
-      //     ),
-      //     items: PublicData.imageSliders,
-      //   ),
-      // ),
-      Container(
+
+      apiProvider.networkImageList.isEmpty
+          ?Center(child: threeBounce(themeProvider))
+          :Container(
         margin: EdgeInsets.symmetric(horizontal: size.width*.03),
         height: size.height*.2,
         width: size.width,
@@ -190,12 +167,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           // dotColor: Colors.green,
           // dotIncreasedColor: Colors.red,
           //images: apiProvider.networkImageList,
-          images: [
-            NetworkImage('https://i.pinimg.com/originals/cc/18/8c/cc188c604e58cffd36e1d183c7198d21.jpg'),
-            NetworkImage('https://i.pinimg.com/originals/cc/18/8c/cc188c604e58cffd36e1d183c7198d21.jpg'),
-            NetworkImage('https://resources.matcha-jp.com/resize/720x2000/2020/04/23-101958.jpeg'),
-
-          ],
+          images: apiProvider.networkImageList,
         ),
       ),
       SizedBox(height: size.width*.04),
@@ -212,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         height: size.width*.5,
         //color: Colors.red,
         padding: EdgeInsets.symmetric(horizontal: 10),
-        child: apiProvider.productsModel==null? Center(child: CircularProgressIndicator()): ListView.builder(
+        child: apiProvider.productsModel==null? Center(child: threeBounce(themeProvider)): ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: apiProvider.productsModel.content.length,
           itemBuilder: (context, index)=>InkWell(
@@ -240,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         height: size.width*.5,
         //color: Colors.red,
         padding: EdgeInsets.symmetric(horizontal: 10),
-        child: apiProvider.productsModel==null? Center(child: CircularProgressIndicator()): ListView.builder(
+        child: apiProvider.productsModel==null? Center(child: threeBounce(themeProvider)): ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: apiProvider.productsModel.content.length,
           itemBuilder: (context, index)=>InkWell(
