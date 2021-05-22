@@ -32,6 +32,9 @@ dependencies:
   http:
   connectivity:
   flutter_spinkit:
+  sqflite:
+  path_provider:
+  flutter_html:
 
 dev_dependencies:
   flutter_test:

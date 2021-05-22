@@ -4,6 +4,7 @@ import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
 import 'package:bagh_mama/variables/theme_data.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,10 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences pref= await SharedPreferences.getInstance();
   final bool isLight = pref.getBool('isLight') ?? true;
+  SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+      statusBarColor: Colors.white,
+  ));
   runApp(MyApp(isLight));
 }
 

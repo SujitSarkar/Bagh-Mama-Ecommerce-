@@ -2,6 +2,7 @@ import 'package:bagh_mama/pages/subcategory_product_list.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/main_subcategory_tile.dart';
+import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -58,7 +59,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             Container(
               width: size.width * .24,
               color: themeProvider.whiteBlackToggleColor(),
-              child: ListView.builder(
+              child: apiProvider.productCategoryList.isNotEmpty? ListView.builder(
                 itemCount: apiProvider.productCategoryList.length,
                 itemBuilder: (context, index) {
                   return InkWell(
@@ -82,7 +83,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     ),
                   );
                 },
-              ),
+              ): threeBounce(themeProvider),
             ),
 
             ///Main Page Section

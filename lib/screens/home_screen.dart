@@ -1,3 +1,4 @@
+import 'package:bagh_mama/pages/no_internet_page.dart';
 import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/pages/search_page.dart';
 import 'package:bagh_mama/pages/subcategory_product_list.dart';
@@ -33,12 +34,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   //   _controller = TabController(length: 7, vsync: this);
   // }
 
-  _customInit(APIProvider apiProvider)async{
+  _customInit(ThemeProvider themeProvider,APIProvider apiProvider)async{
     setState(()=>_counter++);
+    themeProvider.checkConnectivity();
     if(apiProvider.productCategoriesModel==null) await apiProvider.getProductCategories();
     _controller = TabController(length: apiProvider.productCategoryList.length, vsync: this);
     if(apiProvider.networkImageList.isEmpty) await apiProvider.getBannerImageList();
     if(apiProvider.productsModel==null) await apiProvider.getProducts();
+    if(apiProvider.contactInfoModel==null) await apiProvider.getContactInfo();
 
     final SharedPreferences pref = await SharedPreferences.getInstance();
     if(pref.getString('username')!=null){
@@ -53,9 +56,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
-    if(_counter==0) _customInit(apiProvider);
+    if(themeProvider.internetConnected && _counter==0) _customInit(themeProvider,apiProvider);
 
-    return Scaffold(
+    return themeProvider.internetConnected? Scaffold(
       backgroundColor: themeProvider.toggleBgColor(),
       drawer: NavigationDrawer(),
       appBar: AppBar(
@@ -143,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
 
       body: _tabIndex==0? _bodyUI_1(size,themeProvider,apiProvider):_bodyUI_2(size, themeProvider),
-    );
+    ):Scaffold(body: NoInternet(),);
   }
 
   Widget _bodyUI_1(Size size,ThemeProvider themeProvider,APIProvider apiProvider)=> ListView(
@@ -155,14 +158,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ?Center(child: threeBounce(themeProvider))
           :Container(
         margin: EdgeInsets.symmetric(horizontal: size.width*.03),
-        height: size.height*.2,
+        height: size.height*.18,
         width: size.width,
-        color: Colors.white,
+        color: Colors.grey,
         child: Carousel(
-          boxFit: BoxFit.fitWidth,
-          dotSize: 2.0,
+          boxFit: BoxFit.cover,
+          dotSize: 0.0,
           autoplayDuration: Duration(seconds: 7),
-          dotIncreaseSize: 5.0,
+          dotIncreaseSize: 0.0,
           dotBgColor: Colors.transparent,
           // dotColor: Colors.green,
           // dotIncreasedColor: Colors.red,

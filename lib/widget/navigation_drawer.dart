@@ -3,6 +3,7 @@ import 'package:bagh_mama/drawer_pages/complain_page.dart';
 import 'package:bagh_mama/drawer_pages/faq_page.dart';
 import 'package:bagh_mama/drawer_pages/how_to_order.dart';
 import 'package:bagh_mama/drawer_pages/shop_page.dart';
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
@@ -16,10 +17,19 @@ class NavigationDrawer extends StatefulWidget {
 }
 
 class _NavigationDrawerState extends State<NavigationDrawer> {
+  int _counter=0;
+
+  _customInit(APIProvider apiProvider)async{
+    setState(()=>_counter++);
+    if(apiProvider.contactInfoModel==null) await apiProvider.getContactInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    if(_counter==0) _customInit(apiProvider);
 
     return SafeArea(
       child: Drawer(
@@ -56,12 +66,12 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _socialIconBuilder(FontAwesomeIcons.facebookSquare, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.twitterSquare, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.instagramSquare, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.youtubeSquare, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.pinterestSquare, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.skype, themeProvider, size),
+                          _socialIconBuilder(FontAwesomeIcons.facebookSquare,apiProvider, themeProvider, size),
+                          _socialIconBuilder(FontAwesomeIcons.twitterSquare,apiProvider, themeProvider, size),
+                          _socialIconBuilder(FontAwesomeIcons.instagramSquare,apiProvider, themeProvider, size),
+                          _socialIconBuilder(FontAwesomeIcons.youtubeSquare,apiProvider, themeProvider, size),
+                          _socialIconBuilder(FontAwesomeIcons.googlePlusSquare,apiProvider, themeProvider, size),
+                          _socialIconBuilder(FontAwesomeIcons.skype,apiProvider, themeProvider, size),
                         ],
                       )
                     ],
@@ -75,20 +85,20 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     );
   }
 
-  Widget _socialIconBuilder(IconData iconData, ThemeProvider themeProvider,Size size)=>InkWell(
+  Widget _socialIconBuilder(IconData iconData, APIProvider apiProvider, ThemeProvider themeProvider,Size size)=>InkWell(
     onTap: (){
       if(iconData==FontAwesomeIcons.facebookSquare)
-        launchInWebViewWithJavaScript(context, 'https://www.facebook.com/baghmama.com.bd');
+        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.facebook,);
       else if(iconData== FontAwesomeIcons.twitterSquare)
-        launchInWebViewWithJavaScript(context, 'https://twitter.com/');
+        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.twitter);
       else if(iconData== FontAwesomeIcons.instagramSquare)
-        launchInWebViewWithJavaScript(context, 'https://www.instagram.com/');
+        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.instagram);
       else if(iconData== FontAwesomeIcons.youtubeSquare)
-        launchInWebViewWithJavaScript(context, 'https://www.youtube.com/');
-      else if(iconData== FontAwesomeIcons.pinterestSquare)
-        launchInWebViewWithJavaScript(context, 'https://www.pinterest.com/');
+        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.youtube);
+      else if(iconData== FontAwesomeIcons.googlePlusSquare)
+        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.googleplus);
       else if(iconData== FontAwesomeIcons.skype)
-        launchInWebViewWithJavaScript(context, 'https://www.skype.com/en/');
+        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.skype);
 
     },
     child: Container(
@@ -139,14 +149,15 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       );
     } else {
       showAnimatedDialog(
+        barrierDismissible: true,
           context: context,
           animationType: DialogTransitionType.slideFromBottomFade,
           curve: Curves.fastOutSlowIn,
           duration: Duration(milliseconds: 500),
           builder: (context){
             return AlertDialog(
-              title: Text('বিবরণ'),
-              content: Text('কিছু ভুল হয়েছে! পরে আবার চেষ্টা করু'),
+              title: Text('Status',textAlign: TextAlign.center),
+              content: Text('Something went wrong!\nplease try again',textAlign: TextAlign.center,),
             );
           }
       );

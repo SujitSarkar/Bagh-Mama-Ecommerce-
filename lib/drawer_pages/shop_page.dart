@@ -1,6 +1,9 @@
+import 'package:bagh_mama/pages/no_internet_page.dart';
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 
 class ShopPage extends StatefulWidget {
@@ -11,11 +14,19 @@ class ShopPage extends StatefulWidget {
 }
 
 class _ShopPageState extends State<ShopPage> {
+  int _counter=0;
+  _customInit(ThemeProvider themeProvider,APIProvider apiProvider)async{
+    setState(()=>_counter++);
+    themeProvider.checkConnectivity();
+    if(apiProvider.contactInfoModel==null) await apiProvider.getContactInfo();
+  }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    if(themeProvider.internetConnected && _counter==0) _customInit(themeProvider,apiProvider);
 
     return Scaffold(
       backgroundColor: themeProvider.whiteBlackToggleColor(),
@@ -32,11 +43,11 @@ class _ShopPageState extends State<ShopPage> {
               fontSize: size.width * .045),
         ),
       ),
-      body: _bodyUI(themeProvider, size),
+      body: themeProvider.internetConnected? _bodyUI(themeProvider,apiProvider, size):NoInternet(),
     );
   }
 
-  Widget _bodyUI(ThemeProvider themeProvider, Size size)=>SingleChildScrollView(
+  Widget _bodyUI(ThemeProvider themeProvider,APIProvider apiProvider, Size size)=>SingleChildScrollView(
     child: Container(
       margin: EdgeInsets.symmetric(horizontal: size.width*.03),
       child: Column(
@@ -57,11 +68,31 @@ class _ShopPageState extends State<ShopPage> {
                 TextSpan(text: 'This the page has a unique feel, thanks to the'
                     ' deconstructed action figures representing the founders, Leigh Whipday and Jonny Lander.\n\n'),
                 TextSpan(text: 'The great attention to detail and interactivity also reflect the company’s 16 years of experience.\n\n\n'),
-                TextSpan(text: 'Our shop Locations:House: \n',style: TextStyle(fontWeight: FontWeight.w500)),
-                TextSpan(text: '12, Road: 15 ,Sector 14, Uttara, Dhaka - 1230. Bangladesh.',style: TextStyle(fontWeight: FontWeight.w500)),
-
+                TextSpan(text: 'Our shop Locations:House:',style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
+          ),
+          Html(
+              data: """${apiProvider.contactInfoModel.content.address}""",
+              style:{
+                'strong':Style(
+                  color: themeProvider.toggleTextColor()
+                ),
+                'body':Style(
+                  color: themeProvider.toggleTextColor()
+                ),
+              },
+          ),
+          Html(
+              data: """${apiProvider.contactInfoModel.content.address2}""",
+            style:{
+              'strong':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'body':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+            },
           ),
         ],
       ),

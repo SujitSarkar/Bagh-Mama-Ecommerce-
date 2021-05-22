@@ -1,3 +1,5 @@
+import 'package:bagh_mama/models/contact_info_model.dart';
+import 'package:bagh_mama/models/new_support_ticket_model.dart';
 import 'package:bagh_mama/models/product_category_model.dart';
 import 'package:bagh_mama/models/product_info_model.dart';
 import 'package:bagh_mama/models/products_model.dart';
@@ -13,12 +15,14 @@ class APIProvider extends ChangeNotifier{
   final Uri _baseUri = Uri.parse('https://baghmama.com.bd/graph/api/v3');
   final String _apiToken = 'aHR0cHN+YmFnaG1hbWEuY29tLmJkfmFwaQ';
   List<String> _bannerImageList=[];
-  List<dynamic> _networkImageList=[];
+  List<NetworkImage> _networkImageList=[];
   ProductCategoriesModel _productCategoriesModel;
   List<String> _productCategoryList=[];
   ProductsModel _productsModel;
   ProductInfoModel _productInfoModel;
   UserInfoModel _userInfoModel;
+  ContactInfoModel _contactInfoModel;
+
   get bannerImageList => _bannerImageList;
   get networkImageList => _networkImageList;
   get productsModel => _productsModel;
@@ -26,6 +30,7 @@ class APIProvider extends ChangeNotifier{
   get userInfoModel => _userInfoModel;
   get productCategoriesModel => _productCategoriesModel;
   get productCategoryList => _productCategoryList;
+  get contactInfoModel => _contactInfoModel;
 
   set userInfoModel(UserInfoModel value){
     _userInfoModel = value;
@@ -48,7 +53,7 @@ class APIProvider extends ChangeNotifier{
           _bannerImageList.add(element['image']);
         });
         _networkImageList = _bannerImageList
-            .map((item) => NetworkImage('https://baghmama.com.bd/$item')
+            .map<NetworkImage>((item) => NetworkImage('https://baghmama.com.bd/$item')
         ).toList();
         notifyListeners();
       }
@@ -168,6 +173,43 @@ class APIProvider extends ChangeNotifier{
       return true;
     }
     else return false;
+  }
+
+  Future<void> getContactInfo()async{
+    final response = await http.post(
+        _baseUri,
+        body: {
+          'api_token': _apiToken,
+          'determiner': 'contactInfo',
+        });
+    if(response.statusCode==200){
+      final String responseString = response.body;
+      _contactInfoModel= contactInfoModelFromJson(responseString);
+      notifyListeners();
+    }
+  }
+
+  Future<String> getNewSupportTicket(String email, String message,String fullName,
+      String mobileNumber, String subject)async{
+    final response = await http.post(
+        _baseUri,
+        body: {
+          'api_token': _apiToken,
+          'determiner': 'newSupportTicket',
+          'email': email,
+          'message': message,
+          'fullName': fullName,
+          'mobileNumber':mobileNumber,
+          'subject': subject,
+        });
+    if(response.statusCode==200){
+      final String responseString = response.body;
+      final NewSupportTicketModel _newSupportTicketModel=
+      newSupportTicketModelFromJson(responseString);
+
+      return _newSupportTicketModel.content.success;
+    }
+    else return 'Failed! try again later';
   }
 
 
