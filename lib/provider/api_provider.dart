@@ -1,19 +1,27 @@
-import 'package:bagh_mama/models/contact_info_model.dart';
+import 'dart:io';
+
+import 'package:bagh_mama/models/basic_contact_info_model.dart';
 import 'package:bagh_mama/models/new_support_ticket_model.dart';
 import 'package:bagh_mama/models/product_category_model.dart';
 import 'package:bagh_mama/models/product_info_model.dart';
 import 'package:bagh_mama/models/products_model.dart';
+import 'package:bagh_mama/models/register_user_model.dart';
+import 'package:bagh_mama/models/social_contact_info_model.dart';
 import 'package:bagh_mama/models/user_info_model.dart';
+import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class APIProvider extends ChangeNotifier{
 
   final Uri _baseUri = Uri.parse('https://baghmama.com.bd/graph/api/v3');
   final String _apiToken = 'aHR0cHN+YmFnaG1hbWEuY29tLmJkfmFwaQ';
+  final String _xAuthKey = 'aHR0cHN+YmFnaG1hbWEuY29tLmJkfmFwaQ';
+  final String _contentType='application/json';
+  final String _xAuthEmail='info@baghmama.com.bd';
+
   List<String> _bannerImageList=[];
   List<NetworkImage> _networkImageList=[];
   ProductCategoriesModel _productCategoriesModel;
@@ -21,7 +29,9 @@ class APIProvider extends ChangeNotifier{
   ProductsModel _productsModel;
   ProductInfoModel _productInfoModel;
   UserInfoModel _userInfoModel;
-  ContactInfoModel _contactInfoModel;
+  SocialContactInfo _socialContactInfo;
+  BasicContactInfo _basicContactInfo;
+  String _profileImageLink;
 
   get bannerImageList => _bannerImageList;
   get networkImageList => _networkImageList;
@@ -30,21 +40,56 @@ class APIProvider extends ChangeNotifier{
   get userInfoModel => _userInfoModel;
   get productCategoriesModel => _productCategoriesModel;
   get productCategoryList => _productCategoryList;
-  get contactInfoModel => _contactInfoModel;
+  get socialContactInfo => _socialContactInfo;
+  get basicContactInfo => _basicContactInfo;
+  get profileImageLink => _profileImageLink;
 
   set userInfoModel(UserInfoModel value){
     _userInfoModel = value;
     notifyListeners();
   }
 
-  Future<void> getBannerImageList()async{
-    await http.post(
-      _baseUri,
-      body: {
-        'api_token': _apiToken,
-        'determiner': 'bannerSlider',
-        'field': 'home_page_top'
+  void getProfileImage()async{
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    _profileImageLink= pref.getString('profileImageLink');
+    notifyListeners();
+  }
+
+  Future<bool> updateProfileImage(File imageFile)async{
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var response= await http.post(
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate'),
+      headers: {
+        //'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail,
       },
+      body: {
+        'id': pref.getString('userId'),
+        'ppic': imageFile,
+      }
+    );
+    var jsonData = json.decode(response.body);
+    if(jsonData['content']['success']==true){
+      _profileImageLink = jsonData['content']['image'];
+      notifyListeners();
+      return jsonData['content']['success'];
+    }
+    else return false;
+  }
+
+  Future<void> getBannerImageList()async{
+     Map data = {"banner_type":"home page banners"};
+     var body = json.encode(data);
+
+    await http.post(
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/bannerSlider'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail,
+      },
+      body:body,
     ).then((response){
       var jsonData = jsonDecode(response.body);
       if(jsonData['status']=='SUCCESS'){
@@ -57,20 +102,22 @@ class APIProvider extends ChangeNotifier{
         ).toList();
         notifyListeners();
       }
+      else showInfo('failed to get banner image');
     });
   }
 
   Future<void> getProductCategories()async{
-    final response = await http.post(
-        _baseUri,
-        body: {
-          'api_token': _apiToken,
-          'determiner': 'productCategories',
-          'fetch_scope': 'main'
-        });
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail,
+        },
+        );
     if(response.statusCode==200){
-      final String responseString = response.body;
-      final Set _categorySet=Set();
+       String responseString = response.body;
+       Set _categorySet=Set();
       _productCategoriesModel= productCategoriesModelFromJson(responseString);
       _productCategoriesModel.content.forEach((element) {
         _categorySet.add(element.main);
@@ -83,7 +130,7 @@ class APIProvider extends ChangeNotifier{
   }
 
   Future<void> getProducts()async{
-    final response = await http.post(
+    var response = await http.post(
       _baseUri,
       body: {
         'api_token': _apiToken,
@@ -112,16 +159,40 @@ class APIProvider extends ChangeNotifier{
     }
   }
 
+  Future<bool> validateUser(String email, String password)async{
+    Map map = {"username":"$email","password":"$password"};
+    var body = json.encode(map);
+
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/userValidate'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail,
+        },
+        body: body
+    );
+    if(response.statusCode==200){
+      var jsonData = jsonDecode(response.body);
+      return jsonData['content']['valid'];
+    }
+    else return false;
+  }
+
   Future<bool> getUserInfo(String username)async{
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    final response = await http.post(
-        _baseUri,
-        body: {
-          'api_token': _apiToken,
-          'determiner': 'userInfo',
-          'column_type': 'username',
-          'field': username
-        });
+     SharedPreferences pref = await SharedPreferences.getInstance();
+     Map map = {"column_type": "username", "field": "$username"};
+     var body = json.encode(map);
+
+    var response = await http.post(
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/userInfo'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail,
+      },
+      body: body
+    );
     if(response.statusCode==200){
       String responseString = response.body;
       _userInfoModel = userInfoModelFromJson(responseString);
@@ -134,64 +205,59 @@ class APIProvider extends ChangeNotifier{
     }
   }
 
-  Future<bool> validateUser(String email, String password)async{
-    final response = await http.post(
-        _baseUri,
-        body: {
-          'api_token': _apiToken,
-          'determiner': 'userValidate',
-          'username': email,
-          'password': password
-        });
-    if(response.statusCode==200){
-      var jsonData = jsonDecode(response.body);
-      return jsonData['content'];
+  Future<bool> updateUserInfo(Map map)async{
+    var body = json.encode(map);
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/updadeMyAccount'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail,
+        },
+        body: body
+    );
+    var jsonData = jsonDecode(response.body);
+    if(jsonData['status']=='SUCCESS'){
+      return jsonData['content']['success'];
     }
     else return false;
   }
 
-  Future<bool> updateUserInfo(String firstName, String lastName, String email,
-      String phone, String address, String state, String city, String postalCode)async{
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    final response = await http.post(
-        _baseUri,
-        body: {
-          'api_token': _apiToken,
-          'determiner': 'updadeMyAccount',
-          'id': pref.getString('userId'),
-          'first_name': firstName,
-          'last_name': lastName,
-          'email': email,
-          'address_line_1': address,
-          'city': city,
-          'state': state,
-          'postalcode': postalCode,
-          'phone': phone
-        });
+  Future<void> getSocialContactInfo()async{
+    var response = await http.post(
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/socialContactInfo'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail
+      },
+        );
     if(response.statusCode==200){
-      // var jsonData = jsonDecode(response.body);
-      return true;
-    }
-    else return false;
-  }
-
-  Future<void> getContactInfo()async{
-    final response = await http.post(
-        _baseUri,
-        body: {
-          'api_token': _apiToken,
-          'determiner': 'contactInfo',
-        });
-    if(response.statusCode==200){
-      final String responseString = response.body;
-      _contactInfoModel= contactInfoModelFromJson(responseString);
+      String responseString = response.body;
+      _socialContactInfo= socialContactInfoFromJson(responseString);
       notifyListeners();
-    }
+    }else showInfo('failed to get Social Data');
+  }
+
+  Future<void> getBasicContactInfo()async{
+    var response = await http.post(
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/basicContactInfo'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail
+      },
+        );
+    if(response.statusCode==200){
+      String responseString = response.body;
+      _basicContactInfo= basicContactInfoFromJson(responseString);
+      notifyListeners();
+    }else showInfo('failed to get Social Data');
   }
 
   Future<String> getNewSupportTicket(String email, String message,String fullName,
       String mobileNumber, String subject)async{
-    final response = await http.post(
+      var response = await http.post(
         _baseUri,
         body: {
           'api_token': _apiToken,
@@ -210,6 +276,21 @@ class APIProvider extends ChangeNotifier{
       return _newSupportTicketModel.content.success;
     }
     else return 'Failed! try again later';
+  }
+  
+  Future<RegisterUserModel> registerUser(Map data)async{
+    var body = json.encode(data);
+    var response = await http.post(
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/registerUser'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail,
+      },
+      body: body,
+    );
+    String responseString= response.body;
+    return registerUserModelFromJson(responseString);
   }
 
 

@@ -1,15 +1,15 @@
 // To parse this JSON data, do
 //
-//     final contactInfoModel = contactInfoModelFromJson(jsonString);
+//     final basicContactInfo = basicContactInfoFromJson(jsonString);
 
 import 'dart:convert';
 
-ContactInfoModel contactInfoModelFromJson(String str) => ContactInfoModel.fromJson(json.decode(str));
+BasicContactInfo basicContactInfoFromJson(String str) => BasicContactInfo.fromJson(json.decode(str));
 
-String contactInfoModelToJson(ContactInfoModel data) => json.encode(data.toJson());
+String basicContactInfoToJson(BasicContactInfo data) => json.encode(data.toJson());
 
-class ContactInfoModel {
-  ContactInfoModel({
+class BasicContactInfo {
+  BasicContactInfo({
     this.status,
     this.errorno,
     this.error,
@@ -23,7 +23,7 @@ class ContactInfoModel {
   String description;
   Content content;
 
-  factory ContactInfoModel.fromJson(Map<String, dynamic> json) => ContactInfoModel(
+  factory BasicContactInfo.fromJson(Map<String, dynamic> json) => BasicContactInfo(
     status: json["status"],
     errorno: json["errorno"],
     error: json["error"],
@@ -49,15 +49,6 @@ class Content {
     this.mobile3,
     this.phone,
     this.email,
-    this.facebook,
-    this.twitter,
-    this.instagram,
-    this.linkedin,
-    this.googleplus,
-    this.gmail,
-    this.youtube,
-    this.yahoo,
-    this.skype,
   });
 
   String address;
@@ -67,15 +58,6 @@ class Content {
   String mobile3;
   String phone;
   String email;
-  String facebook;
-  String twitter;
-  String instagram;
-  String linkedin;
-  String googleplus;
-  String gmail;
-  String youtube;
-  String yahoo;
-  String skype;
 
   factory Content.fromJson(Map<String, dynamic> json) => Content(
     address: json["address"],
@@ -85,15 +67,6 @@ class Content {
     mobile3: json["mobile3"],
     phone: json["phone"],
     email: json["email"],
-    facebook: json["facebook"],
-    twitter: json["twitter"],
-    instagram: json["instagram"],
-    linkedin: json["linkedin"],
-    googleplus: json["googleplus"],
-    gmail: json["gmail"],
-    youtube: json["youtube"],
-    yahoo: json["yahoo"],
-    skype: json["skype"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -104,14 +77,5 @@ class Content {
     "mobile3": mobile3,
     "phone": phone,
     "email": email,
-    "facebook": facebook,
-    "twitter": twitter,
-    "instagram": instagram,
-    "linkedin": linkedin,
-    "googleplus": googleplus,
-    "gmail": gmail,
-    "youtube": youtube,
-    "yahoo": yahoo,
-    "skype": skype,
   };
 }

@@ -18,7 +18,7 @@ class _ShopPageState extends State<ShopPage> {
   _customInit(ThemeProvider themeProvider,APIProvider apiProvider)async{
     setState(()=>_counter++);
     themeProvider.checkConnectivity();
-    if(apiProvider.contactInfoModel==null) await apiProvider.getContactInfo();
+    if(apiProvider.basicContactInfo==null) await apiProvider.getBasicContactInfo();
   }
 
   @override
@@ -73,7 +73,7 @@ class _ShopPageState extends State<ShopPage> {
             ),
           ),
           Html(
-              data: """${apiProvider.contactInfoModel.content.address}""",
+              data: """${apiProvider.basicContactInfo.content.address}""",
               style:{
                 'strong':Style(
                   color: themeProvider.toggleTextColor()
@@ -84,7 +84,7 @@ class _ShopPageState extends State<ShopPage> {
               },
           ),
           Html(
-              data: """${apiProvider.contactInfoModel.content.address2}""",
+              data: """${apiProvider.basicContactInfo.content.address2}""",
             style:{
               'strong':Style(
                   color: themeProvider.toggleTextColor()

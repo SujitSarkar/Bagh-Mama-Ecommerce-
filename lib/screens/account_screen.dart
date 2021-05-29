@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:bagh_mama/pages/change_password.dart';
 import 'package:bagh_mama/pages/change_theme.dart';
 import 'package:bagh_mama/pages/login_page.dart';
+import 'package:bagh_mama/pages/no_internet_page.dart';
 import 'package:bagh_mama/pages/notification_list.dart';
 import 'package:bagh_mama/pages/order_history_list.dart';
 import 'package:bagh_mama/pages/update_profile.dart';
@@ -26,15 +27,18 @@ class _AccountScreenState extends State<AccountScreen> {
   File _image;
   int _counter=0;
   SharedPreferences pref;
+  bool _isLoading=false;
 
-  void _customInit(APIProvider apiProvider)async{
+  void _customInit(ThemeProvider themeProvider, APIProvider apiProvider)async{
     setState(()=> _counter++);
+    themeProvider.checkConnectivity();
     pref = await SharedPreferences.getInstance();
     if(pref.getString('username')!=null){
       if(apiProvider.userInfoModel==null){
         await apiProvider.getUserInfo(pref.getString('username'));
       }
     }
+    if(apiProvider.profileImageLink==null) apiProvider.getProfileImage();
   }
 
   @override
@@ -42,7 +46,7 @@ class _AccountScreenState extends State<AccountScreen> {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
-    if(_counter==0) _customInit(apiProvider);
+    if(_counter==0 && themeProvider.internetConnected) _customInit(themeProvider,apiProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -60,7 +64,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 fontSize: size.width * .045),
           ),
         ),
-        body: _bodyUI(size, themeProvider,apiProvider),
+        body:themeProvider.internetConnected? _bodyUI(size, themeProvider,apiProvider):NoInternet(),
         floatingActionButton: Builder(
           builder: (context) => _floatingActionButton(size, themeProvider),
         ),
@@ -85,24 +89,26 @@ class _AccountScreenState extends State<AccountScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ///Profile Image Container
-                        Container(
+                        !_isLoading? Container(
                           width: size.width*.45,
-                          child: Column(
-                            children: [
-                              Container(
-                                height: size.width * .45,
-                                width: size.width * .45,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey,
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(10),),
-                                    image: DecorationImage(
-                                        image: _image==null? NetworkImage('https://i.picsum.photos/id/1079/4496/3000.jpg?hmac=G-dJcpU08vEMqjUz2rb3IxjOG99rcePqW9BF1IsPLf0')
-                                            :FileImage(_image),
-                                        fit: BoxFit.cover)),
-                              ),
-                            ],
+                          child: Container(
+                            height: size.width * .45,
+                            width: size.width * .45,
+                            decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(10),),
+                                image: DecorationImage(
+                                    image: apiProvider.profileImageLink==null
+                                        ?AssetImage('assets/user.png'):
+                                    NetworkImage(apiProvider.profileImageLink),
+                                    fit: BoxFit.cover)),
                           ),
+                        ):Container(
+                          height: size.width * .45,
+                          width: size.width * .45,
+                          alignment: Alignment.center,
+                          child: Center(child: threeBounce(themeProvider)),
                         ),
 
                         ///User Information
@@ -125,7 +131,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 apiProvider.userInfoModel.content.state.isNotEmpty? TextSpan(text: '${apiProvider.userInfoModel.content.state}\n'):TextSpan(),
                                 TextSpan(text: 'Postal Code: ',style: TextStyle(fontWeight: FontWeight.w500)),
                                 apiProvider.userInfoModel.content.postalcode.isNotEmpty?TextSpan(text: '${apiProvider.userInfoModel.content.postalcode}\n'):TextSpan(),
-                                TextSpan(text: 'From: ',style: TextStyle(fontWeight: FontWeight.w500)),
+                                apiProvider.userInfoModel.content.country.isNotEmpty?TextSpan(text: 'From: ',style: TextStyle(fontWeight: FontWeight.w500)):TextSpan(),
                                 apiProvider.userInfoModel.content.country.isNotEmpty? TextSpan(text: '${apiProvider.userInfoModel.content.country}\n'):TextSpan(),
                               ],
                             ),
@@ -142,11 +148,11 @@ class _AccountScreenState extends State<AccountScreen> {
                      mainAxisAlignment: MainAxisAlignment.start,
                      crossAxisAlignment: CrossAxisAlignment.center,
                      children: [
-                       _buttonBuilder(themeProvider, size, Icons.camera_alt),
+                       _buttonBuilder(themeProvider,apiProvider, size, Icons.camera_alt),
                        SizedBox(width: size.width*.03),
-                       _buttonBuilder(themeProvider, size, Icons.edit),
+                       _buttonBuilder(themeProvider,apiProvider, size, Icons.edit),
                        SizedBox(width: size.width*.03),
-                       _buttonBuilder(themeProvider, size, Icons.vpn_key_sharp),
+                       _buttonBuilder(themeProvider,apiProvider, size, Icons.vpn_key_sharp),
                      ],
                    ):Container()
 
@@ -181,15 +187,28 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
       );
 
-  Future<void> _getImageFromGallery(ThemeProvider themeProvider)async{
+  Future<void> _getImageFromGallery(ThemeProvider themeProvider,APIProvider apiProvider)async{
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.gallery,maxWidth: 400,maxHeight: 400);
-    if(pickedFile!=null)
-      setState(()=> _image = File(pickedFile.path));
+    if(pickedFile!=null){
+      setState(() {
+        _isLoading=true;
+        _image = File(pickedFile.path);
+      });
+      apiProvider.updateProfileImage(_image).then((value){
+        if(value==true){
+          setState(()=>_isLoading=false);
+          showSuccessMgs('Profile photo update successful');
+        }else{
+          setState(()=>_isLoading=false);
+          showErrorMgs('Profile photo update failed!');
+        }
+      });
+    }
     else showSnackBar(context,'No image selected!',themeProvider);
   }
 
-  Widget _buttonBuilder(ThemeProvider themeProvider, Size size, IconData iconData)=>Container(
+  Widget _buttonBuilder(ThemeProvider themeProvider,APIProvider apiProvider, Size size, IconData iconData)=>Container(
     width: size.width*.12,
     height: size.width*.12,
     decoration: BoxDecoration(
@@ -203,8 +222,13 @@ class _AccountScreenState extends State<AccountScreen> {
         minimumSize: Size(size.width*.12,size.width*.12),
       ),
       child: Icon(iconData,color: Colors.white,size: size.width*.07),
-      onPressed: (){
-        if(iconData==Icons.camera_alt) _getImageFromGallery(themeProvider);
+      onPressed: ()async{
+        if(iconData==Icons.camera_alt){
+          await themeProvider.checkConnectivity().then((value){
+            if(themeProvider.internetConnected==true) _getImageFromGallery(themeProvider,apiProvider);
+            else showErrorMgs('No internet connection!');
+          },onError: (error)=>showErrorMgs(error.toString()));
+        }
         else if(iconData==Icons.vpn_key_sharp) Navigator.push(context,
             MaterialPageRoute(builder: (context) => ChangePassword()));
         else if(iconData==Icons.edit) Navigator.push(context,

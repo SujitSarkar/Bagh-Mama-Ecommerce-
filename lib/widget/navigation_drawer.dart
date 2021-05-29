@@ -21,7 +21,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
 
   _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
-    if(apiProvider.contactInfoModel==null) await apiProvider.getContactInfo();
+    if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
   }
 
   @override
@@ -70,7 +70,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                           _socialIconBuilder(FontAwesomeIcons.twitterSquare,apiProvider, themeProvider, size),
                           _socialIconBuilder(FontAwesomeIcons.instagramSquare,apiProvider, themeProvider, size),
                           _socialIconBuilder(FontAwesomeIcons.youtubeSquare,apiProvider, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.googlePlusSquare,apiProvider, themeProvider, size),
+                          _socialIconBuilder(FontAwesomeIcons.pinterestSquare,apiProvider, themeProvider, size),
                           _socialIconBuilder(FontAwesomeIcons.skype,apiProvider, themeProvider, size),
                         ],
                       )
@@ -88,17 +88,17 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
   Widget _socialIconBuilder(IconData iconData, APIProvider apiProvider, ThemeProvider themeProvider,Size size)=>InkWell(
     onTap: (){
       if(iconData==FontAwesomeIcons.facebookSquare)
-        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.facebook,);
+        launchInWebViewWithJavaScript(context, apiProvider.socialContactInfo.content.facebook,);
       else if(iconData== FontAwesomeIcons.twitterSquare)
-        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.twitter);
+        launchInWebViewWithJavaScript(context, apiProvider.socialContactInfo.content.twitter);
       else if(iconData== FontAwesomeIcons.instagramSquare)
-        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.instagram);
+        launchInWebViewWithJavaScript(context, apiProvider.socialContactInfo.content.instagram);
       else if(iconData== FontAwesomeIcons.youtubeSquare)
-        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.youtube);
+        launchInWebViewWithJavaScript(context, apiProvider.socialContactInfo.content.youtube);
       else if(iconData== FontAwesomeIcons.googlePlusSquare)
-        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.googleplus);
+        launchInWebViewWithJavaScript(context, apiProvider.socialContactInfo.content.yahoo);
       else if(iconData== FontAwesomeIcons.skype)
-        launchInWebViewWithJavaScript(context, apiProvider.contactInfoModel.content.skype);
+        launchInWebViewWithJavaScript(context, apiProvider.socialContactInfo.content.skype);
 
     },
     child: Container(

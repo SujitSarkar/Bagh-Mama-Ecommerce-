@@ -40,8 +40,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     if(apiProvider.productCategoriesModel==null) await apiProvider.getProductCategories();
     _controller = TabController(length: apiProvider.productCategoryList.length, vsync: this);
     if(apiProvider.networkImageList.isEmpty) await apiProvider.getBannerImageList();
-    if(apiProvider.productsModel==null) await apiProvider.getProducts();
-    if(apiProvider.contactInfoModel==null) await apiProvider.getContactInfo();
+    //if(apiProvider.productsModel==null) await apiProvider.getProducts();
+    //if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
 
     final SharedPreferences pref = await SharedPreferences.getInstance();
     if(pref.getString('username')!=null){

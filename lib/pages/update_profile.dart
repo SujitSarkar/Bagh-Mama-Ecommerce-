@@ -21,6 +21,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController phone= TextEditingController();
   TextEditingController address= TextEditingController();
   TextEditingController state= TextEditingController();
+  TextEditingController country= TextEditingController();
   TextEditingController city= TextEditingController();
   TextEditingController postalCode= TextEditingController();
   int _counter=0;
@@ -42,6 +43,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
     phone.text = apiProvider.userInfoModel.content.mobileNumber;
     address.text = apiProvider.userInfoModel.content.address;
     state.text = apiProvider.userInfoModel.content.state;
+    country.text = apiProvider.userInfoModel.content.country;
     city.text = apiProvider.userInfoModel.content.city;
     postalCode.text = apiProvider.userInfoModel.content.postalcode;
   }
@@ -96,8 +98,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                 SizedBox(height: size.width * .04),
                 _textFieldBuilder(themeProvider, size, 'Postal Code'),
                 SizedBox(height: size.width * .04),
+                _textFieldBuilder(themeProvider, size, 'Country'),
+                SizedBox(height: size.width * .04),
                 _isLoading
-                    ?CircularProgressIndicator()
+                    ?threeBounce(themeProvider)
                     :Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -128,10 +132,23 @@ class _UpdateProfileState extends State<UpdateProfile> {
         ),
   );
 
-  void _updateUserInfo(APIProvider apiProvider){
+  void _updateUserInfo(APIProvider apiProvider)async{
+    final SharedPreferences pref = await SharedPreferences.getInstance();
     setState(()=> _isLoading=true);
-    apiProvider.updateUserInfo(firstName.text, lastName.text, email.text,
-        phone.text, address.text, state.text, city.text, postalCode.text).then((value){
+    print(pref.getString('userId'));
+    Map data={
+      "id": int.parse(pref.getString('userId')),
+      "first_name": "${firstName.text}",
+      "last_name": "${lastName.text}",
+      "email": "${email.text}",
+      "address": "${address.text}",
+      "city": "${city.text}",
+      "state": "${state.text}",
+      "postalcode": "${postalCode.text}",
+      "mobile_number": "${phone.text}",
+      "country": "${country.text}"
+    };
+    apiProvider.updateUserInfo(data).then((value){
           if(value==true){
             apiProvider.getUserInfo(pref.getString('username')).then((value){
               setState(()=> _isLoading=false);
@@ -155,6 +172,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
             :hint=='Address'?address
             :hint=='Division/State'?state
             :hint=='District/City'?city
+            :hint=='Country'?country
             :postalCode,
         style: TextStyle(
             color: themeProvider.toggleTextColor(), fontSize: size.width * .04),
