@@ -173,7 +173,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     Divider(color: Colors.grey,height: 0.5),
                     _functionBuilder(apiProvider,themeProvider, size, 'Order History', FontAwesomeIcons.shoppingBasket),
                     Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(apiProvider,themeProvider, size, 'Notifications', FontAwesomeIcons.bell),
+                    _functionBuilder(apiProvider,themeProvider, size, 'Notifications', FontAwesomeIcons.solidBell),
                     Divider(color: Colors.grey,height: 0.5),
                     _functionBuilder(apiProvider,themeProvider, size, 'Settings', FontAwesomeIcons.cog),
                     Divider(color: Colors.grey,height: 0.5),

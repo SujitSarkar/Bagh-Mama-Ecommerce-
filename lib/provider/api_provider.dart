@@ -7,6 +7,7 @@ import 'package:bagh_mama/models/product_info_model.dart';
 import 'package:bagh_mama/models/products_model.dart';
 import 'package:bagh_mama/models/register_user_model.dart';
 import 'package:bagh_mama/models/social_contact_info_model.dart';
+import 'package:bagh_mama/models/upluad_image_model.dart';
 import 'package:bagh_mama/models/user_info_model.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/material.dart';
@@ -57,25 +58,26 @@ class APIProvider extends ChangeNotifier{
 
   Future<bool> updateProfileImage(File imageFile)async{
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var response= await http.post(
+    var imageBytes = imageFile.readAsBytesSync();
+    String baseImage = base64Encode(imageBytes);
+    //print('imageBytes: $imageBytes');
+    var response = await http.post(
       Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate'),
       headers: {
-        //'Content-Type': _contentType,
         'X-Auth-Key': _xAuthKey,
         'X-Auth-Email': _xAuthEmail,
-      },
-      body: {
-        'id': pref.getString('userId'),
-        'ppic': imageFile,
+      }, body: {
+        "id": pref.getString('userId'),
+        'ppic': '$baseImage',
       }
     );
-    var jsonData = json.decode(response.body);
-    if(jsonData['content']['success']==true){
-      _profileImageLink = jsonData['content']['image'];
-      notifyListeners();
-      return jsonData['content']['success'];
+    final String responseString = response.body;
+    UploadImageResponseModel model= uploadImageResponseModelFromJson(responseString);
+    if(model.status=='SUCCESS'){
+      return model.content.success;
+    }else{
+      return model.content.success;
     }
-    else return false;
   }
 
   Future<void> getBannerImageList()async{
