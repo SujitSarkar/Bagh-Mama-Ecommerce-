@@ -189,12 +189,13 @@ class _AccountScreenState extends State<AccountScreen> {
 
   Future<void> _getImageFromGallery(ThemeProvider themeProvider,APIProvider apiProvider)async{
     final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.gallery,maxWidth: 400,maxHeight: 400);
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
     if(pickedFile!=null){
       setState(() {
         _isLoading=true;
         _image = File(pickedFile.path);
       });
+      print('Image Path: $_image');
       apiProvider.updateProfileImage(_image).then((value){
         if(value==true){
           setState(()=>_isLoading=false);

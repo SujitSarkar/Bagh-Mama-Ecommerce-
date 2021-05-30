@@ -1,39 +1,3 @@
-// class ProductsModel{
-//   int id;
-//   String name;
-//   int category_id;
-//   String brand;
-//   List<PriceStockCart> price_stock_chart;
-//   List<String> sizes;
-//   List<String> colors;
-//   String description;
-//   int views;
-//   int discount;
-//   String added_date;
-//   int status;
-//
-//   ProductsModel({
-//       this.id,
-//       this.name,
-//       this.category_id,
-//       this.brand,
-//       this.price_stock_chart,
-//       this.sizes,
-//       this.colors,
-//       this.description,
-//       this.views,
-//       this.discount,
-//       this.added_date,
-//       this.status});
-// }
-// class PriceStockCart{
-//   String i_s;
-//   String i_c;
-//   String s_p;
-//   String s_a;
-//   PriceStockCart({this.i_s, this.i_c, this.s_p, this.s_a});
-// }
-
 // To parse this JSON data, do
 //
 //     final productsModel = productsModelFromJson(jsonString);
@@ -85,7 +49,6 @@ class Content {
     this.priceStockChart,
     this.sizes,
     this.colors,
-    this.description,
     this.views,
     this.discount,
     this.addedDate,
@@ -95,11 +58,10 @@ class Content {
   int id;
   String name;
   int categoryId;
-  String brand;
+  Brand brand;
   List<PriceStockChart> priceStockChart;
   List<String> sizes;
-  List<String> colors;
-  String description;
+  List<Color> colors;
   int views;
   int discount;
   DateTime addedDate;
@@ -109,11 +71,10 @@ class Content {
     id: json["id"],
     name: json["name"],
     categoryId: json["category_id"],
-    brand: json["brand"],
+    brand: brandValues.map[json["brand"]],
     priceStockChart: List<PriceStockChart>.from(json["price_stock_chart"].map((x) => PriceStockChart.fromJson(x))),
     sizes: List<String>.from(json["sizes"].map((x) => x)),
-    colors: List<String>.from(json["colors"].map((x) => x)),
-    description: json["description"],
+    colors: List<Color>.from(json["colors"].map((x) => colorValues.map[x])),
     views: json["views"],
     discount: json["discount"],
     addedDate: DateTime.parse(json["added_date"]),
@@ -124,17 +85,31 @@ class Content {
     "id": id,
     "name": name,
     "category_id": categoryId,
-    "brand": brand,
+    "brand": brandValues.reverse[brand],
     "price_stock_chart": List<dynamic>.from(priceStockChart.map((x) => x.toJson())),
     "sizes": List<dynamic>.from(sizes.map((x) => x)),
-    "colors": List<dynamic>.from(colors.map((x) => x)),
-    "description": description,
+    "colors": List<dynamic>.from(colors.map((x) => colorValues.reverse[x])),
     "views": views,
     "discount": discount,
     "added_date": addedDate.toIso8601String(),
     "status": status,
   };
 }
+
+enum Brand { EMPTY, GPHONE, THE_5_STAR }
+
+final brandValues = EnumValues({
+  "": Brand.EMPTY,
+  "Gphone": Brand.GPHONE,
+  "5 star": Brand.THE_5_STAR
+});
+
+enum Color { EMPTY, NO }
+
+final colorValues = EnumValues({
+  "": Color.EMPTY,
+  "no": Color.NO
+});
 
 class PriceStockChart {
   PriceStockChart({
@@ -145,21 +120,35 @@ class PriceStockChart {
   });
 
   String iS;
-  String iC;
+  Color iC;
   String sP;
   String sA;
 
   factory PriceStockChart.fromJson(Map<String, dynamic> json) => PriceStockChart(
     iS: json["i_s"],
-    iC: json["i_c"],
+    iC: colorValues.map[json["i_c"]],
     sP: json["s_p"],
     sA: json["s_a"],
   );
 
   Map<String, dynamic> toJson() => {
     "i_s": iS,
-    "i_c": iC,
+    "i_c": colorValues.reverse[iC],
     "s_p": sP,
     "s_a": sA,
   };
+}
+
+class EnumValues<T> {
+  Map<String, T> map;
+  Map<T, String> reverseMap;
+
+  EnumValues(this.map);
+
+  Map<T, String> get reverse {
+    if (reverseMap == null) {
+      reverseMap = map.map((k, v) => new MapEntry(v, k));
+    }
+    return reverseMap;
+  }
 }

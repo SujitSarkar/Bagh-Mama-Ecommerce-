@@ -33,6 +33,7 @@ class APIProvider extends ChangeNotifier{
   SocialContactInfo _socialContactInfo;
   BasicContactInfo _basicContactInfo;
   String _profileImageLink;
+  List<String> _wishListIdList=[];
 
   get bannerImageList => _bannerImageList;
   get networkImageList => _networkImageList;
@@ -44,6 +45,7 @@ class APIProvider extends ChangeNotifier{
   get socialContactInfo => _socialContactInfo;
   get basicContactInfo => _basicContactInfo;
   get profileImageLink => _profileImageLink;
+  get wishListIdList => _wishListIdList;
 
   set userInfoModel(UserInfoModel value){
     _userInfoModel = value;
@@ -66,9 +68,10 @@ class APIProvider extends ChangeNotifier{
       headers: {
         'X-Auth-Key': _xAuthKey,
         'X-Auth-Email': _xAuthEmail,
-      }, body: {
+      },
+        body: {
         "id": pref.getString('userId'),
-        'ppic': '$baseImage',
+        'ppic': imageFile,
       }
     );
     final String responseString = response.body;
@@ -133,12 +136,13 @@ class APIProvider extends ChangeNotifier{
 
   Future<void> getProducts()async{
     var response = await http.post(
-      _baseUri,
-      body: {
-        'api_token': _apiToken,
-        'determiner': 'products',
-        'fetch_scope': 'main'
-      });
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail,
+      },
+      );
     if(response.statusCode==200){
       final String responseString = response.body;
       _productsModel= productsModelFromJson(responseString);
@@ -201,6 +205,12 @@ class APIProvider extends ChangeNotifier{
       notifyListeners();
       pref.setString('username', username);
       pref.setString('userId', _userInfoModel.content.id.toString());
+      if(_userInfoModel.content.wishlists.isNotEmpty){
+        _userInfoModel.content.wishlists.forEach((key, value) {
+          _wishListIdList.add(value);
+        });
+        notifyListeners();
+      }
       return true;
     }else{
       return false;

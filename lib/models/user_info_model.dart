@@ -73,7 +73,7 @@ class Content {
   String country;
   String postalcode;
   String mobileNumber;
-  List<dynamic> wishlists;
+  Map<String, String> wishlists;
 
   factory Content.fromJson(Map<String, dynamic> json) => Content(
     id: json["id"],
@@ -90,7 +90,7 @@ class Content {
     country: json["country"],
     postalcode: json["postalcode"],
     mobileNumber: json["mobile_number"],
-    wishlists: List<dynamic>.from(json["wishlists"].map((x) => x)),
+    wishlists: Map.from(json["wishlists"]).map((k, v) => MapEntry<String, String>(k, v)),
   );
 
   Map<String, dynamic> toJson() => {
@@ -108,6 +108,6 @@ class Content {
     "country": country,
     "postalcode": postalcode,
     "mobile_number": mobileNumber,
-    "wishlists": List<dynamic>.from(wishlists.map((x) => x)),
+    "wishlists": Map.from(wishlists).map((k, v) => MapEntry<String, dynamic>(k, v)),
   };
 }

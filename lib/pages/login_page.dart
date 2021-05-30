@@ -129,9 +129,9 @@ class _LoginPageState extends State<LoginPage> {
               if(isValidate){
                 apiProvider.getUserInfo(_emailController.text).then((value){
                   if(value){
-                    setState(()=> _isLoading=false);
                     showSuccessMgs('Success');
                     Navigator.pop(context);
+                    setState(()=> _isLoading=false);
                   }else{
                     setState(()=> _isLoading=false);
                     showErrorMgs('Unable to get user, try again later');
