@@ -37,11 +37,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   _customInit(ThemeProvider themeProvider,APIProvider apiProvider)async{
     setState(()=>_counter++);
     themeProvider.checkConnectivity();
-    if(apiProvider.productCategoriesModel==null) await apiProvider.getProductCategories();
-    _controller = TabController(length: apiProvider.productCategoryList.length, vsync: this);
+    if(apiProvider.allCategoryList.isEmpty) await apiProvider.getProductCategories();
+    _controller = TabController(length: apiProvider.mainCategoryList.length, vsync: this);
     if(apiProvider.networkImageList.isEmpty) await apiProvider.getBannerImageList();
-    //if(apiProvider.productsModel==null) await apiProvider.getProducts();
-    //if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
+    if(apiProvider.productsModel==null) await apiProvider.getProducts();
+    if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
 
     final SharedPreferences pref = await SharedPreferences.getInstance();
     if(pref.getString('username')!=null){
@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ),
 
-        bottom: apiProvider.productCategoryList.isNotEmpty? TabBar(
+        bottom: apiProvider.mainCategoryList.isNotEmpty? TabBar(
           onTap: (covariant){
             setState(()=> _tabIndex = covariant);
           },
@@ -223,6 +223,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                   productId: apiProvider.productsModel.content[index].id,
                 )));
+                print(apiProvider.productsModel.content[index].id);
               },
               child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
         ),

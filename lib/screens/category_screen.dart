@@ -18,7 +18,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
-    if(apiProvider.productCategoryList.isEmpty) await apiProvider.getProductCategories();
+    if(apiProvider.mainCategoryList.isEmpty) await apiProvider.getProductCategories();
   }
 
 
@@ -59,8 +59,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
             Container(
               width: size.width * .24,
               color: themeProvider.whiteBlackToggleColor(),
-              child: apiProvider.productCategoryList.isNotEmpty? ListView.builder(
-                itemCount: apiProvider.productCategoryList.length,
+              child: apiProvider.mainCategoryList.isNotEmpty? ListView.builder(
+                itemCount: apiProvider.mainCategoryList.length,
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
@@ -72,7 +72,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           : themeProvider.whiteBlackToggleColor(),
                       padding: EdgeInsets.all(10),
                       child: Text(
-                        apiProvider.productCategoryList[index],
+                        apiProvider.mainCategoryList[index],
                         style: TextStyle(
                             fontSize: size.width * .03,
                             fontWeight: index == _selectedIndex

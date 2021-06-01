@@ -24,8 +24,9 @@ class HomeProductCartTile extends StatelessWidget {
                 topLeft: Radius.circular(5),
                 topRight: Radius.circular(5)
             ),
-            child: Image.asset(
-              'assets/product_image/cycle.jpg',
+            child: Image.network(
+              productsModel.content[index].thumbnailImage,
+              height: size.width*.3,
               fit: BoxFit.fitWidth,
             ),
           ),

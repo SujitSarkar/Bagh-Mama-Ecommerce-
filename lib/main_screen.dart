@@ -76,7 +76,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         child: FloatingActionButton(
           elevation: 0.0,
           backgroundColor: Colors.transparent,
-          child: Image.asset('assets/bm_head.png',height:size.width*.15,width: size.width*.15,),
+          child: Image.asset('assets/bm_head.png',height:size.width*.12,width: size.width*.12,),
           onPressed: () {
             _animationController.reset();
             _animationController.forward();

@@ -52,32 +52,35 @@ class Content {
     this.views,
     this.discount,
     this.addedDate,
+    this.thumbnailImage,
     this.status,
   });
 
   int id;
   String name;
   int categoryId;
-  Brand brand;
+  String brand;
   List<PriceStockChart> priceStockChart;
   List<String> sizes;
-  List<Color> colors;
+  List<String> colors;
   int views;
   int discount;
   DateTime addedDate;
+  String thumbnailImage;
   int status;
 
   factory Content.fromJson(Map<String, dynamic> json) => Content(
     id: json["id"],
     name: json["name"],
     categoryId: json["category_id"],
-    brand: brandValues.map[json["brand"]],
+    brand: json["brand"],
     priceStockChart: List<PriceStockChart>.from(json["price_stock_chart"].map((x) => PriceStockChart.fromJson(x))),
     sizes: List<String>.from(json["sizes"].map((x) => x)),
-    colors: List<Color>.from(json["colors"].map((x) => colorValues.map[x])),
+    colors: List<String>.from(json["colors"].map((x) => x)),
     views: json["views"],
     discount: json["discount"],
     addedDate: DateTime.parse(json["added_date"]),
+    thumbnailImage: json["thumbnail_image"],
     status: json["status"],
   );
 
@@ -85,31 +88,17 @@ class Content {
     "id": id,
     "name": name,
     "category_id": categoryId,
-    "brand": brandValues.reverse[brand],
+    "brand": brand,
     "price_stock_chart": List<dynamic>.from(priceStockChart.map((x) => x.toJson())),
     "sizes": List<dynamic>.from(sizes.map((x) => x)),
-    "colors": List<dynamic>.from(colors.map((x) => colorValues.reverse[x])),
+    "colors": List<dynamic>.from(colors.map((x) => x)),
     "views": views,
     "discount": discount,
     "added_date": addedDate.toIso8601String(),
+    "thumbnail_image": thumbnailImage,
     "status": status,
   };
 }
-
-enum Brand { EMPTY, GPHONE, THE_5_STAR }
-
-final brandValues = EnumValues({
-  "": Brand.EMPTY,
-  "Gphone": Brand.GPHONE,
-  "5 star": Brand.THE_5_STAR
-});
-
-enum Color { EMPTY, NO }
-
-final colorValues = EnumValues({
-  "": Color.EMPTY,
-  "no": Color.NO
-});
 
 class PriceStockChart {
   PriceStockChart({
@@ -120,35 +109,21 @@ class PriceStockChart {
   });
 
   String iS;
-  Color iC;
+  String iC;
   String sP;
   String sA;
 
   factory PriceStockChart.fromJson(Map<String, dynamic> json) => PriceStockChart(
     iS: json["i_s"],
-    iC: colorValues.map[json["i_c"]],
+    iC: json["i_c"],
     sP: json["s_p"],
     sA: json["s_a"],
   );
 
   Map<String, dynamic> toJson() => {
     "i_s": iS,
-    "i_c": colorValues.reverse[iC],
+    "i_c": iC,
     "s_p": sP,
     "s_a": sA,
   };
-}
-
-class EnumValues<T> {
-  Map<String, T> map;
-  Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    if (reverseMap == null) {
-      reverseMap = map.map((k, v) => new MapEntry(v, k));
-    }
-    return reverseMap;
-  }
 }

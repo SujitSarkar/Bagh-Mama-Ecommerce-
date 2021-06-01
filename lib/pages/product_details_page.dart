@@ -5,9 +5,11 @@ import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/widget/home_product_cart_tile.dart';
+import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:bagh_mama/widget/product_review_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +31,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   double _starRating;
   int _sizeIndex, _colorIndex, _counter=0;
   String _selectedSize, _selectedColor;
-  bool _isLoading=false;
+  bool _isLoading=true;
   TextEditingController _ratingCommentController = TextEditingController();
 
   final List<VBarChartModel> barData = [
@@ -62,13 +64,9 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   void _customInit(APIProvider apiProvider)async{
     //ProductInfoModel productInfoModel;
-    setState(() {
-      _counter++;
-    });
+    setState(()=> _counter++);
     await apiProvider.getProductInfo(widget.productId).then((value){
-      setState(() {
-        _isLoading=false;
-      });
+      setState(()=> _isLoading=false);
     });
   }
 
@@ -77,11 +75,11 @@ class _ProductDetailsState extends State<ProductDetails> {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
-    //if(_counter==0) _customInit(apiProvider);
+    if(_counter==0) _customInit(apiProvider);
     return Scaffold(
       backgroundColor: themeProvider.whiteBlackToggleColor(),
         resizeToAvoidBottomInset: false,
-        body: _isLoading? Center(child: CircularProgressIndicator()): SafeArea(
+        body: _isLoading? Center(child: threeBounce(themeProvider)): SafeArea(
           child: DefaultTabController(
             length: 2,
             child: NestedScrollView(
@@ -103,9 +101,19 @@ class _ProductDetailsState extends State<ProductDetails> {
                     flexibleSpace: Stack(
                       children: <Widget>[
                         Positioned.fill(
-                            child: Image.asset(
-                              "assets/product_image/product.jpg",
-                              fit: BoxFit.cover,
+                            child: Container(
+                              width: size.width,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                image: DecorationImage(
+                                  image: NetworkImage(apiProvider.productInfoModel.content.thumnailImage),
+
+                                )
+                              ),
+                              // child: Image.network(
+                              //   apiProvider.productInfoModel.content.thumnailImage,
+                              //
+                              // ),
                             ))
                       ],
                     ),
@@ -118,7 +126,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text('In Stock',style: TextStyle(fontSize: size.width*.045,fontWeight: FontWeight.w500,color: Colors.green),),
+                            apiProvider.productInfoModel.content.priceStock.stock.toString().isNotEmpty
+                                ? Text('In Stock',style: TextStyle(fontSize: size.width*.045,fontWeight: FontWeight.w500,color: Colors.green),)
+                                :Text('Out Of Stock',style: TextStyle(fontSize: size.width*.045,fontWeight: FontWeight.w500,color: Color(0xffF0A732)),),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -160,9 +170,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         children: [
 
           ///Product Name
-          Text('Here you can view all the images Lorem Picsum provides.'
-              'Get a specific image by adding /id/{image} to the start of the url.'
-              'Here you can view all the images Lorem Picsum provides.',
+          Text('${apiProvider.productInfoModel.content.name}',
             textAlign: TextAlign.justify,
             style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.w500),
           ),
@@ -174,15 +182,19 @@ class _ProductDetailsState extends State<ProductDetails> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('Tk.1000',
+              apiProvider.productInfoModel.content.discount!=0
+                  ?Text('TK.${apiProvider.productInfoModel.content.priceStock.price - (apiProvider.productInfoModel.content.priceStock.price*(apiProvider.productInfoModel.content.discount/100))}',
                 textAlign: TextAlign.justify,
-                style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold),),
+                style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold),)
+                  :Text('Tk.${apiProvider.productInfoModel.content.priceStock.price}',
+                  style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold)
+              ),
               SizedBox(width: size.width*.02),
-              Text('Tk.1200',
+              apiProvider.productInfoModel.content.discount!=0? Text('TK.${apiProvider.productInfoModel.content.priceStock.price}',
                   maxLines: 1,
                   style: TextStyle(color: themeProvider.toggleTextColor(),
                       fontSize: size.width*.03,fontWeight: FontWeight.w400,
-                      decoration: TextDecoration.lineThrough))
+                      decoration: TextDecoration.lineThrough)):Container()
             ],
           ),
           Divider(height: 5.0,color: Colors.grey,thickness: 0.5),
@@ -203,11 +215,11 @@ class _ProductDetailsState extends State<ProductDetails> {
           SizedBox(height: size.width*.04),
 
           ///Available Size
-          Column(
+          apiProvider.productInfoModel.content.availableSizes.isNotEmpty?Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('Select Size:',
+              Text('Available Size:',
                   style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
               Container(
                 // color: Colors.red,
@@ -217,7 +229,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
-                  itemCount: 4,
+                  itemCount: apiProvider.productInfoModel.content.availableSizes.length,
                     itemBuilder: (context, index){
                     return InkWell(
                       onTap: (){
@@ -234,7 +246,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               width: _sizeIndex==index? 1.5:1),
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
-                        child: Text('XL',style: TextStyle(
+                        child: Text(apiProvider.productInfoModel.content.availableSizes[index].toString(),style: TextStyle(
                           fontSize: size.width*.04,
                           color: _sizeIndex==index? themeProvider.orangeWhiteToggleColor(): themeProvider.toggleTextColor()
                         )),
@@ -245,15 +257,15 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ),
               ),
             ],
-          ),
-          SizedBox(height: size.width*.04),
+          ):Container(),
+          apiProvider.productInfoModel.content.availableSizes.isNotEmpty? SizedBox(height: size.width*.04):Container(),
 
           ///Available Color
-          Column(
+          apiProvider.productInfoModel.content.availableColors.isNotEmpty?Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('Select Color:',
+              Text('Available Color:',
                   style: TextStyle(color: Colors.grey,fontSize: size.width*.04)),
               Container(
                 // color: Colors.red,
@@ -261,38 +273,79 @@ class _ProductDetailsState extends State<ProductDetails> {
                 width: size.width,
                 padding: EdgeInsets.all(size.width*.01),
                 child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  itemCount: 4,
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    itemCount: apiProvider.productInfoModel.content.availableColors.length,
                     itemBuilder: (context, index){
-                    return InkWell(
-                      onTap: (){
-                        setState(() {
-                          _colorIndex=index;
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.only(right: 10),
-                        padding: EdgeInsets.symmetric(horizontal: size.width*.02),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: _colorIndex==index? themeProvider.orangeWhiteToggleColor(): Colors.grey,
-                              width: _colorIndex==index? 1.5:1),
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                      return InkWell(
+                        onTap: (){
+                          setState(() {
+                            _sizeIndex=index;
+                          });
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          margin: EdgeInsets.only(right: 10),
+                          padding: EdgeInsets.symmetric(horizontal: size.width*.02),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: _sizeIndex==index? themeProvider.orangeWhiteToggleColor(): Colors.grey,
+                                width: _sizeIndex==index? 1.5:1),
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          child: Text(apiProvider.productInfoModel.content.availableColors[index].toString(),style: TextStyle(
+                              fontSize: size.width*.04,
+                              color: _sizeIndex==index? themeProvider.orangeWhiteToggleColor(): themeProvider.toggleTextColor()
+                          )),
                         ),
-                        child: Text('Green',style: TextStyle(
-                            fontSize: size.width*.04,
-                            color: _colorIndex==index? themeProvider.orangeWhiteToggleColor(): themeProvider.toggleTextColor()
-                        )),
-                      ),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    );
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      );
                     }
                 ),
               ),
             ],
-          ),
+          ):Container(),
+          apiProvider.productInfoModel.content.description!=null?SizedBox(height: size.width*.04):Container(),
+
+          ///Product Description
+          apiProvider.productInfoModel.content.description!=null? Text('Product Full Description',
+              style: TextStyle(color: Colors.grey,fontSize: size.width*.04)):Container(),
+          apiProvider.productInfoModel.content.description!=null? Html(
+            data: """${apiProvider.productInfoModel.content.description}""",
+            style:{
+              'strong':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'body':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'span':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'p':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'li':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'table':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'tbody':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'tr':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'td':Style(
+              color: themeProvider.toggleTextColor()
+              ),
+              'th':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+            },
+          ):Container(),
           SizedBox(height: size.width*.1),
+
 
           ///Related Product
           Text('Related Product',
@@ -307,7 +360,9 @@ class _ProductDetailsState extends State<ProductDetails> {
               itemCount: apiProvider.productsModel.content.length,
               itemBuilder: (context, index)=>InkWell(
                   onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                      productId: apiProvider.productsModel.content[index].id,
+                    )));
                   },
                   child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
             ),
@@ -322,7 +377,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('Customer Reviews (50)',style: TextStyle(fontSize: size.width*.06),),
+                Text('Customer Reviews (${apiProvider.productInfoModel.content.rating.totalReviewer.toString()})',style: TextStyle(fontSize: size.width*.06),),
                 Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.08,)
               ],
             ),
@@ -341,7 +396,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                     //text: 'Hello ',
                     style: TextStyle(fontSize: size.width*.06,color: themeProvider.toggleTextColor(),fontWeight:FontWeight.w500),
                     children: <TextSpan>[
-                      TextSpan(text: '4.50'),
+                      TextSpan(text: '${apiProvider.productInfoModel.content.rating.averageRating.toString()}'),
                       TextSpan(text: '/5', style: TextStyle(fontWeight: FontWeight.w400,fontSize: size.width*.04,color: Colors.grey)),
                     ],
                   ),
@@ -607,7 +662,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
                 ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor()),
+                    // backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor()),
                   ),
                     onPressed: (){
                     Navigator.pop(context);

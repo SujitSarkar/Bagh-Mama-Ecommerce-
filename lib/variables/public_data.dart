@@ -53,13 +53,12 @@ class PublicData {
           child: Image.network(item, fit: BoxFit.cover, width: 500.0),
         ),
       ),
-    ))
-        .toList();
+    )).toList();
      return imageSliders;
   }
 
  static List<Widget> categoryWidgetList(APIProvider apiProvider,ThemeProvider themeProvider){
-    List<Widget> categoryList= apiProvider.productCategoryList.map<Widget>((item)=>
+    List<Widget> categoryList= apiProvider.mainCategoryList.map<Widget>((item)=>
         Padding(
           padding: EdgeInsets.symmetric(vertical: 6),
           child: Text(item,style: TextStyle(color: themeProvider.toggleTextColor()),),
