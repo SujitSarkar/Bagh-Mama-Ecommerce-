@@ -1,14 +1,20 @@
 import 'package:bagh_mama/pages/filter_subcategory_product.dart';
 import 'package:bagh_mama/pages/product_details_page.dart';
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
 import 'package:bagh_mama/widget/category_product_cart_tile.dart';
+import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class SubcategoryProductList extends StatefulWidget {
+  String categoryId;
+  SubcategoryProductList({this.categoryId});
+
   @override
   _SubcategoryProductListState createState() => _SubcategoryProductListState();
 }
@@ -16,11 +22,23 @@ class SubcategoryProductList extends StatefulWidget {
 class _SubcategoryProductListState extends State<SubcategoryProductList> {
   final GlobalKey<PopupMenuButtonState<int>> _key = GlobalKey();
   bool _isFiltered=false;
+  bool _isLoading=true;
+  int _counter=0;
+  void _customInit(APIProvider apiProvider)async{
+    setState(()=>_counter++);
+    Map map = {"category_id":"${widget.categoryId}"};
+    await apiProvider.getCategoryProducts(map).then((value){
+      setState(()=>_isLoading=false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    if(_counter==0) _customInit(apiProvider);
+
     return Scaffold(
       backgroundColor: themeProvider.togglePageBgColor(),
       appBar: AppBar(
@@ -92,11 +110,18 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
           )
         ],
       ),
-      body: _bodyUI(size, themeProvider),
+      body: _bodyUI(size, themeProvider, apiProvider),
     );
   }
 
-  Widget  _bodyUI(Size size, ThemeProvider themeProvider)=>Container(
+  Widget  _bodyUI(Size size, ThemeProvider themeProvider, APIProvider apiProvider)=> _isLoading
+      ?Center(child: threeBounce(themeProvider))
+      : apiProvider.categoryProductModel==null
+      ? Center(child: Text('Select SubCategory'))
+      : apiProvider.categoryProductModel.content.isEmpty?Center(child: Text('No Product'))
+      : Container(
+    // height: size.height,
+    color: themeProvider.togglePageBgColor(),
     padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
     child: GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -107,11 +132,16 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
       ),
       shrinkWrap: true,
       physics: ClampingScrollPhysics(),
-      itemCount: 50,
+      itemCount: apiProvider.categoryProductModel.content.length,
       itemBuilder: (context, index){
         return InkWell(
-            onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails())),
-            child: ProductCartTile(index: index,));
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                productId: apiProvider.categoryProductModel.content[index].id,
+                categoryId: apiProvider.categoryProductModel.content[index].categoryId,
+              )));
+            },
+            child: ProductCartTile(index: index,productsModel: apiProvider.categoryProductModel));
       },
     ),
   );

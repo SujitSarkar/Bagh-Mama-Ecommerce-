@@ -1,18 +1,18 @@
-import 'package:bagh_mama/models/products_model.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
-class HomeProductCartTile extends StatelessWidget {
-  ProductsModel productsModel;
+class ProductTile extends StatelessWidget {
+  var productsModel;
   int index;
-  HomeProductCartTile({this.index,this.productsModel});
+  ProductTile({this.index,this.productsModel});
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
-    final double discountPrice = int.parse(productsModel.content[index].priceStockChart[0].sP) - int.parse(productsModel.content[index].priceStockChart[0].sP)*(productsModel.content[index].discount/100);
+    final double discountPrice = int.parse(productsModel.content[index].priceStockChart[0].sP)
+        - int.parse(productsModel.content[index].priceStockChart[0].sP)*(productsModel.content[index].discount/100);
     return Container(
       width: size.width * .35,
       // height: size.width*.3,
@@ -76,7 +76,7 @@ class HomeProductCartTile extends StatelessWidget {
                     bottomLeft: Radius.circular(size.width*.1),
                 ),
               ),
-              child: Text('-${productsModel.content[index].discount}%',style: TextStyle(color: Colors.white,fontSize: size.width*.03),),
+              child: Text('-${productsModel.content[index].discount}% ',style: TextStyle(color: Colors.white,fontSize: size.width*.03),),
             ),
           ):Container()
         ],

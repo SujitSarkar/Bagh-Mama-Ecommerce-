@@ -4,7 +4,8 @@ class ProductCategoryModel{
   String header;
   String sub;
   String position;
+  String categoryIcon;
 
   ProductCategoryModel({
-      this.id, this.main, this.header, this.sub, this.position});
+      this.id, this.main, this.header, this.sub, this.position,this.categoryIcon});
 }

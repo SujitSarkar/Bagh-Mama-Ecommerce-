@@ -13,7 +13,6 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
-  int _selectedIndex = 0;
   int _counter=0;
 
   _customInit(APIProvider apiProvider)async{
@@ -59,15 +58,17 @@ class _CategoryScreenState extends State<CategoryScreen> {
             Container(
               width: size.width * .24,
               color: themeProvider.whiteBlackToggleColor(),
-              child: apiProvider.mainCategoryList.isNotEmpty? ListView.builder(
+              child: apiProvider.mainCategoryList.isNotEmpty
+                  ? ListView.builder(
                 itemCount: apiProvider.mainCategoryList.length,
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
-                      setState(() => _selectedIndex = index);
+                      apiProvider.updateSubCategoryList(apiProvider.mainCategoryList[index]);
+                      setState(() => apiProvider.selectedIndex = index);
                     },
                     child: Container(
-                      color: index == _selectedIndex
+                      color: index == apiProvider.selectedIndex
                           ? themeProvider.selectedToggleColor()
                           : themeProvider.whiteBlackToggleColor(),
                       padding: EdgeInsets.all(10),
@@ -75,7 +76,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         apiProvider.mainCategoryList[index],
                         style: TextStyle(
                             fontSize: size.width * .03,
-                            fontWeight: index == _selectedIndex
+                            fontWeight: index == apiProvider.selectedIndex
                                 ? FontWeight.bold
                                 : FontWeight.w500,
                             color: themeProvider.toggleTextColor()),
@@ -89,40 +90,25 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ///Main Page Section
             Container(
               width: size.width * .74,
-              color: themeProvider.whiteBlackToggleColor(),
-              child: ListView(
-                // mainAxisAlignment: MainAxisAlignment.start,
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ///Banner Image
-                  Container(
-                    height: size.width * .3,
-                    // width: size.width*.74,
-                    padding: EdgeInsets.only(right: 10),
-                    child: Image.network('https://i.pinimg.com/originals/cc/18/8c/cc188c604e58cffd36e1d183c7198d21.jpg',
-                        fit: BoxFit.fitWidth),
+              //color: themeProvider.whiteBlackToggleColor(),
+              child: GridView.builder(
+                  physics: ClampingScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 1.1,
+                    mainAxisSpacing: 5,
+                    crossAxisSpacing: 5,
                   ),
-                  SizedBox(height: size.width * .03),
-
-                  GridView.builder(
-                    physics: ClampingScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: .8,
-                        mainAxisSpacing: 5,
-                        crossAxisSpacing: 5,
-                      ),
-                      itemCount: 14,
-                      itemBuilder: (context, index) => InkWell(
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      SubcategoryProductList())),
-                          child: MainSubcategoryTile(index: index))),
-                ],
-              ),
+                  itemCount: apiProvider.subCategoryList.length,
+                  itemBuilder: (context, index) => InkWell(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  SubcategoryProductList(
+                                    categoryId: apiProvider.subCategoryList[index].id,
+                                  ))),
+                      child: MainSubcategoryTile(index: index))),
             )
           ],
         ),

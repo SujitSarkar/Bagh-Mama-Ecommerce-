@@ -19,7 +19,8 @@ import 'package:vertical_barchart/vertical-barchartmodel.dart';
 // ignore: must_be_immutable
 class ProductDetails extends StatefulWidget {
   int productId;
-  ProductDetails({this.productId});
+  int categoryId;
+  ProductDetails({this.productId,this.categoryId});
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
 }
@@ -30,7 +31,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   bool _isAdded=false;
   double _starRating;
   int _sizeIndex, _colorIndex, _counter=0;
-  String _selectedSize, _selectedColor;
+  String _productImage;
   bool _isLoading=true;
   TextEditingController _ratingCommentController = TextEditingController();
 
@@ -65,8 +66,13 @@ class _ProductDetailsState extends State<ProductDetails> {
   void _customInit(APIProvider apiProvider)async{
     //ProductInfoModel productInfoModel;
     setState(()=> _counter++);
-    await apiProvider.getProductInfo(widget.productId).then((value){
-      setState(()=> _isLoading=false);
+    await apiProvider.getProductInfo(widget.productId).then((value)async{
+      await apiProvider.getRelatedProducts(widget.categoryId).then((value){
+        setState((){
+          _productImage = apiProvider.productInfoModel.content.thumnailImage;
+          _isLoading=false;
+        });
+      });
     });
   }
 
@@ -106,8 +112,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 image: DecorationImage(
-                                  image: NetworkImage(apiProvider.productInfoModel.content.thumnailImage),
-
+                                  image: NetworkImage(_productImage),
                                 )
                               ),
                               // child: Image.network(
@@ -280,7 +285,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                       return InkWell(
                         onTap: (){
                           setState(() {
-                            _sizeIndex=index;
+                            _colorIndex=index;
+                            _productImage = apiProvider.productInfoModel.content.allImages[index];
                           });
                         },
                         child: Container(
@@ -288,13 +294,13 @@ class _ProductDetailsState extends State<ProductDetails> {
                           margin: EdgeInsets.only(right: 10),
                           padding: EdgeInsets.symmetric(horizontal: size.width*.02),
                           decoration: BoxDecoration(
-                            border: Border.all(color: _sizeIndex==index? themeProvider.orangeWhiteToggleColor(): Colors.grey,
-                                width: _sizeIndex==index? 1.5:1),
+                            border: Border.all(color: _colorIndex==index? themeProvider.orangeWhiteToggleColor(): Colors.grey,
+                                width: _colorIndex==index? 1.5:1),
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
                           child: Text(apiProvider.productInfoModel.content.availableColors[index].toString(),style: TextStyle(
                               fontSize: size.width*.04,
-                              color: _sizeIndex==index? themeProvider.orangeWhiteToggleColor(): themeProvider.toggleTextColor()
+                              color: _colorIndex==index? themeProvider.orangeWhiteToggleColor(): themeProvider.toggleTextColor()
                           )),
                         ),
                         borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -308,7 +314,8 @@ class _ProductDetailsState extends State<ProductDetails> {
 
           ///Product Description
           apiProvider.productInfoModel.content.description!=null? Text('Product Full Description',
-              style: TextStyle(color: Colors.grey,fontSize: size.width*.04)):Container(),
+              style: TextStyle(color: Colors.grey,fontSize: size.width*.04)) :Container(),
+
           apiProvider.productInfoModel.content.description!=null? Html(
             data: """${apiProvider.productInfoModel.content.description}""",
             style:{
@@ -343,31 +350,30 @@ class _ProductDetailsState extends State<ProductDetails> {
                   color: themeProvider.toggleTextColor()
               ),
             },
-          ):Container(),
+          ) :Container(),
           SizedBox(height: size.width*.1),
 
-
           ///Related Product
-          Text('Related Product',
-              style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-          SizedBox(height: size.width*.04),
-          Container(
+          apiProvider.relatedProductModel.content.isNotEmpty? Text('Related Product',
+              style: TextStyle(color: Colors.grey,fontSize: size.width*.05)):Container(),
+          apiProvider.relatedProductModel.content.isNotEmpty?SizedBox(height: size.width*.04):Container(),
+          apiProvider.relatedProductModel.content.isNotEmpty?Container(
             height: size.width*.5,
             //color: Colors.red,
             padding: EdgeInsets.symmetric(horizontal: 10),
-            child: apiProvider.productsModel==null? Center(child: CircularProgressIndicator()): ListView.builder(
+            child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: apiProvider.productsModel.content.length,
+              itemCount: apiProvider.relatedProductModel.content.length,
               itemBuilder: (context, index)=>InkWell(
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
-                      productId: apiProvider.productsModel.content[index].id,
+                      productId: apiProvider.relatedProductModel.content[index].id,
                     )));
                   },
-                  child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
+                  child: ProductTile(index: index,productsModel: apiProvider.relatedProductModel)),
             ),
-          ),
-          SizedBox(height: size.width*.1),
+          ):Container(),
+          apiProvider.relatedProductModel.content.isNotEmpty?SizedBox(height: size.width*.1):Container(),
 
           ///Customer Reviews
           TextButton(

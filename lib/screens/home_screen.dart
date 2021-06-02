@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   TabController _controller;
   int _tabIndex=0;
   int _counter=0;
-
+  bool _isLoading=false;
   // @override
   // void initState() {
   //   super.initState();
@@ -40,7 +40,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     if(apiProvider.allCategoryList.isEmpty) await apiProvider.getProductCategories();
     _controller = TabController(length: apiProvider.mainCategoryList.length, vsync: this);
     if(apiProvider.networkImageList.isEmpty) await apiProvider.getBannerImageList();
-    if(apiProvider.productsModel==null) await apiProvider.getProducts();
+    if(apiProvider.newArrivalProductModel==null) await apiProvider.getNewArrivalProducts();
+    if(apiProvider.popularProductModel==null) await apiProvider.getPopularProducts();
     if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
 
     final SharedPreferences pref = await SharedPreferences.getInstance();
@@ -128,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         bottom: apiProvider.mainCategoryList.isNotEmpty? TabBar(
           onTap: (covariant){
             setState(()=> _tabIndex = covariant);
+            if(_tabIndex!=0) apiProvider.updateSubCategoryList(apiProvider.mainCategoryList[_tabIndex]);
           },
           isScrollable: true,
           controller: _controller,
@@ -145,15 +147,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             child: threeBounce(themeProvider), preferredSize: Size.fromHeight(50.0)),
       ),
 
-      body: _tabIndex==0? _bodyUI_1(size,themeProvider,apiProvider):_bodyUI_2(size, themeProvider),
-    ):Scaffold(body: NoInternet(),);
+      body: _tabIndex==0? _bodyUI_1(size,themeProvider,apiProvider):_bodyUI_2(size, themeProvider,apiProvider),
+    ):Scaffold(body: NoInternet());
   }
 
   Widget _bodyUI_1(Size size,ThemeProvider themeProvider,APIProvider apiProvider)=> ListView(
     children: [
       SizedBox(height: size.width*.04),
       ///Image Slider
-
       apiProvider.networkImageList.isEmpty
           ?Center(child: threeBounce(themeProvider))
           :Container(
@@ -175,34 +176,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
       SizedBox(height: size.width*.04),
 
-      ///Deals of the day
-      //header
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Text('Deals of the day',
-            style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-      ),
-      SizedBox(height: size.width*.03),
-      Container(
-        height: size.width*.5,
-        //color: Colors.red,
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: apiProvider.productsModel==null? Center(child: threeBounce(themeProvider)): ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: apiProvider.productsModel.content.length,
-          itemBuilder: (context, index)=>InkWell(
-            onTap: (){
-              print(apiProvider.productsModel.content[index].id);
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
-                productId: apiProvider.productsModel.content[index].id,
-              )));
-            },
-              child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
-        ),
-      ),
-      SizedBox(height: size.width*.08),
-
-
       ///New Arrivals
       //header
       Container(
@@ -215,17 +188,47 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         height: size.width*.5,
         //color: Colors.red,
         padding: EdgeInsets.symmetric(horizontal: 10),
-        child: apiProvider.productsModel==null? Center(child: threeBounce(themeProvider)): ListView.builder(
+        child: apiProvider.newArrivalProductModel==null? Center(child: threeBounce(themeProvider)): ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: apiProvider.productsModel.content.length,
+          itemCount: apiProvider.newArrivalProductModel.content.length,
+          itemBuilder: (context, index)=>InkWell(
+            onTap: (){
+              print(apiProvider.newArrivalProductModel.content[index].id);
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                productId: apiProvider.newArrivalProductModel.content[index].id,
+                categoryId: apiProvider.newArrivalProductModel.content[index].categoryId,
+              )));
+            },
+              child: ProductTile(index: index,productsModel: apiProvider.newArrivalProductModel)),
+        ),
+      ),
+      SizedBox(height: size.width*.08),
+
+
+      ///Popular Products
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: Text('Popular Products',
+            style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
+      ),
+      SizedBox(height: size.width*.03),
+      Container(
+        height: size.width*.5,
+        //color: Colors.red,
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: apiProvider.popularProductModel==null
+            ? Center(child: threeBounce(themeProvider))
+            : ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: apiProvider.popularProductModel.content.length,
           itemBuilder: (context, index)=>InkWell(
               onTap: (){
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
-                  productId: apiProvider.productsModel.content[index].id,
+                  productId: apiProvider.popularProductModel.content[index].id,
+                  categoryId: apiProvider.popularProductModel.content[index].categoryId,
                 )));
-                print(apiProvider.productsModel.content[index].id);
               },
-              child: HomeProductCartTile(index: index,productsModel: apiProvider.productsModel,)),
+              child: ProductTile(index: index,productsModel: apiProvider.popularProductModel)),
         ),
       ),
       SizedBox(height: size.width*.08),
@@ -233,56 +236,73 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     ],
   );
 
-  Widget _bodyUI_2(Size size, ThemeProvider themeProvider)=> ListView(
+  Widget _bodyUI_2(Size size, ThemeProvider themeProvider,APIProvider apiProvider)=> ListView(
     children: [
-      SizedBox(height: size.width*.03),
-      ///Banner Image
-      Container(
-        height: size.width * .4,
-        width: size.width,
-        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-        child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(5)),
-          child: Image.network('https://resources.matcha-jp.com/resize/720x2000/2020/04/23-101958.jpeg',fit: BoxFit.fitWidth,),
-        ),
-      ),
-      SizedBox(height: size.width*.03),
-
+      SizedBox(height: size.width*.05),
       ///Subcategory Section
       Container(
-        height: size.width*.35,
+        height: size.width*.16,
         width: size.width,
         padding: EdgeInsets.symmetric(horizontal: 10),
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: 10,
+          itemCount: apiProvider.subCategoryList.length,
           itemBuilder: (context, index)=>InkWell(
               onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
+                setState(() {
+                  _isLoading=true;
+                });
+                Map map = {"category_id":"${apiProvider.subCategoryList[index].id}"};
+                apiProvider.getCategoryProducts(map).then((value){
+                  setState(() {
+                    _isLoading=false;
+                  });
+                });
+                //Navigator.push(context, MaterialPageRoute(builder: (context)=>SubcategoryProductList()));
               },
               child: RoundSubcategoryTile(index: index)),
         ),
       ),
+      SizedBox(height: size.width*.02),
 
-      Container(
+      _isLoading
+          ?Center(child: Padding(
+        padding:  EdgeInsets.only(top: 100),
+            child: threeBounce(themeProvider),
+          ))
+          : apiProvider.categoryProductModel==null
+          ? Center(child: Padding(
+            padding:  EdgeInsets.only(top: 100),
+            child: Text('Select SubCategory'),
+          ))
+          : apiProvider.categoryProductModel.content.isEmpty
+          ?Center(child: Padding(
+            padding:  EdgeInsets.only(top: 100),
+            child: Text('No Product'),
+          ))
+          : Container(
+        // height: size.height,
         color: themeProvider.togglePageBgColor(),
         padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
         child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+              crossAxisCount: 2,
               childAspectRatio: .71,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10
         ),
           shrinkWrap: true,
           physics: ClampingScrollPhysics(),
-          itemCount: 8,
+          itemCount: apiProvider.categoryProductModel.content.length,
           itemBuilder: (context, index){
               return InkWell(
                 onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                      productId: apiProvider.categoryProductModel.content[index].id,
+                      categoryId: apiProvider.categoryProductModel.content[index].categoryId,
+                    )));
                 },
-                  child: ProductCartTile(index: index,));
+                  child: ProductCartTile(index: index,productsModel: apiProvider.categoryProductModel));
           },
         ),
       )
