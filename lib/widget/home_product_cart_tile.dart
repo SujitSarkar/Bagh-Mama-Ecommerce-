@@ -1,4 +1,5 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,27 +15,51 @@ class ProductTile extends StatelessWidget {
     final double discountPrice = int.parse(productsModel.content[index].priceStockChart[0].sP)
         - int.parse(productsModel.content[index].priceStockChart[0].sP)*(productsModel.content[index].discount/100);
     return Container(
-      width: size.width * .35,
-      // height: size.width*.3,
-      margin: EdgeInsets.only(right: size.width * .03),
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(5),
-                topRight: Radius.circular(5)
+        width: size.width * .35,
+        margin: EdgeInsets.only(right: 10),
+        decoration: BoxDecoration(
+            color: themeProvider.toggleCartColor(),
+            borderRadius: BorderRadius.all(Radius.circular(5))
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Stack(
+              children: [
+                Container(
+                  width: size.width * .5,
+                  height: size.width*.25,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5)),
+                      image: DecorationImage(
+                          image: NetworkImage(productsModel.content[index].thumbnailImage),
+                          fit: BoxFit.cover
+                      )
+                  ),
+                ),
+                productsModel.content[index].discount!=0? Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    height: size.width*.07,
+                    width: size.width*.1,
+                    alignment: Alignment.centerRight,
+                    decoration: BoxDecoration(
+                      color: themeProvider.orangeBlackToggleColor().withOpacity(0.8),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(5),
+                        bottomLeft: Radius.circular(size.width*.1),
+                      ),
+                    ),
+                    child: Text('-${productsModel.content[index].discount}% ',style: TextStyle(color: Colors.white,fontSize: size.width*.03),),
+                  ),
+                ):Container()
+              ],
             ),
-            child: Image.network(
-              productsModel.content[index].thumbnailImage,
-              height: size.width*.3,
-              fit: BoxFit.fitWidth,
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            child: Container(
-              width: size.width * .35,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 6,vertical: 5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -54,33 +79,14 @@ class ProductTile extends StatelessWidget {
                           maxLines: 1,
                           style: TextStyle(color: themeProvider.toggleTextColor(),
                               fontSize: size.width*.029,fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.lineThrough)):Container(),
+                              decoration: TextDecoration.lineThrough)):Container(),
                     ],
                   ),
                 ],
               ),
             ),
-          ),
-
-          productsModel.content[index].discount!=0? Positioned(
-            right: 0,
-            top: 0,
-            child: Container(
-              height: size.width*.07,
-              width: size.width*.1,
-              alignment: Alignment.centerRight,
-              decoration: BoxDecoration(
-                color: themeProvider.orangeBlackToggleColor().withOpacity(0.8),
-                borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(5),
-                    bottomLeft: Radius.circular(size.width*.1),
-                ),
-              ),
-              child: Text('-${productsModel.content[index].discount}% ',style: TextStyle(color: Colors.white,fontSize: size.width*.03),),
-            ),
-          ):Container()
-        ],
-      ),
+          ],
+        )
     );
   }
 }

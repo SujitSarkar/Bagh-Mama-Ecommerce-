@@ -65,7 +65,7 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
 
           PopupMenuButton<int>(
             key: _key,
-            icon: Icon(FontAwesomeIcons.slidersH,size: size.width*.05,),
+            icon: Icon(FontAwesomeIcons.slidersH,size: size.width*.05),
             onSelected: (int val){
               print('Selected: $val');
             },
@@ -117,8 +117,9 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
   Widget  _bodyUI(Size size, ThemeProvider themeProvider, APIProvider apiProvider)=> _isLoading
       ?Center(child: threeBounce(themeProvider))
       : apiProvider.categoryProductModel==null
-      ? Center(child: Text('Select SubCategory'))
-      : apiProvider.categoryProductModel.content.isEmpty?Center(child: Text('No Product'))
+      ? Center(child: Text('Select SubCategory',style: TextStyle(color: themeProvider.toggleTextColor())))
+      : apiProvider.categoryProductModel.content.isEmpty?Center(child: Text('No Product',
+      style: TextStyle(color: themeProvider.toggleTextColor())))
       : Container(
     // height: size.height,
     color: themeProvider.togglePageBgColor(),

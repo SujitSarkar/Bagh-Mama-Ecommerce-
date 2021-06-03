@@ -1,5 +1,6 @@
 import 'package:bagh_mama/main_screen.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
+import 'package:bagh_mama/provider/sqlite_database_helper.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
 import 'package:bagh_mama/variables/theme_data.dart';
@@ -55,6 +56,7 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(create: (_)=>ThemeProvider(widget.isLight?SThemeData.lightThemeData:SThemeData.darkThemeData,widget.isLight)),
         ChangeNotifierProvider(create: (_)=>APIProvider()),
+        ChangeNotifierProvider(create: (_)=>DatabaseHelper()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child){

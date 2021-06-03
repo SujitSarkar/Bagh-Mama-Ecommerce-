@@ -1,9 +1,13 @@
 import 'package:bagh_mama/models/cart_model.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:io';
 
-class DatabaseHelper{
+class DatabaseHelper extends ChangeNotifier{
+
+  List<CartModel> _cartList=[];
+  get cartList=> _cartList;
 
   static DatabaseHelper _databaseHelper; // singleton DatabaseHelper
   static Database _database; // singleton Database
@@ -15,7 +19,6 @@ class DatabaseHelper{
   String colPColor = 'pColor';
   String colPQuantity = 'pQuantity';
   String colPImageLink= 'pImageLink';
-
 
   DatabaseHelper._createInstance(); //Named constructor to create instance of DatabaseHelper
 
@@ -35,7 +38,7 @@ class DatabaseHelper{
   Future<Database> initializeDatabase() async {
     //Get the directory path for both android and iOS
     Directory directory = await getApplicationDocumentsDirectory();
-    String path = directory.path + 'notes.db';
+    String path = directory.path + 'cart.db';
     var noteDatabase =
     await openDatabase(path, version: 1, onCreate: _createDB);
     return noteDatabase;
@@ -55,19 +58,18 @@ class DatabaseHelper{
     return result;
   }
   //Get the 'Map List' and convert it to 'Cart List
-  Future<List<CartModel>> getNoteList() async {
+  Future<void> getCartList() async {
+    _cartList.clear();
     var cartMapList = await getCartMapList();
     int count = cartMapList.length;
-    List<CartModel> cartList = [];
-
     for (int i = 0; i < count; i++) {
-      cartList.add(CartModel.fromMapObject(cartMapList[i]));
+      _cartList.add(CartModel.fromMapObject(cartMapList[i]));
     }
-    return cartList;
+    notifyListeners();
   }
 
   //update operation
-  Future<int> updateNote(CartModel cartModel) async {
+  Future<int> updateCart(CartModel cartModel) async {
     Database db = await this.database;
     var result = await db.update(cartTable, cartModel.toMap(),
         where: '$colId = ?', whereArgs: [cartModel.id]);
@@ -75,14 +77,14 @@ class DatabaseHelper{
   }
 
   //Insert operation
-  Future<int> insertNote(CartModel cartModel) async {
+  Future<int> insertCart(CartModel cartModel) async {
     Database db = await this.database;
     var result = await db.insert(cartTable, cartModel.toMap());
     return result;
   }
 
   //Delete operation
-  Future<int> deleteNote(int id) async {
+  Future<int> deleteCart(int id) async {
     Database db = await this.database;
     var result =
     await db.rawDelete('DELETE FROM $cartTable WHERE $colId = $id');

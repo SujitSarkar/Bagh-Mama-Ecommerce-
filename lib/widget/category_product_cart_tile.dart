@@ -1,4 +1,5 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,71 +22,72 @@ class ProductCartTile extends StatelessWidget {
         color: themeProvider.toggleCartColor(),
         borderRadius: BorderRadius.all(Radius.circular(5))
       ),
-      child: Stack(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(5),
-                topRight: Radius.circular(5)
-            ),
-            child: Image.network(
-              productsModel.content[index].thumbnailImage,
-              fit: BoxFit.fitWidth,
-            ),
-          ),
-          SizedBox(height: size.width*.02),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            child: Container(
-              width: size.width * .35,
-              padding: EdgeInsets.only(left: 5,right: 5,bottom: 5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${productsModel.content[index].name}',
-                      maxLines: 2,
-                      style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.032)),
-                  SizedBox(height: size.width*.02),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('Tk.${productsModel.content[index].discount!=0? discountPrice: productsModel.content[index].priceStockChart[0].sP}',
-                          maxLines: 1,
-                          style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.038,fontWeight: FontWeight.w500)),
-                      SizedBox(width: size.width*.02),
-                      productsModel.content[index].discount!=0? Text('Tk.${productsModel.content[index].priceStockChart[0].sP}',
-                          maxLines: 1,
-                          style: TextStyle(color: themeProvider.toggleTextColor(),
-                              fontSize: size.width*.029,fontWeight: FontWeight.w400,
-                              decoration: TextDecoration.lineThrough)):Container(),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          productsModel.content[index].discount!=0? Positioned(
-            right: 0,
-            top: 0,
-            child: Container(
-              height: size.width*.07,
-              width: size.width*.1,
-              alignment: Alignment.centerRight,
-              decoration: BoxDecoration(
-                color: themeProvider.orangeBlackToggleColor().withOpacity(0.8),
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(5),
-                  bottomLeft: Radius.circular(size.width*.1),
+          Stack(
+            children: [
+              Container(
+                width: size.width * .5,
+                height: size.width*.4,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5)),
+                  image: DecorationImage(
+                    image: NetworkImage(productsModel.content[index].thumbnailImage),
+                    fit: BoxFit.cover
+                  )
                 ),
               ),
-              child: Text('-${productsModel.content[index].discount}% ',style: TextStyle(color: Colors.white,fontSize: size.width*.03),),
+              productsModel.content[index].discount!=0? Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  height: size.width*.07,
+                  width: size.width*.1,
+                  alignment: Alignment.centerRight,
+                  decoration: BoxDecoration(
+                    color: themeProvider.orangeBlackToggleColor().withOpacity(0.8),
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(5),
+                      bottomLeft: Radius.circular(size.width*.1),
+                    ),
+                  ),
+                  child: Text('-${productsModel.content[index].discount}% ',style: TextStyle(color: Colors.white,fontSize: size.width*.03),),
+                ),
+              ):Container()
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6,vertical: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${productsModel.content[index].name}',
+                    maxLines: 3,
+                    style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.032)),
+                SizedBox(height: size.width*.02),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('Tk.${productsModel.content[index].discount!=0? discountPrice: productsModel.content[index].priceStockChart[0].sP}',
+                        maxLines: 1,
+                        style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.038,fontWeight: FontWeight.w500)),
+                    SizedBox(width: size.width*.02),
+                    productsModel.content[index].discount!=0? Text('Tk.${productsModel.content[index].priceStockChart[0].sP}',
+                        maxLines: 1,
+                        style: TextStyle(color: themeProvider.toggleTextColor(),
+                            fontSize: size.width*.029,fontWeight: FontWeight.w400,
+                            decoration: TextDecoration.lineThrough)):Container(),
+                  ],
+                ),
+              ],
             ),
-          ):Container()
+          ),
         ],
-      ),
+      )
     );
   }
 }

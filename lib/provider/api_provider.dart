@@ -35,6 +35,7 @@ class APIProvider extends ChangeNotifier{
   CategoryProductModel _categoryProductModel;
   RelatedProductModel _relatedProductModel;
   ProductInfoModel _productInfoModel;
+  List<ProductReviewModel> _productReviewList=[];
   UserInfoModel _userInfoModel;
   SocialContactInfo _socialContactInfo;
   BasicContactInfo _basicContactInfo;
@@ -49,6 +50,7 @@ class APIProvider extends ChangeNotifier{
   get categoryProductModel => _categoryProductModel;
   get relatedProductModel => _relatedProductModel;
   get productInfoModel => _productInfoModel;
+  get productReviewList => _productReviewList;
   get userInfoModel => _userInfoModel;
   get allCategoryList => _allCategoryList;
   get mainCategoryList => _mainCategoryList;
@@ -64,6 +66,10 @@ class APIProvider extends ChangeNotifier{
   }
   set selectedIndex(int value){
     _selectedIndex = value;
+    notifyListeners();
+  }
+  set categoryProductModel(var model){
+    _categoryProductModel = model;
     notifyListeners();
   }
 
@@ -270,9 +276,42 @@ class APIProvider extends ChangeNotifier{
     if(response.statusCode==200){
        String responseString = response.body;
       _productInfoModel= productInfoModelFromJson(responseString);
-      _productInfoModel.content.allImages;
+
+      ///get product review
+      var jsonData = jsonDecode(response.body);
+      if(jsonData['content']['product_reviews'].isNotEmpty){
+        _productReviewList.clear();
+        jsonData['content']['product_reviews'].forEach((element){
+          ProductReviewModel model = ProductReviewModel(
+            reviewId: element['reviewId'],
+            date: element['date'],
+            username: element['username'],
+            reviewText: element['reviewText'],
+            rating: element['rating'],
+            status: element['status'],
+          );
+          _productReviewList.add(model);
+        });
+      }else _productReviewList.clear();
       notifyListeners();
     }
+  }
+
+  Future<bool> writeProductReview(Map map)async{
+    var body = json.encode(map);
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/productReview'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail,
+        },
+        body: body
+    );
+    if(response.statusCode==200){
+      var jsonData = response.body;
+      return true;
+    }else return false;
   }
 
   Future<bool> validateUser(String email, String password)async{
@@ -312,15 +351,17 @@ class APIProvider extends ChangeNotifier{
     if(response.statusCode==200){
       String responseString = response.body;
       _userInfoModel = userInfoModelFromJson(responseString);
-      notifyListeners();
-      pref.setString('username', username);
-      pref.setString('userId', _userInfoModel.content.id.toString());
+      await pref.setString('username', _userInfoModel.content.username);
+      await pref.setString('userId', _userInfoModel.content.id.toString());
+      await pref.setString('mobile', _userInfoModel.content.mobileNumber.toString());
+      await pref.setString('address', _userInfoModel.content.address.toString());
+      await pref.setString('name', '${_userInfoModel.content.firstName} ${_userInfoModel.content.lastName}');
       if(_userInfoModel.content.wishlists.isNotEmpty){
         _userInfoModel.content.wishlists.forEach((element) {
           _wishListIdList.add(element);
         });
-        notifyListeners();
       }
+      notifyListeners();
       return true;
     }else{
       return false;

@@ -227,3 +227,23 @@ class Rating {
     "total_rating_1": totalRating1,
   };
 }
+
+class ProductReviewModel{
+  String reviewId;
+  String date;
+  String username;
+  String reviewText;
+  String rating;
+  String status;
+
+  ProductReviewModel({this.reviewId, this.date, this.username, this.reviewText,
+      this.rating, this.status});
+}
+
+
+
+
+
+
+
+

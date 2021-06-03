@@ -76,7 +76,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               InkWell(
-                onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchPage())),
+                onTap: (){
+                  apiProvider.categoryProductModel=null;
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchPage()));
+                },
                 borderRadius: BorderRadius.all(Radius.circular(50)),
                 child: Container(
                   width: size.width*.66,
@@ -273,12 +276,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           : apiProvider.categoryProductModel==null
           ? Center(child: Padding(
             padding:  EdgeInsets.only(top: 100),
-            child: Text('Select SubCategory'),
+            child: Text('Select SubCategory',style: TextStyle(color: themeProvider.toggleTextColor())),
           ))
           : apiProvider.categoryProductModel.content.isEmpty
           ?Center(child: Padding(
             padding:  EdgeInsets.only(top: 100),
-            child: Text('No Product'),
+            child: Text('No Product',style: TextStyle(color: themeProvider.toggleTextColor())),
           ))
           : Container(
         // height: size.height,

@@ -1,9 +1,11 @@
-import 'package:bagh_mama/models/product_info_model.dart';
+import 'package:bagh_mama/models/cart_model.dart';
 import 'package:bagh_mama/pages/customer_review_list.dart';
 import 'package:bagh_mama/pages/product_question_list.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
+import 'package:bagh_mama/provider/sqlite_database_helper.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
+import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:bagh_mama/widget/home_product_cart_tile.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:bagh_mama/widget/product_review_tile.dart';
@@ -13,7 +15,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:vertical_barchart/vertical-barchart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vertical_barchart/vertical-barchartmodel.dart';
 
 // ignore: must_be_immutable
@@ -31,41 +33,45 @@ class _ProductDetailsState extends State<ProductDetails> {
   bool _isAdded=false;
   double _starRating;
   int _sizeIndex, _colorIndex, _counter=0;
+  String _selectedColor='', _selectedSize='';
   String _productImage;
   bool _isLoading=true;
-  TextEditingController _ratingCommentController = TextEditingController();
+  TextEditingController _ratingComment = TextEditingController();
+  SharedPreferences _sharedPreferences;
+  CartModel _cartModel;
 
-  final List<VBarChartModel> barData = [
-    VBarChartModel(
-      index: 0,
-      label: "Delivery Speed:",
-      colors: [Colors.orange, Colors.deepOrange],
-      jumlah: 20,
-      tooltip: "20",
-      // description: Text(
-      //   "Most selling fruit last week",
-      //   style: TextStyle(fontSize: 10),
-      // ),
-    ),
-    VBarChartModel(
-      index: 1,
-      label: "Positive Rating:",
-      colors: [Colors.orange, Colors.deepOrange],
-      jumlah: 55,
-      tooltip: "55",
-    ),
-    VBarChartModel(
-      index: 2,
-      label: "Response Rate:",
-      colors: [Colors.teal, Colors.indigo],
-      jumlah: 12,
-      tooltip: "12",
-    ),
-  ];
+  // final List<VBarChartModel> barData = [
+  //   VBarChartModel(
+  //     index: 0,
+  //     label: "Delivery Speed:",
+  //     colors: [Colors.orange, Colors.deepOrange],
+  //     jumlah: 20,
+  //     tooltip: "20",
+  //     // description: Text(
+  //     //   "Most selling fruit last week",
+  //     //   style: TextStyle(fontSize: 10),
+  //     // ),
+  //   ),
+  //   VBarChartModel(
+  //     index: 1,
+  //     label: "Positive Rating:",
+  //     colors: [Colors.orange, Colors.deepOrange],
+  //     jumlah: 55,
+  //     tooltip: "55",
+  //   ),
+  //   VBarChartModel(
+  //     index: 2,
+  //     label: "Response Rate:",
+  //     colors: [Colors.teal, Colors.indigo],
+  //     jumlah: 12,
+  //     tooltip: "12",
+  //   ),
+  // ];
 
   void _customInit(APIProvider apiProvider)async{
     //ProductInfoModel productInfoModel;
     setState(()=> _counter++);
+    _sharedPreferences = await SharedPreferences.getInstance();
     await apiProvider.getProductInfo(widget.productId).then((value)async{
       await apiProvider.getRelatedProducts(widget.categoryId).then((value){
         setState((){
@@ -81,6 +87,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    final DatabaseHelper databaseHelper = Provider.of<DatabaseHelper>(context);
     if(_counter==0) _customInit(apiProvider);
     return Scaffold(
       backgroundColor: themeProvider.whiteBlackToggleColor(),
@@ -115,10 +122,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   image: NetworkImage(_productImage),
                                 )
                               ),
-                              // child: Image.network(
-                              //   apiProvider.productInfoModel.content.thumnailImage,
-                              //
-                              // ),
                             ))
                       ],
                     ),
@@ -134,7 +137,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                             apiProvider.productInfoModel.content.priceStock.stock.toString().isNotEmpty
                                 ? Text('In Stock',style: TextStyle(fontSize: size.width*.045,fontWeight: FontWeight.w500,color: Colors.green),)
                                 :Text('Out Of Stock',style: TextStyle(fontSize: size.width*.045,fontWeight: FontWeight.w500,color: Color(0xffF0A732)),),
-                            Row(
+                            _sharedPreferences.getString('username')!=null? Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -148,7 +151,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   splashRadius: size.width*.06,
                                 ),
                               ],
-                            ),
+                            ):Container(),
                           ],
                         ),
                       ]
@@ -161,7 +164,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             ),
           ),
         ),
-      floatingActionButton: _floatingActionButton(size, themeProvider),
+      floatingActionButton: _floatingActionButton(size, themeProvider,databaseHelper,apiProvider),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
@@ -180,7 +183,6 @@ class _ProductDetailsState extends State<ProductDetails> {
             style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.w500),
           ),
           SizedBox(height: size.width*.03),
-
 
           ///Price Row
           Row(
@@ -205,19 +207,19 @@ class _ProductDetailsState extends State<ProductDetails> {
           Divider(height: 5.0,color: Colors.grey,thickness: 0.5),
           SizedBox(height: size.width*.04),
 
-          ///Product code
-          RichText(
-            textAlign: TextAlign.justify,
-            text: TextSpan(
-              //text: 'Hello ',
-              style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor()),
-              children: <TextSpan>[
-                TextSpan(text: 'Product Code: '),
-                TextSpan(text: '3', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          SizedBox(height: size.width*.04),
+          // ///Product code
+          // RichText(
+          //   textAlign: TextAlign.justify,
+          //   text: TextSpan(
+          //     //text: 'Hello ',
+          //     style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor()),
+          //     children: <TextSpan>[
+          //       TextSpan(text: 'Product Code: '),
+          //       TextSpan(text: '3', style: TextStyle(fontWeight: FontWeight.bold)),
+          //     ],
+          //   ),
+          // ),
+          // SizedBox(height: size.width*.04),
 
           ///Available Size
           apiProvider.productInfoModel.content.availableSizes.isNotEmpty?Column(
@@ -240,6 +242,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       onTap: (){
                         setState(() {
                           _sizeIndex=index;
+                          _selectedSize= apiProvider.productInfoModel.content.availableSizes[_sizeIndex];
                         });
                       },
                       child: Container(
@@ -287,6 +290,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                           setState(() {
                             _colorIndex=index;
                             _productImage = apiProvider.productInfoModel.content.allImages[index];
+                            _selectedColor =  apiProvider.productInfoModel.content.availableColors[_colorIndex];
                           });
                         },
                         child: Container(
@@ -375,7 +379,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           ):Container(),
           apiProvider.relatedProductModel.content.isNotEmpty?SizedBox(height: size.width*.1):Container(),
 
-          ///Customer Reviews
+          ///Total Customer Reviews
           TextButton(
             style: TextButton.styleFrom(
               primary: themeProvider.toggleTextColor()),
@@ -402,17 +406,13 @@ class _ProductDetailsState extends State<ProductDetails> {
                     //text: 'Hello ',
                     style: TextStyle(fontSize: size.width*.06,color: themeProvider.toggleTextColor(),fontWeight:FontWeight.w500),
                     children: <TextSpan>[
-                      TextSpan(text: '${apiProvider.productInfoModel.content.rating.averageRating.toString()}'),
+                      TextSpan(text: '${apiProvider.productInfoModel.content.rating.averageRating}'),
                       TextSpan(text: '/5', style: TextStyle(fontWeight: FontWeight.w400,fontSize: size.width*.04,color: Colors.grey)),
                     ],
                   ),
                 ),
                 SizedBox(width: size.width*.025),
-                Icon(Icons.star,size: size.width*.062,color: Colors.yellow[800],),
-                Icon(Icons.star,size: size.width*.062,color: Colors.yellow[800],),
-                Icon(Icons.star,size: size.width*.062,color: Colors.yellow[800],),
-                Icon(Icons.star,size: size.width*.062,color: Colors.yellow[800],),
-                Icon(Icons.star_half,size: size.width*.062,color: Colors.yellow[800],),
+                _averageRatingBuilder(size, double.parse(apiProvider.productInfoModel.content.rating.averageRating.toString())),
               ],
             ),
           ),
@@ -430,23 +430,23 @@ class _ProductDetailsState extends State<ProductDetails> {
                 Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
               ],
             ),
-            onPressed: (){_showRatingDialog(size, themeProvider);},
+            onPressed: (){_showRatingDialog(size, themeProvider,apiProvider);},
           ),
 
-          ///Seller Review
-          TextButton(
-            style: TextButton.styleFrom(
-                primary: themeProvider.toggleTextColor()),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('Seller Review',style: TextStyle(fontSize: size.width*.044),),
-                Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
-              ],
-            ),
-            onPressed: (){_showSellerReviewDialog(size, themeProvider);},
-          ),
+          // ///Seller Review
+          // TextButton(
+          //   style: TextButton.styleFrom(
+          //       primary: themeProvider.toggleTextColor()),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     crossAxisAlignment: CrossAxisAlignment.end,
+          //     children: [
+          //       Text('Seller Review',style: TextStyle(fontSize: size.width*.044),),
+          //       Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
+          //     ],
+          //   ),
+          //   onPressed: (){_showSellerReviewDialog(size, themeProvider);},
+          // ),
 
           ///Product Questions
           TextButton(
@@ -466,20 +466,112 @@ class _ProductDetailsState extends State<ProductDetails> {
           Divider(color: Colors.grey,height:1),
           SizedBox(height: size.width*.1),
 
-          ListView.builder(
+          ///Customer Review list
+          apiProvider.productReviewList.isEmpty
+              ?Container()
+              :ListView.builder(
             shrinkWrap: true,
-            itemCount: 10,
+            itemCount: apiProvider.productReviewList.length>5
+                ?5
+                :apiProvider.productReviewList.length,
             physics: ClampingScrollPhysics(),
             itemBuilder: (context,index){
-              return ProductReviewTile(index, 4);
+              return ProductReviewTile(index);
             },
-          )
+          ),
+          SizedBox(height: size.width*.1),
         ],
       ),
     ),
   );
 
-  Widget _floatingActionButton(Size size, ThemeProvider themeProvider)=>Container(
+  Widget _averageRatingBuilder(Size size, double star){
+    final Color starColor = Color(0xffFFBA00);
+    final double starSize= size.width*.06;
+    if(star == 5){
+      return Row(
+        children: [
+          Icon(Icons.star, size: starSize, color: starColor),
+          Icon(Icons.star, size: starSize, color: starColor),
+          Icon(Icons.star, size: starSize, color: starColor),
+          Icon(Icons.star, size: starSize, color: starColor),
+          Icon(Icons.star, size: starSize, color: starColor),
+        ]);}
+
+       else if(star < 5 && star>=4.5){
+         return Row(
+           children: [
+             Icon(Icons.star, size: starSize, color: starColor),
+             Icon(Icons.star, size: starSize, color: starColor),
+             Icon(Icons.star, size: starSize, color: starColor),
+             Icon(Icons.star, size: starSize, color: starColor),
+             Icon(Icons.star_half, size: starSize, color: starColor),
+           ]);
+       }
+        else if(star == 4){
+          return Row(
+          children: [
+            Icon(Icons.star, size: starSize, color: starColor),
+            Icon(Icons.star, size: starSize, color: starColor),
+            Icon(Icons.star, size: starSize, color: starColor),
+            Icon(Icons.star, size: starSize, color: starColor),
+          ]);
+        }
+        else if(star < 4 && star>=3.5) {
+          return Row(
+            children: [
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star_half, size: starSize, color: starColor),
+            ],
+          );
+        }
+        else if(star == 3){
+          return Row(
+            children: [
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star, size: starSize, color: starColor),
+            ],
+          );
+        }
+        else if(star < 3 && star>=2.5) {
+          return Row(
+            children: [
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star_half, size: starSize, color: starColor),
+            ],
+          );
+        }
+        else if(star == 2){
+          return Row(
+            children: [
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star, size: starSize, color: starColor),
+            ],
+          );
+        }
+        else if(star < 2 && star>=1.5){
+          return Row(
+            children: [
+              Icon(Icons.star, size: starSize, color: starColor),
+              Icon(Icons.star_half, size: starSize, color: starColor),
+            ],
+          );
+        }
+        else{
+          return Row(
+            children: [
+              Icon(Icons.star, size: starSize, color: starColor),
+            ],
+          );
+        }
+  }
+
+  Widget _floatingActionButton(Size size, ThemeProvider themeProvider,
+      DatabaseHelper databaseHelper,APIProvider apiProvider)=>Container(
     height: size.width*.14,
     //color: Colors.grey,
     child: Row(
@@ -532,18 +624,23 @@ class _ProductDetailsState extends State<ProductDetails> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                ///Decrease button
                 IconButton(
                   onPressed: (){
-                    if(_pQuantity==1)
-                    setState(() {
-                      _isAdded=false;
-                    });
-                    if(_pQuantity>1) setState((){
-                      _pQuantity--;
-                    });
+                    if(_pQuantity==1){
+                      setState(() {
+                        _isAdded=false;
+                      });
+                    }
+                    if(_pQuantity>1){
+                      setState((){
+                        _pQuantity--;
+                      });
+                    }
                   },
                   icon: Icon(Icons.remove_circle_outline,size: size.width*.06,color: Colors.white,), splashRadius: size.width*.06,),
                 Text('$_pQuantity',style: TextStyle(color: Colors.white,fontSize: size.width*.044,fontWeight: FontWeight.bold),),
+                ///Increase button
                 IconButton(
                   onPressed: (){
                     setState(()=>_pQuantity++);
@@ -551,11 +648,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   icon: Icon(Icons.add_circle_outline_rounded,size: size.width*.06,color: Colors.white,),splashRadius: size.width*.06,),
               ],
             ): Text('Add Cart',style: TextStyle(fontSize: size.width*.044)),
-            onPressed: (){
-              setState(() {
-                _isAdded=true;
-              });
-              },
+            onPressed: ()=> _addProductToCart(databaseHelper, apiProvider),
           ),
         ),
         Container(
@@ -582,8 +675,39 @@ class _ProductDetailsState extends State<ProductDetails> {
     ),
   );
 
+  void _addProductToCart(DatabaseHelper databaseHelper,APIProvider apiProvider)async{
+    if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
+        apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
+      if(_selectedSize.isNotEmpty){
+        setState(() {
+          _isAdded=true;
+          _pQuantity=1;
+        });
+      }else{showInfo('Select Product Size');}
+
+    }
+    else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
+        apiProvider.productInfoModel.content.availableSizes.isEmpty){
+      if(_selectedColor.isNotEmpty){
+        setState(() {
+          _isAdded=true;
+          _pQuantity=1;
+        });
+      }else{showInfo('Select Product Color');}
+    }
+    else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
+        apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
+      if(_selectedSize.isNotEmpty && _selectedColor.isNotEmpty){
+        setState(() {
+          _isAdded=true;
+          _pQuantity=1;
+        });
+      }else{showInfo('Select Product Size & Color');}
+    }
+  }
+
 // show the dialog
-  void _showRatingDialog(Size size, ThemeProvider themeProvider){
+  void _showRatingDialog(Size size, ThemeProvider themeProvider,APIProvider apiProvider){
     showAnimatedDialog(
         context: context,
         animationType: DialogTransitionType.slideFromBottomFade,
@@ -607,7 +731,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                     ),
                     IconButton(
                       icon: Icon(Icons.cancel_outlined,color: Colors.grey,size: size.width*.06,),
-                      onPressed: (){Navigator.pop(context);_ratingCommentController.clear();},
+                      onPressed: (){Navigator.pop(context);_ratingComment.clear();},
                     )
                   ],
                 ),
@@ -628,9 +752,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                     size: size.width*.04,
                   ),
                   onRatingUpdate: (rating) {
-                    setState(() {
-                      _starRating = rating;
-                    });
+                    setState(()=> _starRating = rating);
                   },
                 ),
                 SizedBox(height: size.width*.05),
@@ -638,42 +760,44 @@ class _ProductDetailsState extends State<ProductDetails> {
                 Padding(
                   padding:  EdgeInsets.symmetric(horizontal: size.width*.065),
                   child: TextFormField(
-                    controller: _ratingCommentController,
-                    maxLines: 2,
+                    controller: _ratingComment,
+                    maxLines: 3,
                     style: TextStyle(
                         color: themeProvider.toggleTextColor(),
                         fontSize: size.width*.04
                     ),
-                    decoration: InputDecoration(
-                      alignLabelWithHint: true,
+                    decoration: boxFormDecoration(size).copyWith(
                       labelText: 'Write your comment',
-                      labelStyle: TextStyle(
-                        color: themeProvider.toggleTextColor(),
-                        fontSize: size.width*.04
-                      ),
-                      enabled: true,
-                      border: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey)
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey)
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey)
-                      )
-                    ),
+                      alignLabelWithHint: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8,vertical: 8),
+                      isDense: true
+                    )
                   ),
                 ),
                 SizedBox(height: size.width*.05),
 
                 ElevatedButton(
-                  style: ButtonStyle(
-                    // backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor()),
-                  ),
-                    onPressed: (){
-                    Navigator.pop(context);
-                    print('Comment: ${_ratingCommentController.text}\nRating: $_starRating');
-                    _ratingCommentController.clear();
+                  style: ButtonStyle(),
+                    onPressed: ()async{
+                    showLoadingDialog('Submitting Review');
+                    Map map = {"name":"${_sharedPreferences.getString('name')}",
+                      "email":"${_sharedPreferences.getString('username')}",
+                      "message":"${_ratingComment.text}",
+                      "rating":"$_starRating",
+                      "prid":"${widget.productId}"};
+                    await apiProvider.writeProductReview(map).then((value){
+                      if(value){
+                        closeLoadingDialog();
+                        showSuccessMgs('Review Submitted');
+                        apiProvider.getProductInfo(widget.productId);
+                        Navigator.pop(context);
+                        _ratingComment.clear();
+                      }else{
+                        closeLoadingDialog();
+                        showInfo('Failed !');
+                        Navigator.pop(context);
+                      }
+                    });
                     },
                     child: Text('Submit'))
               ],
@@ -682,61 +806,61 @@ class _ProductDetailsState extends State<ProductDetails> {
     });
   }
 
-  void _showSellerReviewDialog(Size size, ThemeProvider themeProvider){
-    showAnimatedDialog(
-        context: context,
-        animationType: DialogTransitionType.slideFromBottomFade,
-        curve: Curves.fastOutSlowIn,
-        duration: Duration(milliseconds: 500),
-        builder: (context){
-          return AlertDialog(
-            backgroundColor: themeProvider.toggleBgColor(),
-            contentPadding: EdgeInsets.symmetric(horizontal: 5),
-            scrollable: true,
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding:  EdgeInsets.only(left: 8.0),
-                      child: Text('Seller Review',style: TextStyle(fontSize: size.width*.05,fontWeight: FontWeight.w500,color: themeProvider.toggleTextColor()),),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.cancel_outlined,color: Colors.grey,size: size.width*.06,),
-                      onPressed: (){Navigator.pop(context);_ratingCommentController.clear();},
-                    )
-                  ],
-                ),
-                SizedBox(height: size.width*.05),
-                VerticalBarchart(
-                  maxX: 55,
-                  data: barData,
-                  //showLegend: true,
-                  alwaysShowDescription: true,
-                  showBackdrop: true,
-                  background:  themeProvider.toggleBgColor(),
-                  //labelColor: themeProvider.toggleTextColor(),
-                  tooltipColor: Colors.grey,
-                  // legend: [
-                  //   Vlegend(
-                  //     isSquare: false,
-                  //     color: Colors.orange,
-                  //     text: "Fruits",
-                  //   ),
-                  //   Vlegend(
-                  //     isSquare: false,
-                  //     color: Colors.teal,
-                  //     text: "Vegetables",
-                  //   )
-                  // ],
-                ),
-                SizedBox(height: size.width*.05),
-              ],
-            ),
-          );
-        });
-  }
+  // void _showSellerReviewDialog(Size size, ThemeProvider themeProvider){
+  //   showAnimatedDialog(
+  //       context: context,
+  //       animationType: DialogTransitionType.slideFromBottomFade,
+  //       curve: Curves.fastOutSlowIn,
+  //       duration: Duration(milliseconds: 500),
+  //       builder: (context){
+  //         return AlertDialog(
+  //           backgroundColor: themeProvider.toggleBgColor(),
+  //           contentPadding: EdgeInsets.symmetric(horizontal: 5),
+  //           scrollable: true,
+  //           content: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.center,
+  //             children: [
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 crossAxisAlignment: CrossAxisAlignment.center,
+  //                 children: [
+  //                   Padding(
+  //                     padding:  EdgeInsets.only(left: 8.0),
+  //                     child: Text('Seller Review',style: TextStyle(fontSize: size.width*.05,fontWeight: FontWeight.w500,color: themeProvider.toggleTextColor()),),
+  //                   ),
+  //                   IconButton(
+  //                     icon: Icon(Icons.cancel_outlined,color: Colors.grey,size: size.width*.06,),
+  //                     onPressed: (){Navigator.pop(context);_ratingComment.clear();},
+  //                   )
+  //                 ],
+  //               ),
+  //               SizedBox(height: size.width*.05),
+  //               VerticalBarchart(
+  //                 maxX: 55,
+  //                 data: barData,
+  //                 //showLegend: true,
+  //                 alwaysShowDescription: true,
+  //                 showBackdrop: true,
+  //                 background:  themeProvider.toggleBgColor(),
+  //                 //labelColor: themeProvider.toggleTextColor(),
+  //                 tooltipColor: Colors.grey,
+  //                 // legend: [
+  //                 //   Vlegend(
+  //                 //     isSquare: false,
+  //                 //     color: Colors.orange,
+  //                 //     text: "Fruits",
+  //                 //   ),
+  //                 //   Vlegend(
+  //                 //     isSquare: false,
+  //                 //     color: Colors.teal,
+  //                 //     text: "Vegetables",
+  //                 //   )
+  //                 // ],
+  //               ),
+  //               SizedBox(height: size.width*.05),
+  //             ],
+  //           ),
+  //         );
+  //       });
+  // }
 }
