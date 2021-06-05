@@ -1,6 +1,7 @@
 import 'package:bagh_mama/pages/filter_subcategory_product.dart';
 import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
+import 'package:bagh_mama/provider/sqlite_database_helper.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
@@ -37,6 +38,7 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
+    final DatabaseHelper databaseHelper = Provider.of<DatabaseHelper>(context);
     if(_counter==0) _customInit(apiProvider);
 
     return Scaffold(
@@ -99,7 +101,7 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
                         color: CColor.lightThemeColor,
                         borderRadius: BorderRadius.all(Radius.circular(20))
                     ),
-                    child: Text('9+',
+                    child: Text('${databaseHelper.cartList.length>9?'9+':databaseHelper.cartList.length}',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: size.width*.02,fontWeight: FontWeight.w500,color: Colors.white),),
                   ),

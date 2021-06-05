@@ -9,6 +9,7 @@ import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:bagh_mama/widget/home_product_cart_tile.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:bagh_mama/widget/product_review_tile.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -68,10 +69,12 @@ class _ProductDetailsState extends State<ProductDetails> {
   //   ),
   // ];
 
-  void _customInit(APIProvider apiProvider)async{
+  void _customInit(APIProvider apiProvider, DatabaseHelper databaseHelper)async{
     //ProductInfoModel productInfoModel;
     setState(()=> _counter++);
     _sharedPreferences = await SharedPreferences.getInstance();
+    if(databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
+
     await apiProvider.getProductInfo(widget.productId).then((value)async{
       await apiProvider.getRelatedProducts(widget.categoryId).then((value){
         setState((){
@@ -88,7 +91,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
     final DatabaseHelper databaseHelper = Provider.of<DatabaseHelper>(context);
-    if(_counter==0) _customInit(apiProvider);
+    if(_counter==0) _customInit(apiProvider,databaseHelper);
     return Scaffold(
       backgroundColor: themeProvider.whiteBlackToggleColor(),
         resizeToAvoidBottomInset: false,
@@ -116,11 +119,20 @@ class _ProductDetailsState extends State<ProductDetails> {
                         Positioned.fill(
                             child: Container(
                               width: size.width,
+                              height: size.width*.8,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                image: DecorationImage(
-                                  image: NetworkImage(_productImage),
-                                )
+                                // image: DecorationImage(
+                                //   image: NetworkImage(_productImage),
+                                // )
+                              ),
+                              child: CachedNetworkImage(
+                                imageUrl: _productImage,
+                                placeholder: (context, url) => threeBounce(themeProvider),
+                                errorWidget: (context, url, error) => Icon(Icons.error),
+                                height: size.width*.8,
+                                width: size.width,
+                                fit: BoxFit.contain,
                               ),
                             ))
                       ],
@@ -182,6 +194,11 @@ class _ProductDetailsState extends State<ProductDetails> {
             textAlign: TextAlign.justify,
             style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.w500),
           ),
+          apiProvider.productInfoModel.content.brand!=''?SizedBox(height: size.width*.01):Container(),
+          apiProvider.productInfoModel.content.brand!=''
+              ?Text('Brand: ${apiProvider.productInfoModel.content.brand}',
+              style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.w400))
+              :Container(),
           SizedBox(height: size.width*.03),
 
           ///Price Row
@@ -314,14 +331,13 @@ class _ProductDetailsState extends State<ProductDetails> {
               ),
             ],
           ):Container(),
-          apiProvider.productInfoModel.content.description!=null?SizedBox(height: size.width*.04):Container(),
+          apiProvider.productInfoModel.content.description!=''?SizedBox(height: size.width*.04):Container(),
 
           ///Product Description
-          apiProvider.productInfoModel.content.description!=null? Text('Product Full Description',
+          apiProvider.productInfoModel.content.description!=''? Text('Product Full Description',
               style: TextStyle(color: Colors.grey,fontSize: size.width*.04)) :Container(),
-
-          apiProvider.productInfoModel.content.description!=null? Html(
-            data: """${apiProvider.productInfoModel.content.description}""",
+          apiProvider.productInfoModel.content.description!=''? Html(
+            data: """${apiProvider.productInfoModel.content.description??''}""",
             style:{
               'strong':Style(
                   color: themeProvider.toggleTextColor()
@@ -336,6 +352,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                   color: themeProvider.toggleTextColor()
               ),
               'li':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'ul':Style(
                   color: themeProvider.toggleTextColor()
               ),
               'table':Style(
@@ -604,7 +623,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                     color: themeProvider.toggleBgColor(),
                     borderRadius: BorderRadius.all(Radius.circular(20))
                 ),
-                child: Text('9+',
+                child: Text('${databaseHelper.cartList.length>9?'9+':databaseHelper.cartList.length}',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: size.width*.024,fontWeight: FontWeight.w500,color: themeProvider.toggleTextColor()),),
               ),
@@ -626,15 +645,26 @@ class _ProductDetailsState extends State<ProductDetails> {
               children: [
                 ///Decrease button
                 IconButton(
-                  onPressed: (){
+                  onPressed: ()async{
                     if(_pQuantity==1){
-                      setState(() {
-                        _isAdded=false;
+                      await databaseHelper.deleteCart(widget.productId.toString()).then((value){
+                        setState(() {
+                          _isAdded=false;
+                        });
                       });
                     }
                     if(_pQuantity>1){
                       setState((){
                         _pQuantity--;
+                      });
+                      showLoadingDialog('Updating');
+                      CartModel cartModel = CartModel(widget.productId.toString(),
+                          _selectedSize,apiProvider.productInfoModel.content.name,
+                          apiProvider.productInfoModel.content.discount.toString(),
+                          _selectedColor, _pQuantity.toString(), _productImage,
+                          apiProvider.productInfoModel.content.priceStock.price.toString());
+                      await databaseHelper.updateCart(cartModel).then((value)async{
+                        closeLoadingDialog();
                       });
                     }
                   },
@@ -642,8 +672,17 @@ class _ProductDetailsState extends State<ProductDetails> {
                 Text('$_pQuantity',style: TextStyle(color: Colors.white,fontSize: size.width*.044,fontWeight: FontWeight.bold),),
                 ///Increase button
                 IconButton(
-                  onPressed: (){
+                  onPressed: ()async{
+                    showLoadingDialog('Updating');
                     setState(()=>_pQuantity++);
+                    CartModel cartModel = CartModel(widget.productId.toString(), _selectedSize,
+                        apiProvider.productInfoModel.content.name,
+                        apiProvider.productInfoModel.content.discount.toString(),
+                        _selectedColor, _pQuantity.toString(), _productImage,
+                        apiProvider.productInfoModel.content.priceStock.price.toString());
+                    await databaseHelper.updateCart(cartModel).then((value)async{
+                      closeLoadingDialog();
+                    });
                   },
                   icon: Icon(Icons.add_circle_outline_rounded,size: size.width*.06,color: Colors.white,),splashRadius: size.width*.06,),
               ],
@@ -666,9 +705,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               minimumSize: Size(size.width*.14, size.width*.4),
             ),
             child: Text('Quick Buy',style: TextStyle(fontSize: size.width*.044),),
-            onPressed: (){
-
-            },
+            onPressed: (){},
           ),
         ),
       ],
@@ -679,30 +716,85 @@ class _ProductDetailsState extends State<ProductDetails> {
     if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
         apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
       if(_selectedSize.isNotEmpty){
-        setState(() {
-          _isAdded=true;
-          _pQuantity=1;
-        });
+        if(!databaseHelper.productIdListInCart.contains(widget.productId.toString())){
+          setState(() {
+            _isAdded=true;
+            _pQuantity=1;
+          });
+          showLoadingDialog('Adding Product to Cart');
+          CartModel cartModel = CartModel(widget.productId.toString(), _selectedSize,
+              apiProvider.productInfoModel.content.name,
+              apiProvider.productInfoModel.content.discount.toString(),
+              _selectedColor, _pQuantity.toString(), _productImage,
+              apiProvider.productInfoModel.content.priceStock.price.toString());
+          await databaseHelper.insertCart(cartModel).then((value)async{
+            closeLoadingDialog();
+            showSuccessMgs('Product Added to Cart');
+          });
+        }else{showInfo('This Product Already Added to Cart');}
       }else{showInfo('Select Product Size');}
 
     }
     else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
         apiProvider.productInfoModel.content.availableSizes.isEmpty){
       if(_selectedColor.isNotEmpty){
-        setState(() {
-          _isAdded=true;
-          _pQuantity=1;
-        });
+        if(!databaseHelper.productIdListInCart.contains(widget.productId.toString())){
+          setState(() {
+            _isAdded=true;
+            _pQuantity=1;
+          });
+          showLoadingDialog('Adding Product to Cart');
+          CartModel cartModel = CartModel(widget.productId.toString(), _selectedSize,
+              apiProvider.productInfoModel.content.name,
+              apiProvider.productInfoModel.content.discount.toString(),
+              _selectedColor, _pQuantity.toString(), _productImage,
+              apiProvider.productInfoModel.content.priceStock.price.toString());
+          await databaseHelper.insertCart(cartModel).then((value)async{
+            closeLoadingDialog();
+            showSuccessMgs('Product Added to Cart');
+          });
+        }else{showInfo('This Product Already Added to Cart');}
       }else{showInfo('Select Product Color');}
     }
     else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
         apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
       if(_selectedSize.isNotEmpty && _selectedColor.isNotEmpty){
+        if(!databaseHelper.productIdListInCart.contains(widget.productId.toString())){
+          setState(() {
+            _isAdded=true;
+            _pQuantity=1;
+          });
+          showLoadingDialog('Adding Product to Cart');
+          CartModel cartModel = CartModel(widget.productId.toString(), _selectedSize,
+              apiProvider.productInfoModel.content.name,
+              apiProvider.productInfoModel.content.discount.toString(),
+              _selectedColor, _pQuantity.toString(), _productImage,
+              apiProvider.productInfoModel.content.priceStock.price.toString());
+          await databaseHelper.insertCart(cartModel).then((value)async{
+            closeLoadingDialog();
+            showSuccessMgs('Product Added to Cart');
+          });
+        }else{showInfo('This Product Already Added to Cart');}
+      }else{showInfo('Select Product Size & Color');}
+    }
+    else if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
+        apiProvider.productInfoModel.content.availableSizes.isEmpty){
+      if(!databaseHelper.productIdListInCart.contains(widget.productId.toString())){
         setState(() {
           _isAdded=true;
           _pQuantity=1;
         });
-      }else{showInfo('Select Product Size & Color');}
+        showLoadingDialog('Adding Product to Cart');
+        CartModel cartModel = CartModel(widget.productId.toString(), _selectedSize,
+            apiProvider.productInfoModel.content.name,
+            apiProvider.productInfoModel.content.discount.toString(),
+            _selectedColor, _pQuantity.toString(), _productImage,
+            apiProvider.productInfoModel.content.priceStock.price.toString());
+        await databaseHelper.insertCart(cartModel).then((value)async{
+          closeLoadingDialog();
+          showSuccessMgs('Product Added to Cart');
+        });
+      }else{showInfo('This Product Already Added to Cart');}
     }
   }
 

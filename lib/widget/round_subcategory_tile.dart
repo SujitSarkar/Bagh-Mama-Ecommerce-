@@ -27,7 +27,7 @@ class RoundSubcategoryTile extends StatelessWidget {
         children: [
           Container(
             height: size.width*.16,
-            width: size.width*.4,
+            width: size.width*.5,
             alignment: Alignment.center,
             padding:EdgeInsets.symmetric(horizontal: 3,vertical: 2),
             decoration: BoxDecoration(

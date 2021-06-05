@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bagh_mama/models/all_product_model.dart';
 import 'package:bagh_mama/models/basic_contact_info_model.dart';
 import 'package:bagh_mama/models/category_product_model.dart';
 import 'package:bagh_mama/models/new_arrival_products_model.dart';
@@ -30,6 +31,7 @@ class APIProvider extends ChangeNotifier{
   List<ProductCategoryModel> _allCategoryList=[];
   List<String> _mainCategoryList=[];
   List<ProductCategoryModel> _subCategoryList=[];
+  AllProductModel _allProductModel;
   NewArrivalProductModel _newArrivalProductModel;
   PopularProductModel _popularProductModel;
   CategoryProductModel _categoryProductModel;
@@ -45,6 +47,7 @@ class APIProvider extends ChangeNotifier{
   get selectedIndex => _selectedIndex;
   get bannerImageList => _bannerImageList;
   get networkImageList => _networkImageList;
+  get allProductModel => _allProductModel;
   get newArrivalProductModel => _newArrivalProductModel;
   get popularProductModel => _popularProductModel;
   get categoryProductModel => _categoryProductModel;
@@ -180,6 +183,22 @@ class APIProvider extends ChangeNotifier{
           _subCategoryList.add(_allCategoryList[i]);
         }
       }
+      notifyListeners();
+    }
+  }
+
+  Future<void> getAllProducts()async{
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail,
+        },
+    );
+    if(response.statusCode==200){
+      final String responseString = response.body;
+      _allProductModel= allProductModelFromJson(responseString);
       notifyListeners();
     }
   }

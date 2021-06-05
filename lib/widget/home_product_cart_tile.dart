@@ -1,5 +1,4 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +12,7 @@ class ProductTile extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final double discountPrice = int.parse(productsModel.content[index].priceStockChart[0].sP)
-        - int.parse(productsModel.content[index].priceStockChart[0].sP)*(productsModel.content[index].discount/100);
+        - (int.parse(productsModel.content[index].priceStockChart[0].sP)*(productsModel.content[index].discount/100));
     return Container(
         width: size.width * .35,
         margin: EdgeInsets.only(right: 10),

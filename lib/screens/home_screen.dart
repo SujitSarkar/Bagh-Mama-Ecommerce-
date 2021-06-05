@@ -3,6 +3,7 @@ import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/pages/search_page.dart';
 import 'package:bagh_mama/pages/subcategory_product_list.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
+import 'package:bagh_mama/provider/sqlite_database_helper.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
@@ -34,12 +35,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   //   _controller = TabController(length: 7, vsync: this);
   // }
 
-  _customInit(ThemeProvider themeProvider,APIProvider apiProvider)async{
+  _customInit(ThemeProvider themeProvider,APIProvider apiProvider,DatabaseHelper databaseHelper)async{
     setState(()=>_counter++);
     themeProvider.checkConnectivity();
     if(apiProvider.allCategoryList.isEmpty) await apiProvider.getProductCategories();
     _controller = TabController(length: apiProvider.mainCategoryList.length, vsync: this);
+    await databaseHelper.getCartList();
     if(apiProvider.networkImageList.isEmpty) await apiProvider.getBannerImageList();
+    if(apiProvider.allProductModel==null) await apiProvider.getAllProducts();
     if(apiProvider.newArrivalProductModel==null) await apiProvider.getNewArrivalProducts();
     if(apiProvider.popularProductModel==null) await apiProvider.getPopularProducts();
     if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
@@ -51,13 +54,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       }
     }
   }
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
-    if(themeProvider.internetConnected && _counter==0) _customInit(themeProvider,apiProvider);
+    final DatabaseHelper databaseHelper = Provider.of<DatabaseHelper>(context);
+    if(themeProvider.internetConnected && _counter==0) _customInit(themeProvider,apiProvider,databaseHelper);
 
     return themeProvider.internetConnected? Scaffold(
       backgroundColor: themeProvider.toggleBgColor(),
@@ -117,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           color: CColor.lightThemeColor,
                           borderRadius: BorderRadius.all(Radius.circular(20))
                         ),
-                        child: Text('9+',
+                        child: Text('${databaseHelper.cartList.length>9?'9+':databaseHelper.cartList.length}',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: size.width*.02,fontWeight: FontWeight.w500,color: Colors.white),),
                       ),
@@ -191,7 +200,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         height: size.width*.5,
         //color: Colors.red,
         padding: EdgeInsets.symmetric(horizontal: 10),
-        child: apiProvider.newArrivalProductModel==null? Center(child: threeBounce(themeProvider)): ListView.builder(
+        child: apiProvider.newArrivalProductModel==null
+            ? Center(child: threeBounce(themeProvider))
+            : ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: apiProvider.newArrivalProductModel.content.length,
           itemBuilder: (context, index)=>InkWell(
@@ -226,12 +237,49 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           itemCount: apiProvider.popularProductModel.content.length,
           itemBuilder: (context, index)=>InkWell(
               onTap: (){
+                print(apiProvider.newArrivalProductModel.content[index].id);
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                   productId: apiProvider.popularProductModel.content[index].id,
                   categoryId: apiProvider.popularProductModel.content[index].categoryId,
                 )));
               },
               child: ProductTile(index: index,productsModel: apiProvider.popularProductModel)),
+        ),
+      ),
+      SizedBox(height: size.width*.08),
+
+      ///Popular Products
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: Text('Just For You',
+            style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
+      ),
+      apiProvider.allProductModel==null
+          ? Center(child: threeBounce(themeProvider))
+          : Container(
+        // height: size.height,
+        //color: themeProvider.togglePageBgColor(),
+        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: .71,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10
+          ),
+          shrinkWrap: true,
+          physics: ClampingScrollPhysics(),
+          itemCount: apiProvider.allProductModel.content.length,
+          itemBuilder: (context, index){
+            return InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                    productId: apiProvider.allProductModel.content[index].id,
+                    categoryId: apiProvider.allProductModel.content[index].categoryId,
+                  )));
+                },
+                child: ProductCartTile(index: index,productsModel: apiProvider.allProductModel));
+          },
         ),
       ),
       SizedBox(height: size.width*.08),
