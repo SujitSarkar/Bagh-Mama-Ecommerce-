@@ -68,7 +68,6 @@ class _ShopPageState extends State<ShopPage> {
                 TextSpan(text: 'This the page has a unique feel, thanks to the'
                     ' deconstructed action figures representing the founders, Leigh Whipday and Jonny Lander.\n\n'),
                 TextSpan(text: 'The great attention to detail and interactivity also reflect the company’s 16 years of experience.\n\n\n'),
-                TextSpan(text: 'Our shop Locations:House:',style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -85,6 +84,55 @@ class _ShopPageState extends State<ShopPage> {
           ),
           Html(
               data: """${apiProvider.basicContactInfo.content.address2}""",
+            style:{
+              'strong':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'body':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+            },
+          ),
+          Padding(
+            padding:  EdgeInsets.only(left: 10,top: 10),
+            child: Text('Contact Us :',style: TextStyle(color: themeProvider.toggleTextColor(),
+                fontSize: size.width*.04,fontWeight: FontWeight.bold),),
+          ),
+          Html(
+            data: """${apiProvider.basicContactInfo.content.mobile1}""",
+            style:{
+              'strong':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'body':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+            },
+          ),
+          Html(
+            data: """${apiProvider.basicContactInfo.content.mobile2}""",
+            style:{
+              'strong':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'body':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+            },
+          ),
+          Html(
+            data: """${apiProvider.basicContactInfo.content.phone}""",
+            style:{
+              'strong':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+              'body':Style(
+                  color: themeProvider.toggleTextColor()
+              ),
+            },
+          ),
+          Html(
+            data: """${apiProvider.basicContactInfo.content.email}""",
             style:{
               'strong':Style(
                   color: themeProvider.toggleTextColor()

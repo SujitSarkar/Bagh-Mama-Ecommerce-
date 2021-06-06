@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:bagh_mama/models/all_product_model.dart';
 import 'package:bagh_mama/models/basic_contact_info_model.dart';
 import 'package:bagh_mama/models/category_product_model.dart';
+import 'package:bagh_mama/models/create_support_ticket_model.dart';
 import 'package:bagh_mama/models/new_arrival_products_model.dart';
-import 'package:bagh_mama/models/new_support_ticket_model.dart';
 import 'package:bagh_mama/models/popular_product_model.dart';
 import 'package:bagh_mama/models/product_category_model.dart';
 import 'package:bagh_mama/models/product_info_model.dart';
@@ -31,6 +31,7 @@ class APIProvider extends ChangeNotifier{
   List<ProductCategoryModel> _allCategoryList=[];
   List<String> _mainCategoryList=[];
   List<ProductCategoryModel> _subCategoryList=[];
+  List<WishListModel> _wishList=[];
   AllProductModel _allProductModel;
   NewArrivalProductModel _newArrivalProductModel;
   PopularProductModel _popularProductModel;
@@ -38,11 +39,13 @@ class APIProvider extends ChangeNotifier{
   RelatedProductModel _relatedProductModel;
   ProductInfoModel _productInfoModel;
   List<ProductReviewModel> _productReviewList=[];
+  List<ProductQuestionModel> _productQuestionList=[];
   UserInfoModel _userInfoModel;
   SocialContactInfo _socialContactInfo;
   BasicContactInfo _basicContactInfo;
   String _profileImageLink;
   List<String> _wishListIdList=[];
+  List<Notifications> _notificationList=[];
 
   get selectedIndex => _selectedIndex;
   get bannerImageList => _bannerImageList;
@@ -54,6 +57,7 @@ class APIProvider extends ChangeNotifier{
   get relatedProductModel => _relatedProductModel;
   get productInfoModel => _productInfoModel;
   get productReviewList => _productReviewList;
+  get productQuestionList => _productQuestionList;
   get userInfoModel => _userInfoModel;
   get allCategoryList => _allCategoryList;
   get mainCategoryList => _mainCategoryList;
@@ -62,6 +66,8 @@ class APIProvider extends ChangeNotifier{
   get basicContactInfo => _basicContactInfo;
   get profileImageLink => _profileImageLink;
   get wishListIdList => _wishListIdList;
+  get wishList => _wishList;
+  get notificationList=> _notificationList;
 
   set userInfoModel(UserInfoModel value){
     _userInfoModel = value;
@@ -74,6 +80,16 @@ class APIProvider extends ChangeNotifier{
   set categoryProductModel(var model){
     _categoryProductModel = model;
     notifyListeners();
+  }
+
+  void clearWishlist(){
+    _wishList.clear();
+  }
+  void clearNotificationList(){
+    _notificationList.clear();
+  }
+  void clearOrderList(){
+
   }
 
   void getProfileImage()async{
@@ -312,8 +328,31 @@ class APIProvider extends ChangeNotifier{
           _productReviewList.add(model);
         });
       }else _productReviewList.clear();
+       ///get product Question
+      if(jsonData['content']['product_questions'].isNotEmpty){
+        _productQuestionList = productQuestionModelFromJson(jsonEncode(jsonData['content']['product_questions']));
+      }else _productQuestionList.clear();
+
       notifyListeners();
     }
+  }
+
+  Future<bool> replyProductQuestion(Map map)async{
+    var body = json.encode(map);
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/productQuestion'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail,
+        },
+        body: body
+    );
+    var jsonData = jsonDecode(response.body);
+    if(jsonData['status']=='SUCCESS'){
+      return jsonData['content']['success'];
+    }
+    else return jsonData['content']['success'];
   }
 
   Future<bool> writeProductReview(Map map)async{
@@ -369,17 +408,35 @@ class APIProvider extends ChangeNotifier{
     );
     if(response.statusCode==200){
       String responseString = response.body;
+      var jsonData = jsonDecode(response.body);
       _userInfoModel = userInfoModelFromJson(responseString);
+      _userInfoModel.content.profilePic;
       await pref.setString('username', _userInfoModel.content.username);
       await pref.setString('userId', _userInfoModel.content.id.toString());
       await pref.setString('mobile', _userInfoModel.content.mobileNumber.toString());
       await pref.setString('address', _userInfoModel.content.address.toString());
       await pref.setString('name', '${_userInfoModel.content.firstName} ${_userInfoModel.content.lastName}');
+      ///Get Wishlist ID
       if(_userInfoModel.content.wishlists.isNotEmpty){
+        _wishListIdList.clear();
         _userInfoModel.content.wishlists.forEach((element) {
           _wishListIdList.add(element);
         });
-      }
+      }else _wishListIdList.clear();
+
+      ///Get Notifications
+      if(jsonData['content']['notifications'].isNotEmpty){
+        _notificationList.clear();
+        jsonData['content']['notifications'].forEach((element){
+          Notifications notifications = Notifications(
+            notificationType: element['notificationType'],
+            notificationText: element['notificationText'],
+            link: element['link'],
+            status: element['status']
+          );
+          _notificationList.add(notifications);
+        });
+      }else _notificationList.clear();
       notifyListeners();
       return true;
     }else{
@@ -442,25 +499,22 @@ class APIProvider extends ChangeNotifier{
     }else showInfo('failed to get Social Data');
   }
 
-  Future<String> getNewSupportTicket(String email, String message,String fullName,
-      String mobileNumber, String subject)async{
-      var response = await http.post(
-        _baseUri,
-        body: {
-          'api_token': _apiToken,
-          'determiner': 'newSupportTicket',
-          'email': email,
-          'message': message,
-          'fullName': fullName,
-          'mobileNumber':mobileNumber,
-          'subject': subject,
-        });
-    if(response.statusCode==200){
-      final String responseString = response.body;
-      final NewSupportTicketModel _newSupportTicketModel=
-      newSupportTicketModelFromJson(responseString);
-
-      return _newSupportTicketModel.content.success;
+  Future<String> createSupportTicket(Map map)async{
+    var body = jsonEncode(map);
+    var response = await http.post(
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/newSupportTicket'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail
+      },
+      body: body
+    );
+    final String responseString = response.body;
+    final CreateSupportTokenModel _createSupportTokenModel=
+    createSupportTokenModelFromJson(responseString);
+    if(_createSupportTokenModel.status=='SUCCESS'){
+      return 'Token no: ${_createSupportTokenModel.content.tokenNo.toString()}';
     }
     else return 'Failed! try again later';
   }
@@ -480,6 +534,68 @@ class APIProvider extends ChangeNotifier{
     return registerUserModelFromJson(responseString);
   }
 
+  Future<bool> addProductToWishlist(Map map)async{
+    var body = jsonEncode(map);
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/addItemToWishlist'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail
+        },
+        body: body
+    );
+    var jsonData = jsonDecode(response.body);
+    if(jsonData['status']=='SUCCESS'){
+      return jsonData['content']['success'];
+    }
+    else return jsonData['content']['success'];
+  }
+
+  Future<void> getWishListProduct()async{
+    _wishList.clear();
+    _wishListIdList.forEach((element) async{
+      Map map = {"product_id":element};
+      var body = jsonEncode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/productInfo'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail
+          },
+          body: body
+      );
+      var jsonData = jsonDecode(response.body);
+      WishListModel wishListModel = WishListModel(
+        pId: jsonData['content']['product_id'].toString(),
+        pName: jsonData['content']['name'],
+        pPrice: jsonData['content']['price_stock']['price'].toString(),
+        pImageLink:jsonData['content']['thumnail_image']
+      );
+      _wishList.add(wishListModel);
+      notifyListeners();
+    });
+
+  }
+
+  Future<bool> removeItemFromWishList(Map map)async{
+    var body = jsonEncode(map);
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/removeItemFromWishlist'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail
+        },
+        body: body
+    );
+    var jsonData = jsonDecode(response.body);
+    if(jsonData['status']=='SUCCESS'){
+      return jsonData['content']['success'];
+    }
+    else return jsonData['content']['success'];
+  }
 
 
 }

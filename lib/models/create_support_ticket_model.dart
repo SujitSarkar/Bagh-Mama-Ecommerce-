@@ -1,15 +1,15 @@
 // To parse this JSON data, do
 //
-//     final newSupportTicketModel = newSupportTicketModelFromJson(jsonString);
+//     final createSupportTokenModel = createSupportTokenModelFromJson(jsonString);
 
 import 'dart:convert';
 
-NewSupportTicketModel newSupportTicketModelFromJson(String str) => NewSupportTicketModel.fromJson(json.decode(str));
+CreateSupportTokenModel createSupportTokenModelFromJson(String str) => CreateSupportTokenModel.fromJson(json.decode(str));
 
-String newSupportTicketModelToJson(NewSupportTicketModel data) => json.encode(data.toJson());
+String createSupportTokenModelToJson(CreateSupportTokenModel data) => json.encode(data.toJson());
 
-class NewSupportTicketModel {
-  NewSupportTicketModel({
+class CreateSupportTokenModel {
+  CreateSupportTokenModel({
     this.status,
     this.errorno,
     this.error,
@@ -23,7 +23,7 @@ class NewSupportTicketModel {
   String description;
   Content content;
 
-  factory NewSupportTicketModel.fromJson(Map<String, dynamic> json) => NewSupportTicketModel(
+  factory CreateSupportTokenModel.fromJson(Map<String, dynamic> json) => CreateSupportTokenModel(
     status: json["status"],
     errorno: json["errorno"],
     error: json["error"],
@@ -43,15 +43,19 @@ class NewSupportTicketModel {
 class Content {
   Content({
     this.success,
+    this.tokenNo,
   });
 
-  String success;
+  bool success;
+  int tokenNo;
 
   factory Content.fromJson(Map<String, dynamic> json) => Content(
     success: json["success"],
+    tokenNo: json["token_no"],
   );
 
   Map<String, dynamic> toJson() => {
     "success": success,
+    "token_no": tokenNo,
   };
 }

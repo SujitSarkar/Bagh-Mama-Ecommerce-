@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     if(apiProvider.newArrivalProductModel==null) await apiProvider.getNewArrivalProducts();
     if(apiProvider.popularProductModel==null) await apiProvider.getPopularProducts();
     if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
+    if(apiProvider.basicContactInfo==null) await apiProvider.getBasicContactInfo();
 
     final SharedPreferences pref = await SharedPreferences.getInstance();
     if(pref.getString('username')!=null){

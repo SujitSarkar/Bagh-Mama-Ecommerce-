@@ -56,6 +56,7 @@ class Content {
     this.country,
     this.postalcode,
     this.mobileNumber,
+    this.profilePic,
     this.wishlists,
   });
 
@@ -73,6 +74,7 @@ class Content {
   String country;
   String postalcode;
   String mobileNumber;
+  String profilePic;
   List<String> wishlists;
 
   factory Content.fromJson(Map<String, dynamic> json) => Content(
@@ -90,6 +92,7 @@ class Content {
     country: json["country"],
     postalcode: json["postalcode"],
     mobileNumber: json["mobile_number"],
+    profilePic: json["profile_pic"],
     wishlists: List<String>.from(json["wishlists"].map((x) => x)),
   );
 
@@ -108,6 +111,28 @@ class Content {
     "country": country,
     "postalcode": postalcode,
     "mobile_number": mobileNumber,
+    "profile_pic": profilePic,
     "wishlists": List<dynamic>.from(wishlists.map((x) => x)),
   };
+}
+
+
+
+class WishListModel{
+  String pId;
+  String pName;
+  String pPrice;
+  String pImageLink;
+
+  WishListModel({this.pId, this.pName, this.pPrice, this.pImageLink});
+}
+
+class Notifications{
+  String notificationType;
+  String notificationText;
+  String link;
+  String status;
+
+  Notifications({
+      this.notificationType, this.notificationText, this.link, this.status});
 }

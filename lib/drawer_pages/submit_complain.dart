@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SubmitComplain extends StatefulWidget {
   final String question;
@@ -32,6 +33,10 @@ class _SubmitComplainState extends State<SubmitComplain> {
   }
   _customInit(ThemeProvider themeProvider,APIProvider apiProvider)async{
     setState(()=>_counter++);
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    _name.text =pref.getString('name')??'';
+    _email.text =pref.getString('username')??'';
+    _mobile.text =pref.getString('mobile')??'';
     themeProvider.checkConnectivity();
   }
 
@@ -106,8 +111,13 @@ class _SubmitComplainState extends State<SubmitComplain> {
     if(_name.text.isNotEmpty && _email.text.isNotEmpty&& _mobile.text.isNotEmpty
     && _addiMgs.text.isNotEmpty && widget.question.isNotEmpty){
       setState(()=>_isLoading=true);
-      apiProvider.getNewSupportTicket(_email.text, _addiMgs.text, _name.text,
-          _mobile.text, widget.question).then((mgs){
+      Map map = {
+        "fullname":_name.text,
+        "email":_email.text,
+        "mobile_number":_mobile.text,
+        "subject":widget.question,
+        "message":_addiMgs.text};
+      apiProvider.createSupportTicket(map).then((mgs){
           setState(()=>_isLoading=false);
           _showResultDialog(size, themeProvider, mgs);
       });

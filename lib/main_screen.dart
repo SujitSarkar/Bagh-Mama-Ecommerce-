@@ -115,7 +115,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         activeIndex: _bottomNavIndex,
         splashColor: themeProvider.orangeWhiteToggleColor(),
         notchAndCornersAnimation: animation,
-        splashSpeedInMilliseconds: 500,
+        splashSpeedInMilliseconds: 400,
         notchSmoothness: NotchSmoothness.defaultEdge,
         gapLocation: GapLocation.center,
         // leftCornerRadius: 32,

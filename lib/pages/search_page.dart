@@ -117,6 +117,7 @@ class _SearchPageState extends State<SearchPage> {
       itemBuilder: (context, index){
         return InkWell(
             onTap: (){
+              print(apiProvider.categoryProductModel.content[index].id);
               Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                 productId: apiProvider.categoryProductModel.content[index].id,
                 categoryId: apiProvider.categoryProductModel.content[index].categoryId,

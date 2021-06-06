@@ -73,7 +73,13 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _bodyUI(ThemeProvider themeProvider,DatabaseHelper databaseHelper, Size size)=>ListView(
+  Widget _bodyUI(ThemeProvider themeProvider,DatabaseHelper databaseHelper, Size size)=>
+      databaseHelper.cartList.isEmpty
+          ? Center(child: Text('Empty Cart !',style: TextStyle(
+        color: themeProvider.toggleTextColor(),
+        fontSize: size.width*.045
+      )))
+          :ListView(
     children: [
       ListView.builder(
         physics: ClampingScrollPhysics(),

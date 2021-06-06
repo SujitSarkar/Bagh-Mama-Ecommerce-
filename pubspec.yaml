@@ -49,7 +49,7 @@ flutter:
   assets:
     - assets/bm_head.png
     - assets/logo.png
-    - assets/user.png
+    - assets/user.PNG
   #Product Image
     - assets/product_image/cycle.jpg
     - assets/product_image/shoes.jpg

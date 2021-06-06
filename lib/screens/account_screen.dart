@@ -8,6 +8,7 @@ import 'package:bagh_mama/pages/order_history_list.dart';
 import 'package:bagh_mama/pages/update_profile.dart';
 import 'package:bagh_mama/pages/wishlist_page.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
+import 'package:bagh_mama/provider/sqlite_database_helper.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
@@ -27,18 +28,21 @@ class _AccountScreenState extends State<AccountScreen> {
   File _image;
   int _counter=0;
   SharedPreferences pref;
-  bool _isLoading=false;
+  bool _isLoading=true;
 
-  void _customInit(ThemeProvider themeProvider, APIProvider apiProvider)async{
+  void _customInit(ThemeProvider themeProvider, APIProvider apiProvider,DatabaseHelper databaseHelper)async{
+    pref = await SharedPreferences.getInstance();
     setState(()=> _counter++);
     themeProvider.checkConnectivity();
-    pref = await SharedPreferences.getInstance();
+    if(databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
     if(pref.getString('username')!=null){
       if(apiProvider.userInfoModel==null){
         await apiProvider.getUserInfo(pref.getString('username'));
       }
     }
+    if(apiProvider.basicContactInfo==null) await apiProvider.getBasicContactInfo();
     if(apiProvider.profileImageLink==null) apiProvider.getProfileImage();
+    setState(()=> _isLoading=false);
   }
 
   @override
@@ -46,7 +50,8 @@ class _AccountScreenState extends State<AccountScreen> {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
-    if(_counter==0 && themeProvider.internetConnected) _customInit(themeProvider,apiProvider);
+    final DatabaseHelper databaseHelper = Provider.of<DatabaseHelper>(context);
+    if(_counter==0 && themeProvider.internetConnected) _customInit(themeProvider,apiProvider,databaseHelper);
 
     return SafeArea(
       child: Scaffold(
@@ -64,15 +69,18 @@ class _AccountScreenState extends State<AccountScreen> {
                 fontSize: size.width * .045),
           ),
         ),
-        body:themeProvider.internetConnected? _bodyUI(size, themeProvider,apiProvider):NoInternet(),
+        body:themeProvider.internetConnected? _bodyUI(size, themeProvider,apiProvider,databaseHelper):NoInternet(),
         floatingActionButton: Builder(
-          builder: (context) => _floatingActionButton(size, themeProvider),
+          builder: (context) => _floatingActionButton(size, themeProvider,apiProvider),
         ),
       ),
     );
   }
 
-  Widget _bodyUI(Size size, ThemeProvider themeProvider,APIProvider apiProvider) => Container(
+  Widget _bodyUI(Size size, ThemeProvider themeProvider,APIProvider apiProvider,DatabaseHelper databaseHelper) =>
+      _isLoading
+          ?Center(child: threeBounce(themeProvider))
+          :Container(
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -97,11 +105,14 @@ class _AccountScreenState extends State<AccountScreen> {
                             decoration: BoxDecoration(
                                 color: Colors.grey,
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(10),),
+                                BorderRadius.all(Radius.circular(10)),
                                 image: DecorationImage(
-                                    image: apiProvider.profileImageLink==null
-                                        ?AssetImage('assets/user.png'):
-                                    NetworkImage(apiProvider.profileImageLink),
+                                    image: apiProvider.userInfoModel==null
+                                        ?AssetImage('assets/user.PNG')
+                                        : apiProvider.userInfoModel.content.profilePic!=''||
+                                        apiProvider.userInfoModel.content.profilePic!=null
+                                        ?NetworkImage(apiProvider.userInfoModel.content.profilePic)
+                                        :AssetImage('assets/user.PNG'),
                                     fit: BoxFit.cover)),
                           ),
                         ):Container(
@@ -138,7 +149,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           ),
                         ):TextButton(
                             onPressed: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage())),
-                            child: Text('Login',style: TextStyle(color: themeProvider.orangeWhiteToggleColor()),))
+                            child: Text('Login',style: TextStyle(color: themeProvider.orangeWhiteToggleColor())))
                       ],
                     ),
                     SizedBox(height: size.width*.02),
@@ -155,8 +166,6 @@ class _AccountScreenState extends State<AccountScreen> {
                        _buttonBuilder(themeProvider,apiProvider, size, Icons.vpn_key_sharp),
                      ],
                    ):Container()
-
-
                   ],
                 ),
               ),
@@ -169,16 +178,17 @@ class _AccountScreenState extends State<AccountScreen> {
                 margin: EdgeInsets.symmetric(horizontal: size.width*.03),
                 child: Column(
                   children: [
-                    _functionBuilder(apiProvider, themeProvider, size, 'WishLists', FontAwesomeIcons.solidHeart),
+                    pref.getString('username')!=null? _functionBuilder(apiProvider, themeProvider,databaseHelper, size, 'WishLists', FontAwesomeIcons.solidHeart):Container(),
                     Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(apiProvider,themeProvider, size, 'Order History', FontAwesomeIcons.shoppingBasket),
+                    pref.getString('username')!=null? _functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'Order History', FontAwesomeIcons.shoppingBasket):Container(),
                     Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(apiProvider,themeProvider, size, 'Notifications', FontAwesomeIcons.solidBell),
+                    pref.getString('username')!=null? _functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'Notifications', FontAwesomeIcons.solidBell):Container(),
+                    pref.getString('username')!=null?Divider(color: Colors.grey,height: 0.5):Container(),
+                    _functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'Settings', FontAwesomeIcons.cog),
                     Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(apiProvider,themeProvider, size, 'Settings', FontAwesomeIcons.cog),
-                    Divider(color: Colors.grey,height: 0.5),
-                    _functionBuilder(apiProvider,themeProvider, size, 'Logout', FontAwesomeIcons.signOutAlt),
-
+                    pref.getString('username')!=null
+                        ? _functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'Logout', FontAwesomeIcons.signOutAlt)
+                        :_functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'LogIn', FontAwesomeIcons.signInAlt),
                   ],
                 ),
               )
@@ -238,8 +248,8 @@ class _AccountScreenState extends State<AccountScreen> {
     ),
   );
 
-  Widget _functionBuilder(APIProvider apiProvider, ThemeProvider themeProvider, Size size, String name, IconData iconData) => ListTile(
-        onTap: (){
+  Widget _functionBuilder(APIProvider apiProvider, ThemeProvider themeProvider, DatabaseHelper databaseHelper, Size size, String name, IconData iconData) => ListTile(
+        onTap: ()async{
           if(name=='Settings') Navigator.push(context,
               MaterialPageRoute(builder: (context) => ChangeThemePage()));
           else if(name=='WishLists') Navigator.push(context,
@@ -248,9 +258,26 @@ class _AccountScreenState extends State<AccountScreen> {
               MaterialPageRoute(builder: (context) => OrderHistory()));
           else if(name=='Notifications') Navigator.push(context,
               MaterialPageRoute(builder: (context) => NotificationList()));
+          else if(name=='LogIn') Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+
           else if(name=='Logout') {
-            pref.clear();
-            apiProvider.userInfoModel=null;
+            showLoadingDialog('Logging Out...');
+            if(databaseHelper.cartList.isNotEmpty){
+              databaseHelper.cartList.forEach((element) async{
+                await databaseHelper.deleteCart(element.pId);
+              });
+              pref.clear();
+              apiProvider.userInfoModel=null;
+              apiProvider.clearWishlist();
+              apiProvider.clearNotificationList();
+              closeLoadingDialog();
+            }else{
+              pref.clear();
+              apiProvider.userInfoModel=null;
+              apiProvider.clearWishlist();
+              apiProvider.clearNotificationList();
+              closeLoadingDialog();
+            }
           }
 
         },
@@ -273,14 +300,14 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
       );
 
-  Widget _floatingActionButton(Size size, ThemeProvider themeProvider) =>
+  Widget _floatingActionButton(Size size, ThemeProvider themeProvider,APIProvider apiProvider) =>
       FabCircularMenu(
         key: fabKey,
         // Cannot be `Alignment.center`
         alignment: Alignment.bottomRight,
         ringColor: themeProvider.toggleFabRingBgColor(),
-        ringDiameter: 450.0,
-        ringWidth: 100.0,
+        ringDiameter: 400.0,
+        ringWidth: 80.0,
         fabSize: 60.0,
         fabElevation: 5.0,
         fabIconBorder: CircleBorder(),
@@ -299,16 +326,16 @@ class _AccountScreenState extends State<AccountScreen> {
         },
         children: <Widget>[
           Container(),
-          RawMaterialButton(
-            onPressed: () {
-              print("You pressed 4. This one closes the menu on tap");
-              fabKey.currentState.close();
-            },
-            shape: CircleBorder(),
-            padding: EdgeInsets.all(20.0),
-            child: Icon(FontAwesomeIcons.commentAlt,
-                color: Colors.white, size: size.width * .075),
-          ),
+          // RawMaterialButton(
+          //   onPressed: () {
+          //     print("You pressed 4. This one closes the menu on tap");
+          //     fabKey.currentState.close();
+          //   },
+          //   shape: CircleBorder(),
+          //   padding: EdgeInsets.all(20.0),
+          //   child: Icon(FontAwesomeIcons.commentAlt,
+          //       color: Colors.white, size: size.width * .075),
+          // ),
           RawMaterialButton(
             onPressed: () {
               print("You pressed 3");

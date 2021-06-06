@@ -239,6 +239,51 @@ class ProductReviewModel{
   ProductReviewModel({this.reviewId, this.date, this.username, this.reviewText,
       this.rating, this.status});
 }
+///ProductQuestion Model
+List<ProductQuestionModel> productQuestionModelFromJson(String str) => List<ProductQuestionModel>.from(json.decode(str).map((x) => ProductQuestionModel.fromJson(x)));
+
+String productQuestionModelToJson(List<ProductQuestionModel> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
+class ProductQuestionModel {
+  ProductQuestionModel({
+    this.qusId,
+    this.date,
+    this.name,
+    this.username,
+    this.qusText,
+    this.status,
+    this.replies,
+  });
+
+  String qusId;
+  DateTime date;
+  String name;
+  String username;
+  String qusText;
+  String status;
+  List<ProductQuestionModel> replies;
+
+  factory ProductQuestionModel.fromJson(Map<String, dynamic> json) => ProductQuestionModel(
+    qusId: json["qusId"],
+    date: DateTime.parse(json["date"]),
+    name: json["name"],
+    username: json["username"],
+    qusText: json["qusText"],
+    status: json["status"],
+    replies: json["replies"] == null ? null : List<ProductQuestionModel>.from(json["replies"].map((x) => ProductQuestionModel.fromJson(x))),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "qusId": qusId,
+    "date": date.toIso8601String(),
+    "name": name,
+    "username": username,
+    "qusText": qusText,
+    "status": status,
+    "replies": replies == null ? null : List<dynamic>.from(replies.map((x) => x.toJson())),
+  };
+}
+
 
 
 

@@ -19,6 +19,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vertical_barchart/vertical-barchartmodel.dart';
 
+import 'login_page.dart';
+
 // ignore: must_be_immutable
 class ProductDetails extends StatefulWidget {
   int productId;
@@ -39,7 +41,6 @@ class _ProductDetailsState extends State<ProductDetails> {
   bool _isLoading=true;
   TextEditingController _ratingComment = TextEditingController();
   SharedPreferences _sharedPreferences;
-  CartModel _cartModel;
 
   // final List<VBarChartModel> barData = [
   //   VBarChartModel(
@@ -156,8 +157,28 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 Text('Add to wishlsist',style: TextStyle(fontSize: size.width*.045,color: themeProvider.toggleTextColor()),),
                                 // SizedBox(width: size.width*.03),
                                 IconButton(
-                                  onPressed: (){
-                                    setState(()=> _isTapped=!_isTapped);
+                                  onPressed: ()async{
+                                    if(!apiProvider.wishListIdList.contains(widget.productId.toString())){
+                                      showLoadingDialog('Adding...');
+                                      Map map = {
+                                        "user_id":int.parse(_sharedPreferences.getString('userId')),
+                                        "product_id":widget.productId};
+                                      await apiProvider.addProductToWishlist(map).then((value)async{
+                                        if(value){
+                                          await apiProvider.getUserInfo(_sharedPreferences.getString('username')).then((value)async{
+                                            await apiProvider.getWishListProduct().then((value){
+                                              closeLoadingDialog();
+                                              setState(()=> _isTapped=!_isTapped);
+                                              showSuccessMgs('Product Added to Wishlist');
+                                            });
+                                          });
+                                        }else{
+                                          closeLoadingDialog();
+                                          showErrorMgs('Failed !');
+                                        }
+                                      });
+                                    }else showInfo('Already Added');
+
                                   },
                                   icon: Icon(_isTapped? FontAwesomeIcons.solidHeart:FontAwesomeIcons.heart,color: Colors.pink),
                                   splashRadius: size.width*.06,
@@ -445,11 +466,16 @@ class _ProductDetailsState extends State<ProductDetails> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('Write Your Review',style: TextStyle(fontSize: size.width*.044),),
+                Text('Write Your Review',style: TextStyle(fontSize: size.width*.044)),
                 Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
               ],
             ),
-            onPressed: (){_showRatingDialog(size, themeProvider,apiProvider);},
+            onPressed: (){
+              if(_sharedPreferences.getString('username')!=null){
+                _showRatingDialog(size, themeProvider,apiProvider);
+              }else Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+
+            },
           ),
 
           // ///Seller Review
@@ -479,7 +505,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                 Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
               ],
             ),
-            onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductQuestionList())),
+            onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductQuestionList(
+              productId: widget.productId,
+            ))),
           ),
           SizedBox(height: size.width*.01),
           Divider(color: Colors.grey,height:1),
