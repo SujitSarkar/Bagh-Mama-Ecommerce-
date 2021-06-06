@@ -166,7 +166,7 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(50)),
-                  child: Image.asset('assets/user.png',fit: BoxFit.cover),
+                  child: Image.asset('assets/user.PNG',fit: BoxFit.cover),
                 ),
               ),
               SizedBox(width: size.width*.02),

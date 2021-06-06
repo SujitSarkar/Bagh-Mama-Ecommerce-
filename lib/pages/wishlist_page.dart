@@ -93,10 +93,7 @@ class _WishListPageState extends State<WishListPage> {
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   child: CachedNetworkImage(
                     imageUrl: apiProvider.wishList[index].pImageLink,
-                    placeholder: (context, url) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(),
-                    ),
+                    placeholder: (context, url) => threeBounce(themeProvider),
                     errorWidget: (context, url, error) => Icon(Icons.error),
                     height: size.width * .18,
                     width: size.width * .18,

@@ -36,7 +36,7 @@ class ProductReviewTile extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(50)),
                   color: Colors.grey,
                   image: DecorationImage(
-                    image: AssetImage('assets/user.png'),
+                    image: AssetImage('assets/user.PNG'),
                     fit: BoxFit.fill
                   )
                 ),
