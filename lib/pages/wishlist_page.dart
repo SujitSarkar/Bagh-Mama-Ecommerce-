@@ -15,7 +15,7 @@ class WishListPage extends StatefulWidget {
 
 class _WishListPageState extends State<WishListPage> {
   int _counter=0;
-  bool _isLoading = true;
+  bool _isLoading=true;
   SharedPreferences sharedPreferences;
 
   _customInit(APIProvider apiProvider)async{
@@ -24,6 +24,7 @@ class _WishListPageState extends State<WishListPage> {
     if(apiProvider.wishListIdList.isNotEmpty && apiProvider.wishList.isEmpty){
       await apiProvider.getWishListProduct().then((value){
         setState(()=> _isLoading=false);
+        print(_isLoading);
       });
     }else setState(()=> _isLoading=false);
   }
@@ -51,10 +52,10 @@ class _WishListPageState extends State<WishListPage> {
               fontSize: size.width * .045),
         ),
       ),
-      body:_isLoading
-          ?Center(child: threeBounce(themeProvider))
-          : SafeArea(
-        child: _bodyUI(themeProvider,apiProvider,size),
+      body:SafeArea(
+        child:_isLoading
+            ?Center(child: threeBounce(themeProvider))
+            :  _bodyUI(themeProvider,apiProvider,size),
       ),
     );
   }

@@ -14,7 +14,8 @@ import 'package:provider/provider.dart';
 // ignore: must_be_immutable
 class SubcategoryProductList extends StatefulWidget {
   String categoryId;
-  SubcategoryProductList({this.categoryId});
+  String subCategoryName;
+  SubcategoryProductList({this.categoryId,this.subCategoryName});
 
   @override
   _SubcategoryProductListState createState() => _SubcategoryProductListState();
@@ -22,11 +23,11 @@ class SubcategoryProductList extends StatefulWidget {
 
 class _SubcategoryProductListState extends State<SubcategoryProductList> {
   final GlobalKey<PopupMenuButtonState<int>> _key = GlobalKey();
-  bool _isFiltered=false;
   bool _isLoading=true;
   int _counter=0;
   void _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
+    print(widget.categoryId);
     Map map = {"category_id":"${widget.categoryId}"};
     await apiProvider.getCategoryProducts(map).then((value){
       setState(()=>_isLoading=false);
@@ -49,7 +50,7 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
         iconTheme: IconThemeData(
           color: Colors.grey,
         ),
-        title: Text('Subcategory List',
+        title: Text(widget.subCategoryName,
           style: TextStyle(
               color: themeProvider.toggleTextColor(),
             fontSize: size.width*.045
@@ -58,9 +59,10 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
 
           IconButton(
             icon: Icon(FontAwesomeIcons.filter,size: size.width*.05,),
-            onPressed: ()async {
-              _isFiltered = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FilterSubcategoryProduct()));
-              print(_isFiltered);
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>FilterSubcategoryProduct(
+                categoryId: widget.categoryId,
+              )));
             },
             splashRadius: size.width*.06,
           ),
@@ -68,17 +70,22 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
           PopupMenuButton<int>(
             key: _key,
             icon: Icon(FontAwesomeIcons.slidersH,size: size.width*.05),
-            onSelected: (int val){
+            onSelected: (int val)async{
+              setState(()=> _isLoading=true);
               print('Selected: $val');
+              Map map = {"category_id":"${widget.categoryId}","fetch_scope":"sub","sort":"$val"};
+              await apiProvider.getCategoryProducts(map).then((value){
+                setState(()=>_isLoading=false);
+              });
             },
             itemBuilder: (context) {
               return <PopupMenuEntry<int>>[
-                PopupMenuItem(child: Text('New',style: _menuItemTextStyle(themeProvider,size)), value: 1,),
-                PopupMenuItem(child: Text('Popular',style: _menuItemTextStyle(themeProvider,size)), value: 2),
-                PopupMenuItem(child: Text('Price Low to High',style: _menuItemTextStyle(themeProvider,size)), value: 4),
-                PopupMenuItem(child: Text('Price High to Low',style: _menuItemTextStyle(themeProvider,size)), value: 3),
-                PopupMenuItem(child: Text('Discount Low to High',style: _menuItemTextStyle(themeProvider,size)), value: 6),
-                PopupMenuItem(child: Text('Discount High to Low',style: _menuItemTextStyle(themeProvider,size)), value: 5),
+                PopupMenuItem(child: Text('Popular',style: _menuItemTextStyle(themeProvider,size)), value: 1),
+                PopupMenuItem(child: Text('New',style: _menuItemTextStyle(themeProvider,size)), value: 2,),
+                PopupMenuItem(child: Text('Price Low to High',style: _menuItemTextStyle(themeProvider,size)), value: 3),
+                PopupMenuItem(child: Text('Price High to Low',style: _menuItemTextStyle(themeProvider,size)), value: 4),
+                PopupMenuItem(child: Text('Discount Low to High',style: _menuItemTextStyle(themeProvider,size)), value: 5),
+                PopupMenuItem(child: Text('Discount High to Low',style: _menuItemTextStyle(themeProvider,size)), value: 6),
               ];
             },
             tooltip: 'Sort Product',

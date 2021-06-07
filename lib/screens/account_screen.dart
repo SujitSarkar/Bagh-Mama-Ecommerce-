@@ -262,22 +262,15 @@ class _AccountScreenState extends State<AccountScreen> {
 
           else if(name=='Logout') {
             showLoadingDialog('Logging Out...');
-            if(databaseHelper.cartList.isNotEmpty){
-              databaseHelper.cartList.forEach((element) async{
-                await databaseHelper.deleteCart(element.pId);
-              });
+            // databaseHelper.cartList.forEach((element) async{
+            //   await databaseHelper.deleteCart(element.pId);
+            //   });
               pref.clear();
               apiProvider.userInfoModel=null;
               apiProvider.clearWishlist();
               apiProvider.clearNotificationList();
               closeLoadingDialog();
-            }else{
-              pref.clear();
-              apiProvider.userInfoModel=null;
-              apiProvider.clearWishlist();
-              apiProvider.clearNotificationList();
-              closeLoadingDialog();
-            }
+
           }
 
         },

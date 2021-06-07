@@ -24,12 +24,12 @@ class _CartScreenState extends State<CartScreen> {
   double _itemSavings=0.0;
   double _couponDiscount=0.0;
   double _total=0.0;
+  TextEditingController _coupon = TextEditingController();
 
   void _customInit(DatabaseHelper databaseHelper)async{
     setState(()=> _counter++);
     _sharedPreferences = await SharedPreferences.getInstance();
     if(databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
-
      _itemSavings=0.0;
      _couponDiscount=0.0;
      _total=0.0;
@@ -69,11 +69,12 @@ class _CartScreenState extends State<CartScreen> {
       ),
       body: _isLoading
           ?Center(child: threeBounce(themeProvider))
-          : _bodyUI(themeProvider,databaseHelper, size),
+          : _bodyUI(themeProvider,databaseHelper,apiProvider, size),
     );
   }
 
-  Widget _bodyUI(ThemeProvider themeProvider,DatabaseHelper databaseHelper, Size size)=>
+  Widget _bodyUI(ThemeProvider themeProvider,DatabaseHelper databaseHelper,
+      APIProvider apiProvider, Size size)=>
       databaseHelper.cartList.isEmpty
           ? Center(child: Text('Empty Cart !',style: TextStyle(
         color: themeProvider.toggleTextColor(),
@@ -113,9 +114,9 @@ class _CartScreenState extends State<CartScreen> {
             Container(
               width: size.width*.6,
               height: size.width*.12,
-              // color: Colors.red,
               padding: EdgeInsets.only(left: 10),
               child: TextField(
+                controller: _coupon,
                 style: TextStyle(
                     color: themeProvider.toggleTextColor(),
                     fontSize: size.width*.04
@@ -151,7 +152,20 @@ class _CartScreenState extends State<CartScreen> {
                   minimumSize: Size(size.width*.12, size.width*.31),
                 ),
                 child: Text('Apply Coupon',style: TextStyle(fontSize: size.width*.04),),
-                onPressed: (){},
+                onPressed: ()async{
+                  if(_coupon.text.isNotEmpty){
+                    showLoadingDialog('Please Wait');
+                    Map map= {"coupon_code":"${_coupon.text}"};
+                    await apiProvider.getCouponDiscount(map).then((value){
+                      if(value.content.valid){
+
+                      }else{
+                        closeLoadingDialog();
+                        showInfo('No Discount Found');
+                      }
+                    });
+                  }else showInfo('Missing Coupon Code');
+                },
               ),
             )
           ],
@@ -243,7 +257,12 @@ class _CartScreenState extends State<CartScreen> {
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
           ),
-            onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>UserInfoPage())),
+            onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>UserInfoPage(
+              itemTotal: '${databaseHelper.cartList.length}',
+              itemSavings: _itemSavings.toString(),
+              couponDiscount: _couponDiscount.toString(),
+              totalAmount: _total.toString(),
+            ))),
             child: Text('Proceed To Checkout',style: TextStyle(fontSize: size.width*.04),)
         ),
       ),

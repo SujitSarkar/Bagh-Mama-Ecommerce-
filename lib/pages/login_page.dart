@@ -1,4 +1,5 @@
 import 'package:bagh_mama/pages/create_account.dart';
+import 'package:bagh_mama/pages/forgot_password_page.dart';
 import 'package:bagh_mama/pages/no_internet_page.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
@@ -6,7 +7,6 @@ import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -20,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _isObscure=true;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  TextEditingController _resetUser = TextEditingController();
 
   int _counter=0;
   _customInit(ThemeProvider themeProvider)async{
@@ -88,7 +87,9 @@ class _LoginPageState extends State<LoginPage> {
               TextButton(
                   onPressed: () async{
                     await themeProvider.checkConnectivity().then((value){
-                      if(themeProvider.internetConnected==true) _forgotPasswordDialog(size, themeProvider,apiProvider);
+                      if(themeProvider.internetConnected==true){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
+                      }
                       else showErrorMgs('No internet connection!');
                     },onError: (error)=>showErrorMgs(error.toString()));
 
@@ -130,8 +131,8 @@ class _LoginPageState extends State<LoginPage> {
                 apiProvider.getUserInfo(_emailController.text).then((value){
                   if(value){
                     showSuccessMgs('Success');
-                    Navigator.pop(context);
                     setState(()=> _isLoading=false);
+                    Navigator.pop(context);
                   }else{
                     setState(()=> _isLoading=false);
                     showErrorMgs('Unable to get user, try again later');
@@ -169,60 +170,4 @@ class _LoginPageState extends State<LoginPage> {
   );
 
 
-  void _forgotPasswordDialog(Size size, ThemeProvider themeProvider, APIProvider apiProvider){
-    showAnimatedDialog(
-        context: context,
-        animationType: DialogTransitionType.slideFromBottomFade,
-        curve: Curves.fastOutSlowIn,
-        duration: Duration(milliseconds: 500),
-        builder: (context){
-          return AlertDialog(
-            backgroundColor: themeProvider.toggleBgColor(),
-            contentPadding: EdgeInsets.symmetric(horizontal: size.width*.04),
-            scrollable: true,
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text('Reset password',style: TextStyle(fontSize: size.width*.05,fontWeight: FontWeight.w500,color: themeProvider.toggleTextColor()),),
-                    IconButton(
-                      icon: Icon(Icons.cancel_outlined,color: Colors.grey,size: size.width*.06,),
-                      onPressed: (){Navigator.pop(context);},
-                      splashRadius: size.width*.05,
-                    )
-                  ],
-                ),
-                SizedBox(height: size.width*.05),
-
-                TextFormField(
-                  controller: _resetUser,
-                  style: TextStyle(
-                      color: themeProvider.toggleTextColor(), fontSize: size.width * .04),
-                  decoration: boxFormDecoration(size).copyWith(
-                    labelText: 'Email/Username to reset password',
-                    contentPadding: EdgeInsets.symmetric(vertical: size.width*.038,horizontal: size.width*.038), //Change this value to custom as you like
-                    isDense: true,
-                  ),
-                ),
-                SizedBox(height: size.width*.05),
-
-                ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
-                    ),
-                    onPressed: (){},
-                    child: Container(
-                        width: size.width,
-                        alignment: Alignment.center,
-                        child: Text('search your account',style: TextStyle(fontSize: size.width*.04),))
-                ),
-                SizedBox(height: size.width*.05),
-              ],
-            ),
-          );
-        });
-  }
 }

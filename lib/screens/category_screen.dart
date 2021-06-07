@@ -107,6 +107,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               builder: (context) =>
                                   SubcategoryProductList(
                                     categoryId: apiProvider.subCategoryList[index].id,
+                                    subCategoryName: apiProvider.subCategoryList[index].sub,
                                   ))),
                       child: MainSubcategoryTile(index: index))),
             )
