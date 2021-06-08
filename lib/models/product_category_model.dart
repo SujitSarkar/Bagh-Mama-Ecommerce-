@@ -9,3 +9,12 @@ class ProductCategoryModel{
   ProductCategoryModel({
       this.id, this.main, this.header, this.sub, this.position,this.categoryIcon});
 }
+
+class MainCategoryWithId{
+  String id;
+  String main;
+  String position;
+  String categoryIcon;
+
+  MainCategoryWithId({this.id, this.main, this.position, this.categoryIcon});
+}

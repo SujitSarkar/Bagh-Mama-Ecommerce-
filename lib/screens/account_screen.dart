@@ -17,6 +17,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreen extends StatefulWidget {
   @override
@@ -314,24 +315,23 @@ class _AccountScreenState extends State<AccountScreen> {
         fabMargin: EdgeInsets.only(right: 5, bottom: 5),
         animationDuration: Duration(milliseconds: 700),
         animationCurve: Curves.easeInOutCirc,
-        onDisplayChange: (isOpen) {
-          print("The menu is ${isOpen ? "open" : "closed"}");
-        },
+        onDisplayChange: (isOpen) {},
         children: <Widget>[
           Container(),
-          // RawMaterialButton(
-          //   onPressed: () {
-          //     print("You pressed 4. This one closes the menu on tap");
-          //     fabKey.currentState.close();
-          //   },
-          //   shape: CircleBorder(),
-          //   padding: EdgeInsets.all(20.0),
-          //   child: Icon(FontAwesomeIcons.commentAlt,
-          //       color: Colors.white, size: size.width * .075),
-          // ),
           RawMaterialButton(
             onPressed: () {
-              print("You pressed 3");
+              _launchSocialApp('sms:${apiProvider.basicContactInfo.content.mobile2}');
+              fabKey.currentState.close();
+            },
+            shape: CircleBorder(),
+            padding: EdgeInsets.all(20.0),
+            child: Icon(FontAwesomeIcons.comment,
+                color: Colors.white, size: size.width * .075),
+          ),
+          RawMaterialButton(
+            onPressed: () {
+              _launchSocialApp('mailto:${apiProvider.basicContactInfo.content.email}'
+                  '?subject=Mail%20To%20Baghmama&body=Type%20your%20message%20here');
               fabKey.currentState.close();
             },
             shape: CircleBorder(),
@@ -341,7 +341,8 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           RawMaterialButton(
             onPressed: () {
-              print("You pressed 2");
+              _launchSocialApp('whatsapp://send?phone=${apiProvider.basicContactInfo.content.mobile2}'
+                 '&text=Type%20your%20message%20here');
               fabKey.currentState.close();
             },
             shape: CircleBorder(),
@@ -351,7 +352,7 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           RawMaterialButton(
             onPressed: () {
-              print("You pressed 1");
+              _launchSocialApp('tel:${apiProvider.basicContactInfo.content.mobile2}');
               fabKey.currentState.close();
             },
             shape: CircleBorder(),
@@ -361,4 +362,12 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
         ],
       );
+
+  Future<void> _launchSocialApp(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      showInfo('Failed !\nTry Again');
+    }
+  }
 }

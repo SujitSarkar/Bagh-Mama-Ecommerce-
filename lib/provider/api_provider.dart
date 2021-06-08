@@ -30,6 +30,7 @@ class APIProvider extends ChangeNotifier{
   List<String> _bannerImageList=[];
   List<NetworkImage> _networkImageList=[];
   List<ProductCategoryModel> _allCategoryList=[];
+  List<MainCategoryWithId> _mainCategoryWithId = [];
   List<String> _mainCategoryList=[];
   List<ProductCategoryModel> _subCategoryList=[];
   List<WishListModel> _wishList=[];
@@ -45,7 +46,7 @@ class APIProvider extends ChangeNotifier{
   SocialContactInfo _socialContactInfo;
   BasicContactInfo _basicContactInfo;
   ShippingLocationsModel _shippingLocationsModel;
-  ShippingMethodsModel _shippingMethodsModel;
+  List<ShippingMethodsModel> _shippingMethodsList=<ShippingMethodsModel>[];
   String _profileImageLink;
   List<String> _wishListIdList=[];
   List<Notifications> _notificationList=[];
@@ -65,6 +66,7 @@ class APIProvider extends ChangeNotifier{
   get allCategoryList => _allCategoryList;
   get mainCategoryList => _mainCategoryList;
   get subCategoryList => _subCategoryList;
+  get mainCategoryWithId=> _mainCategoryWithId;
   get socialContactInfo => _socialContactInfo;
   get basicContactInfo => _basicContactInfo;
   get profileImageLink => _profileImageLink;
@@ -72,7 +74,7 @@ class APIProvider extends ChangeNotifier{
   get wishList => _wishList;
   get notificationList=> _notificationList;
   get shippingLocationsModel=> _shippingLocationsModel;
-  get shippingMethodsModel=> _shippingMethodsModel;
+  get shippingMethodsList=> _shippingMethodsList;
 
   set userInfoModel(UserInfoModel value){
     _userInfoModel = value;
@@ -186,6 +188,31 @@ class APIProvider extends ChangeNotifier{
       _categorySet.forEach((element) {
         _mainCategoryList.add(element);
       });
+      notifyListeners();
+    }
+  }
+
+  Future<void> getMainCategoryWithId()async{
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail,
+        },
+    );
+    if(response.statusCode==200){
+      var jsonData = jsonDecode(response.body);
+      jsonData['content'].forEach((element) {
+        MainCategoryWithId model = MainCategoryWithId(
+            id: element['id'],
+            main: element['main'],
+            position: element['position'],
+            categoryIcon: element['category_icon']
+        );
+        _mainCategoryWithId.add(model);
+      });
+      print(_mainCategoryWithId.length);
       notifyListeners();
     }
   }
@@ -501,6 +528,7 @@ class APIProvider extends ChangeNotifier{
       String responseString = response.body;
       _basicContactInfo= basicContactInfoFromJson(responseString);
       notifyListeners();
+      _basicContactInfo.content.email;
     }else showInfo('failed to get Social Data');
   }
 
@@ -692,7 +720,7 @@ class APIProvider extends ChangeNotifier{
   Future<bool> getShippingMethods(Map map)async{
     var body = jsonEncode(map);
     var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/shippingLocations'),
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/shippingMethods'),
       headers: {
         'Content-Type': _contentType,
         'X-Auth-Key': _xAuthKey,
@@ -700,10 +728,23 @@ class APIProvider extends ChangeNotifier{
       },
       body: body
     );
-    String responseString = response.body;
-    _shippingMethodsModel = shippingMethodsModelFromJson(responseString);
-    notifyListeners();
-    if(_shippingMethodsModel.status=='SUCCESS'){
+    var jsonData = json.decode(response.body);
+    if(jsonData['status']=='SUCCESS'){
+      _shippingMethodsList.clear();
+      jsonData['content'].forEach((element){
+        ShippingMethodsModel model = ShippingMethodsModel(
+          id: element['id'],
+          methodLogo: element['method_logo'],
+          methodName: element['method_name'],
+          location: element['location'],
+          cost: element['cost'],
+          estimateTime: element['estimate_time'],
+          status: element['status'],
+        );
+        _shippingMethodsList.add(model);
+      });
+      notifyListeners();
+      print('Method length: ${_shippingMethodsList.length}');
       return true;
     } else return false;
   }

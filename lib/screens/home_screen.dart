@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     themeProvider.checkConnectivity();
     if(apiProvider.allCategoryList.isEmpty) await apiProvider.getProductCategories();
     _controller = TabController(length: apiProvider.mainCategoryList.length, vsync: this);
+    if(apiProvider.mainCategoryWithId.isEmpty) await apiProvider.getMainCategoryWithId();
     await databaseHelper.getCartList();
     if(apiProvider.networkImageList.isEmpty) await apiProvider.getBannerImageList();
     if(apiProvider.allProductModel==null) await apiProvider.getAllProducts();
@@ -78,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         iconTheme: IconThemeData(
           color: Colors.grey
         ),
+        ///Search Bar
         title: Container(
           width: size.width,
           height: 45,
@@ -140,9 +142,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ),
 
         bottom: apiProvider.mainCategoryList.isNotEmpty? TabBar(
-          onTap: (covariant){
+          onTap: (covariant)async{
             setState(()=> _tabIndex = covariant);
-            if(_tabIndex!=0) apiProvider.updateSubCategoryList(apiProvider.mainCategoryList[_tabIndex]);
+            if(_tabIndex!=0){
+              apiProvider.updateSubCategoryList(apiProvider.mainCategoryList[_tabIndex]);
+              ///Get Category Product
+              String categoryId;
+              setState(()=>_isLoading=true);
+              for(int i=0;i<apiProvider.mainCategoryWithId.length;i++){
+                if(apiProvider.mainCategoryWithId[i].main==apiProvider.mainCategoryList[_tabIndex]){
+                  categoryId= apiProvider.mainCategoryWithId[i].id.toString();
+                }
+              }
+              Map map = {
+                "category_id": "$categoryId",
+                "fetch_scope": "main"
+              };
+              print(categoryId);
+              await apiProvider.getCategoryProducts(map).then((value){
+                setState(()=>_isLoading=false);
+              });
+            }
           },
           isScrollable: true,
           controller: _controller,

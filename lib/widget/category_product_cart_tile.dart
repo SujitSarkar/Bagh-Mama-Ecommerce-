@@ -36,7 +36,7 @@ class ProductCartTile extends StatelessWidget {
                       topRight: Radius.circular(5)),
                   image: DecorationImage(
                     image: NetworkImage(productsModel.content[index].thumbnailImage),
-                    fit: BoxFit.cover
+                    fit: BoxFit.fitHeight
                   )
                 ),
               ),

@@ -21,10 +21,11 @@ void showSnackBar(BuildContext context,String message,ThemeProvider themeProvide
 }
 
  Widget threeBounce(ThemeProvider themeProvider){
-  return SpinKitThreeBounce(
-    color: themeProvider.fabToggleBgColor(),
-    size: 35.0,
-  );
+  return Image.asset('assets/loading_image.jpeg',height: 70,width: 70,);
+  // return SpinKitThreeBounce(
+  //   color: themeProvider.fabToggleBgColor(),
+  //   size: 35.0,
+  // );
  }
 
 void showLoadingDialog(String status)=> EasyLoading.show(status: status);

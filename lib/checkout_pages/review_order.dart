@@ -1,11 +1,24 @@
 import 'package:bagh_mama/checkout_pages/confirm_payment.dart';
+import 'package:bagh_mama/models/shipping_methods_model.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class ReviewOrder extends StatefulWidget {
-  const ReviewOrder({Key key}) : super(key: key);
+  String itemTotal;
+  String itemSavings;
+  String couponDiscount;
+  String totalAmount;
+  ShippingMethodsModel shippingMethod;
+  String name;
+  String email;
+  String mobile;
+  String address;
+  ReviewOrder({this.itemTotal, this.itemSavings, this.couponDiscount,
+      this.totalAmount, this.shippingMethod, this.name, this.email, this.mobile,
+      this.address});
 
   @override
   _ReviewOrderState createState() => _ReviewOrderState();
@@ -63,9 +76,9 @@ class _ReviewOrderState extends State<ReviewOrder> {
                               fontWeight: FontWeight.w500),
                         ),
                         TextSpan(text: 'Total In Cart : '),
-                        TextSpan(text: '2 item(s)\n'),
+                        TextSpan(text: '${widget.itemTotal} item(s)\n'),
                         TextSpan(text: 'Total Amount : '),
-                        TextSpan(text: 'BDT 20000'),
+                        TextSpan(text: 'BDT ${widget.totalAmount}'),
                       ],
                     ),
                   )),
@@ -86,9 +99,9 @@ class _ReviewOrderState extends State<ReviewOrder> {
                           fontWeight: FontWeight.w500),
                     ),
                     TextSpan(text: 'Delivery Location : '),
-                    TextSpan(text: 'Gazipur\n'),
+                    TextSpan(text: '${widget.address}\n'),
                     TextSpan(text: 'Delivery Charge : '),
-                    TextSpan(text: 'BDT 20000'),
+                    TextSpan(text: 'BDT ${widget.shippingMethod.cost}'),
                   ],
                 ),
               )),
@@ -109,11 +122,11 @@ class _ReviewOrderState extends State<ReviewOrder> {
                         fontWeight: FontWeight.w500),
                   ),
                   TextSpan(text: 'Product Discount : '),
-                  TextSpan(text: 'TK. 20000\n'),
+                  TextSpan(text: 'TK. ${widget.itemSavings}\n'),
                   TextSpan(text: 'Coupon Discount : '),
-                  TextSpan(text: 'TK. 20000\n'),
-                  TextSpan(text: 'Other Discount : '),
-                  TextSpan(text: 'TK 0.0'),
+                  TextSpan(text: 'TK. ${widget.couponDiscount}\n'),
+                  // TextSpan(text: 'Other Discount : '),
+                  // TextSpan(text: 'TK 0.0'),
                 ],
               ),
             )),
@@ -128,7 +141,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
                       color: themeProvider.toggleTextColor()),
                   children: <TextSpan>[
                     TextSpan(text: 'Order Total\n'),
-                    TextSpan(text: 'TK. 20000'),
+                    TextSpan(text: 'TK. ${widget.totalAmount}'),
 
                   ],
                 ),
