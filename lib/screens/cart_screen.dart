@@ -289,7 +289,6 @@ class _CartScreenState extends State<CartScreen> {
                 height: size.width * .3,
                 width: size.width * .3,
                 decoration: BoxDecoration(
-                  //color: Colors.red,
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   color: Colors.grey,
                 ),
@@ -297,8 +296,8 @@ class _CartScreenState extends State<CartScreen> {
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   child: CachedNetworkImage(
                     imageUrl: databaseHelper.cartList[index].pImageLink,
-                    placeholder: (context, url) => threeBounce(themeProvider),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    placeholder: (context, url) => Image.asset('assets/placeholder.png'),
+                    errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
                     height: size.width * .18,
                     width: size.width * .18,
                     fit: BoxFit.fill,

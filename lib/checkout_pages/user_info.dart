@@ -162,8 +162,11 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   ),
                 ),
               ),
-              SizedBox(height: size.width * .07),
+              SizedBox(height: size.width * .04),
 
+              Text('*Delivery Cost Will Include',style: TextStyle(color: themeProvider.toggleTextColor(),
+              fontSize: size.width*.037),),
+              SizedBox(height: size.width * .07),
               ElevatedButton(
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())

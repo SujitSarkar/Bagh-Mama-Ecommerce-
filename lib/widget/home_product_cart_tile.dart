@@ -1,4 +1,5 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,10 +33,26 @@ class ProductTile extends StatelessWidget {
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(5),
                           topRight: Radius.circular(5)),
-                      image: DecorationImage(
-                          image: NetworkImage(productsModel.content[index].thumbnailImage),
-                          fit: BoxFit.fitHeight
-                      )
+                      // image: DecorationImage(
+                      //     image: NetworkImage(productsModel.content[index].thumbnailImage),
+                      //     fit: BoxFit.fitHeight
+                      // )
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5)),
+                    child: CachedNetworkImage(
+                      imageUrl: productsModel.content[index].thumbnailImage,
+                      placeholder: (context, url) => Image.asset('assets/placeholder.png',
+                        width: size.width * .5,
+                        height: size.width*.25,
+                        fit: BoxFit.cover,),
+                      errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
+                      width: size.width * .5,
+                      height: size.width*.25,
+                      fit: BoxFit.fitHeight,
+                    ),
                   ),
                 ),
                 productsModel.content[index].discount!=0? Positioned(

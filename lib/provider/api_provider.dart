@@ -45,8 +45,8 @@ class APIProvider extends ChangeNotifier{
   UserInfoModel _userInfoModel;
   SocialContactInfo _socialContactInfo;
   BasicContactInfo _basicContactInfo;
-  ShippingLocationsModel _shippingLocationsModel;
-  List<ShippingMethodsModel> _shippingMethodsList=<ShippingMethodsModel>[];
+  List<ShippingLocationModel> _shippingLocationList=[];
+  List<ShippingMethodsModel> _shippingMethodsList=[];
   String _profileImageLink;
   List<String> _wishListIdList=[];
   List<Notifications> _notificationList=[];
@@ -73,7 +73,7 @@ class APIProvider extends ChangeNotifier{
   get wishListIdList => _wishListIdList;
   get wishList => _wishList;
   get notificationList=> _notificationList;
-  get shippingLocationsModel=> _shippingLocationsModel;
+  get shippingLocationList=> _shippingLocationList;
   get shippingMethodsList=> _shippingMethodsList;
 
   set userInfoModel(UserInfoModel value){
@@ -528,7 +528,6 @@ class APIProvider extends ChangeNotifier{
       String responseString = response.body;
       _basicContactInfo= basicContactInfoFromJson(responseString);
       notifyListeners();
-      _basicContactInfo.content.email;
     }else showInfo('failed to get Social Data');
   }
 
@@ -709,11 +708,20 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Email': _xAuthEmail
         },
     );
-    String responseString = response.body;
-     _shippingLocationsModel = shippingLocationsModelFromJson(responseString);
-     notifyListeners();
-     if(_shippingLocationsModel.status=='SUCCESS'){
-       return true;
+    var jsonData = json.decode(response.body);
+    if(jsonData['status']=='SUCCESS'){
+      _shippingLocationList.clear();
+      jsonData['content'].forEach((element){
+        ShippingLocationModel model = ShippingLocationModel(
+          id: element['id'],
+          location: element['location'],
+          city: element['city'],
+          status: element['status'],
+        );
+        _shippingLocationList.add(model);
+      });
+      notifyListeners();
+      return true;
      } else return false;
   }
 
@@ -749,5 +757,9 @@ class APIProvider extends ChangeNotifier{
     } else return false;
   }
 
+  void clearShippingMethods(){
+    _shippingMethodsList.clear();
+    notifyListeners();
+  }
 }
 

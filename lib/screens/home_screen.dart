@@ -35,32 +35,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   //   _controller = TabController(length: 7, vsync: this);
   // }
 
-  _customInit(ThemeProvider themeProvider,APIProvider apiProvider,DatabaseHelper databaseHelper)async{
+  Future<void> _customInit(ThemeProvider themeProvider,APIProvider apiProvider,DatabaseHelper databaseHelper)async{
     setState(()=>_counter++);
     themeProvider.checkConnectivity();
     if(apiProvider.allCategoryList.isEmpty) await apiProvider.getProductCategories();
     _controller = TabController(length: apiProvider.mainCategoryList.length, vsync: this);
     if(apiProvider.mainCategoryWithId.isEmpty) await apiProvider.getMainCategoryWithId();
-    await databaseHelper.getCartList();
     if(apiProvider.networkImageList.isEmpty) await apiProvider.getBannerImageList();
     if(apiProvider.allProductModel==null) await apiProvider.getAllProducts();
     if(apiProvider.newArrivalProductModel==null) await apiProvider.getNewArrivalProducts();
     if(apiProvider.popularProductModel==null) await apiProvider.getPopularProducts();
     if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
-    if(apiProvider.basicContactInfo==null) await apiProvider.getBasicContactInfo();
+    //if(apiProvider.basicContactInfo==null) await apiProvider.getBasicContactInfo();
 
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    if(pref.getString('username')!=null){
-      if(apiProvider.userInfoModel==null){
-        await apiProvider.getUserInfo(pref.getString('username'));
-      }
-    }
+    // final SharedPreferences pref = await SharedPreferences.getInstance();
+    // if(pref.getString('username')!=null){
+    //   if(apiProvider.userInfoModel==null){
+    //     await apiProvider.getUserInfo(pref.getString('username'));
+    //   }
+    // }
+    await databaseHelper.getCartList();
   }
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   _controller.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 "category_id": "$categoryId",
                 "fetch_scope": "main"
               };
-              print(categoryId);
+              // print(categoryId);
               await apiProvider.getCategoryProducts(map).then((value){
                 setState(()=>_isLoading=false);
               });
@@ -177,135 +177,141 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           indicatorSize: TabBarIndicatorSize.label,
           tabs: PublicData.categoryWidgetList(apiProvider,themeProvider),
         ):PreferredSize(
-            child: threeBounce(themeProvider), preferredSize: Size.fromHeight(50.0)),
+            child: Container(), preferredSize: Size.fromHeight(50.0)),
       ),
 
       body: _tabIndex==0? _bodyUI_1(size,themeProvider,apiProvider):_bodyUI_2(size, themeProvider,apiProvider),
     ):Scaffold(body: NoInternet());
   }
 
-  Widget _bodyUI_1(Size size,ThemeProvider themeProvider,APIProvider apiProvider)=> ListView(
-    children: [
-      SizedBox(height: size.width*.04),
-      ///Image Slider
-      apiProvider.networkImageList.isEmpty
+  Widget _bodyUI_1(Size size,ThemeProvider themeProvider,APIProvider apiProvider)=>
+      apiProvider.networkImageList.isEmpty || apiProvider.newArrivalProductModel==null ||
+           apiProvider.popularProductModel==null || apiProvider.allProductModel==null
           ?Center(child: threeBounce(themeProvider))
           :Container(
-        margin: EdgeInsets.symmetric(horizontal: size.width*.03),
-        height: size.height*.18,
-        width: size.width,
-        color: Colors.grey,
-        child: Carousel(
-          boxFit: BoxFit.cover,
-          dotSize: 0.0,
-          autoplayDuration: Duration(seconds: 7),
-          dotIncreaseSize: 0.0,
-          dotBgColor: Colors.transparent,
-          // dotColor: Colors.green,
-          // dotIncreasedColor: Colors.red,
-          //images: apiProvider.networkImageList,
-          images: apiProvider.networkImageList,
+    color: themeProvider.togglePageBgColor(),
+    child: ListView(
+      children: [
+        SizedBox(height: size.width*.04),
+        ///Image Slider
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: size.width*.03),
+          height: size.height*.18,
+          width: size.width,
+          decoration: BoxDecoration(
+              color: Colors.white,
+            image: DecorationImage(
+              image: AssetImage('assets/placeholder.png'),
+              fit: BoxFit.cover
+            )
+          ),
+          child: Carousel(
+            boxFit: BoxFit.cover,
+            dotSize: 0.0,
+            autoplayDuration: Duration(seconds: 7),
+            dotIncreaseSize: 0.0,
+            dotBgColor: Colors.transparent,
+            images: apiProvider.networkImageList,
+          ),
         ),
-      ),
-      SizedBox(height: size.width*.04),
+        SizedBox(height: size.width*.04),
 
-      ///New Arrivals
-      //header
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Text('New Arrivals',
-            style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-      ),
-      SizedBox(height: size.width*.03),
-      Container(
-        height: size.width*.5,
-        //color: Colors.red,
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: apiProvider.newArrivalProductModel==null
-            ? Center(child: threeBounce(themeProvider))
-            : ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: apiProvider.newArrivalProductModel.content.length,
-          itemBuilder: (context, index)=>InkWell(
-            onTap: (){
-              print(apiProvider.newArrivalProductModel.content[index].id);
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
-                productId: apiProvider.newArrivalProductModel.content[index].id,
-                categoryId: apiProvider.newArrivalProductModel.content[index].categoryId,
-              )));
-            },
-              child: ProductTile(index: index,productsModel: apiProvider.newArrivalProductModel)),
+        ///New Arrivals
+        //header
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Text('New Arrivals',
+              style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
         ),
-      ),
-      SizedBox(height: size.width*.08),
-
-
-      ///Popular Products
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Text('Popular Products',
-            style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-      ),
-      SizedBox(height: size.width*.03),
-      Container(
-        height: size.width*.5,
-        //color: Colors.red,
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: apiProvider.popularProductModel==null
-            ? Center(child: threeBounce(themeProvider))
-            : ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: apiProvider.popularProductModel.content.length,
-          itemBuilder: (context, index)=>InkWell(
+        SizedBox(height: size.width*.03),
+        Container(
+          height: size.width*.5,
+          //color: Colors.red,
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: apiProvider.newArrivalProductModel.content.length,
+            itemBuilder: (context, index)=>InkWell(
               onTap: (){
                 print(apiProvider.newArrivalProductModel.content[index].id);
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
-                  productId: apiProvider.popularProductModel.content[index].id,
-                  categoryId: apiProvider.popularProductModel.content[index].categoryId,
+                  productId: apiProvider.newArrivalProductModel.content[index].id,
+                  categoryId: apiProvider.newArrivalProductModel.content[index].categoryId,
                 )));
               },
-              child: ProductTile(index: index,productsModel: apiProvider.popularProductModel)),
-        ),
-      ),
-      SizedBox(height: size.width*.08),
-
-      ///Popular Products
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Text('Just For You',
-            style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
-      ),
-      apiProvider.allProductModel==null
-          ? Center(child: threeBounce(themeProvider))
-          : Container(
-        // height: size.height,
-        //color: themeProvider.togglePageBgColor(),
-        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: .71,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10
+                child: ProductTile(index: index,productsModel: apiProvider.newArrivalProductModel)),
           ),
-          shrinkWrap: true,
-          physics: ClampingScrollPhysics(),
-          itemCount: apiProvider.allProductModel.content.length,
-          itemBuilder: (context, index){
-            return InkWell(
+        ),
+        SizedBox(height: size.width*.08),
+
+
+        ///Popular Products
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Text('Popular Products',
+              style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
+        ),
+        SizedBox(height: size.width*.03),
+        Container(
+          height: size.width*.5,
+          //color: Colors.red,
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: apiProvider.popularProductModel.content.length,
+            itemBuilder: (context, index)=>InkWell(
                 onTap: (){
+                  print(apiProvider.newArrivalProductModel.content[index].id);
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
-                    productId: apiProvider.allProductModel.content[index].id,
-                    categoryId: apiProvider.allProductModel.content[index].categoryId,
+                    productId: apiProvider.popularProductModel.content[index].id,
+                    categoryId: apiProvider.popularProductModel.content[index].categoryId,
                   )));
                 },
-                child: ProductCartTile(index: index,productsModel: apiProvider.allProductModel));
-          },
+                child: ProductTile(index: index,productsModel: apiProvider.popularProductModel)),
+          ),
         ),
-      ),
-      SizedBox(height: size.width*.08),
+        SizedBox(height: size.width*.08),
 
-    ],
+        ///All Products
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Text('Just For You',
+              style: TextStyle(color: Colors.grey,fontSize: size.width*.05)),
+        ),
+        apiProvider.allProductModel==null
+            ?Container()
+            : Container(
+          // height: size.height,
+          //color: themeProvider.togglePageBgColor(),
+          padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: .65,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10
+            ),
+            shrinkWrap: true,
+            physics: ClampingScrollPhysics(),
+            itemCount: apiProvider.allProductModel.content.length>100
+                ?100
+                :apiProvider.allProductModel.content.length,
+            itemBuilder: (context, index){
+              return InkWell(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                      productId: apiProvider.allProductModel.content[index].id,
+                      categoryId: apiProvider.allProductModel.content[index].categoryId,
+                    )));
+                  },
+                  child: ProductCartTile(index: index,productsModel: apiProvider.allProductModel));
+            },
+          ),
+        ),
+        SizedBox(height: size.width*.08),
+
+      ],
+    ),
   );
 
   Widget _bodyUI_2(Size size, ThemeProvider themeProvider,APIProvider apiProvider)=> ListView(
@@ -358,8 +364,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
         child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: .71,
+              crossAxisCount: 3,
+              childAspectRatio: .65,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10
         ),

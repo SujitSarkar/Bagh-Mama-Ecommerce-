@@ -18,6 +18,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
   _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
     if(apiProvider.mainCategoryList.isEmpty) await apiProvider.getProductCategories();
+    apiProvider.updateSubCategoryList('All');
+    setState(() => apiProvider.selectedIndex = 0);
   }
 
 

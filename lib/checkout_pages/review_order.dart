@@ -25,6 +25,18 @@ class ReviewOrder extends StatefulWidget {
 }
 
 class _ReviewOrderState extends State<ReviewOrder> {
+  String totalWithDeliveryCost='';
+
+  @override
+  void initState() {
+    super.initState();
+    if(widget.shippingMethod.cost!='free'){
+      totalWithDeliveryCost='${double.parse(widget.totalAmount)+double.parse(widget.shippingMethod.cost)}';
+    }
+    else{
+      totalWithDeliveryCost = widget.totalAmount;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -124,14 +136,27 @@ class _ReviewOrderState extends State<ReviewOrder> {
                   TextSpan(text: 'Product Discount : '),
                   TextSpan(text: 'TK. ${widget.itemSavings}\n'),
                   TextSpan(text: 'Coupon Discount : '),
-                  TextSpan(text: 'TK. ${widget.couponDiscount}\n'),
+                  TextSpan(text: 'TK. ${widget.couponDiscount}'),
                   // TextSpan(text: 'Other Discount : '),
                   // TextSpan(text: 'TK 0.0'),
                 ],
               ),
             )),
               SizedBox(height: size.width * .07),
-
+              _dottedContainer(themeProvider, size, RichText(
+                textAlign: TextAlign.start,
+                text: TextSpan(
+                  //text: 'Hello ',
+                  style: TextStyle(
+                      fontSize: size.width * .04,
+                      color: themeProvider.toggleTextColor()),
+                  children: <TextSpan>[
+                    TextSpan(text: 'Delivery Cost: '),
+                    TextSpan(text: '${widget.shippingMethod.cost}'),
+                  ],
+                ),
+              )),
+              SizedBox(height: size.width * .07),
               _dottedContainer(themeProvider, size, RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
@@ -141,7 +166,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
                       color: themeProvider.toggleTextColor()),
                   children: <TextSpan>[
                     TextSpan(text: 'Order Total\n'),
-                    TextSpan(text: 'TK. ${widget.totalAmount}'),
+                    TextSpan(text: 'TK. $totalWithDeliveryCost'),
 
                   ],
                 ),

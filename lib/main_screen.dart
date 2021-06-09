@@ -32,7 +32,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     // SystemChrome.setSystemUIOverlayStyle(systemTheme);
 
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 500),//center button animation duration
+      duration: Duration(milliseconds: 300),//center button animation duration
       vsync: this,
     );
     curve = CurvedAnimation(
@@ -115,7 +115,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         activeIndex: _bottomNavIndex,
         splashColor: themeProvider.orangeWhiteToggleColor(),
         notchAndCornersAnimation: animation,
-        splashSpeedInMilliseconds: 400,
+        splashSpeedInMilliseconds: 500,
         notchSmoothness: NotchSmoothness.defaultEdge,
         gapLocation: GapLocation.center,
         // leftCornerRadius: 32,

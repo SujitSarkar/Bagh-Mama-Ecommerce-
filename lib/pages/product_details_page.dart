@@ -1,3 +1,4 @@
+import 'package:bagh_mama/checkout_pages/quick_buy_page.dart';
 import 'package:bagh_mama/models/cart_model.dart';
 import 'package:bagh_mama/pages/customer_review_list.dart';
 import 'package:bagh_mama/pages/product_question_list.dart';
@@ -733,7 +734,55 @@ class _ProductDetailsState extends State<ProductDetails> {
               minimumSize: Size(size.width*.14, size.width*.4),
             ),
             child: Text('Quick Buy',style: TextStyle(fontSize: size.width*.044),),
-            onPressed: (){},
+            onPressed: (){
+              if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
+                  apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
+                if(_selectedSize.isNotEmpty){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
+                      productId: widget.productId.toString(),
+                      productSize:_selectedSize,
+                      productName:apiProvider.productInfoModel.content.name,
+                      productColor: _selectedColor,
+                      productPrice: apiProvider.productInfoModel.content.priceStock.price.toString())
+                  ));
+                }else{showInfo('Select Product Size');}
+              }
+              else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
+                  apiProvider.productInfoModel.content.availableSizes.isEmpty){
+                if(_selectedColor.isNotEmpty){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
+                      productId: widget.productId.toString(),
+                      productSize:_selectedSize,
+                      productName:apiProvider.productInfoModel.content.name,
+                      productColor: _selectedColor,
+                      productPrice: apiProvider.productInfoModel.content.priceStock.price.toString())
+                  ));
+                }else{showInfo('Select Product Color');}
+              }
+              else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
+                  apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
+                if(_selectedSize.isNotEmpty && _selectedColor.isNotEmpty){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
+                      productId: widget.productId.toString(),
+                      productSize:_selectedSize,
+                      productName:apiProvider.productInfoModel.content.name,
+                      productColor: _selectedColor,
+                      productPrice: apiProvider.productInfoModel.content.priceStock.price.toString())
+                  ));
+                }else{showInfo('Select Product Size & Color');}
+              }
+              else if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
+                  apiProvider.productInfoModel.content.availableSizes.isEmpty){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
+                    productId: widget.productId.toString(),
+                    productSize:_selectedSize,
+                    productName:apiProvider.productInfoModel.content.name,
+                    productColor: _selectedColor,
+                    productPrice: apiProvider.productInfoModel.content.priceStock.price.toString())
+                ));
+              }
+
+            },
           ),
         ),
       ],
@@ -793,7 +842,8 @@ class _ProductDetailsState extends State<ProductDetails> {
             _pQuantity=1;
           });
           showLoadingDialog('Adding Product to Cart');
-          CartModel cartModel = CartModel(widget.productId.toString(), _selectedSize,
+          CartModel cartModel = CartModel(
+              widget.productId.toString(), _selectedSize,
               apiProvider.productInfoModel.content.name,
               apiProvider.productInfoModel.content.discount.toString(),
               _selectedColor, _pQuantity.toString(), _productImage,

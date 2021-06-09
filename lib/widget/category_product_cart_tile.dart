@@ -1,4 +1,5 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,19 +26,32 @@ class ProductCartTile extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          SizedBox(height: 2),
           Stack(
             children: [
               Container(
                 width: size.width * .5,
-                height: size.width*.4,
+                height: size.width*.22,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5),
                       topRight: Radius.circular(5)),
-                  image: DecorationImage(
-                    image: NetworkImage(productsModel.content[index].thumbnailImage),
-                    fit: BoxFit.fitHeight
-                  )
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5)),
+                  child: CachedNetworkImage(
+                    imageUrl: productsModel.content[index].thumbnailImage,
+                    placeholder: (context, url) => Image.asset('assets/placeholder.png',
+                      width: size.width * .5,
+                      height: size.width*.22,
+                      fit: BoxFit.cover,),
+                    errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
+                    width: size.width * .5,
+                    height: size.width*.22,
+                    fit: BoxFit.fitHeight,
+                  ),
                 ),
               ),
               productsModel.content[index].discount!=0? Positioned(
@@ -66,23 +80,17 @@ class ProductCartTile extends StatelessWidget {
               children: [
                 Text('${productsModel.content[index].name}',
                     maxLines: 3,
-                    style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.032)),
+                    style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.03)),
                 SizedBox(height: size.width*.02),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text('Tk.${productsModel.content[index].discount!=0? discountPrice: productsModel.content[index].priceStockChart[0].sP}',
-                        maxLines: 1,
-                        style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.038,fontWeight: FontWeight.w500)),
-                    SizedBox(width: size.width*.02),
-                    productsModel.content[index].discount!=0? Text('Tk.${productsModel.content[index].priceStockChart[0].sP}',
-                        maxLines: 1,
-                        style: TextStyle(color: themeProvider.toggleTextColor(),
-                            fontSize: size.width*.029,fontWeight: FontWeight.w400,
-                            decoration: TextDecoration.lineThrough)):Container(),
-                  ],
-                ),
+                Text('Tk.${productsModel.content[index].discount!=0? discountPrice: productsModel.content[index].priceStockChart[0].sP}',
+                    maxLines: 1,
+                    style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.032,fontWeight: FontWeight.w500)),
+                SizedBox(height: size.width*.01),
+                productsModel.content[index].discount!=0? Text('Tk.${productsModel.content[index].priceStockChart[0].sP}',
+                    maxLines: 1,
+                    style: TextStyle(color: themeProvider.toggleTextColor(),
+                        fontSize: size.width*.025,fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.lineThrough)):Container(),
               ],
             ),
           ),

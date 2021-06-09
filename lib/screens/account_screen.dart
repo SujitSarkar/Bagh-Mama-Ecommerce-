@@ -11,6 +11,7 @@ import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/sqlite_database_helper.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -34,7 +35,7 @@ class _AccountScreenState extends State<AccountScreen> {
   void _customInit(ThemeProvider themeProvider, APIProvider apiProvider,DatabaseHelper databaseHelper)async{
     pref = await SharedPreferences.getInstance();
     setState(()=> _counter++);
-    themeProvider.checkConnectivity();
+    await themeProvider.checkConnectivity();
     if(databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
     if(pref.getString('username')!=null){
       if(apiProvider.userInfoModel==null){
@@ -42,7 +43,6 @@ class _AccountScreenState extends State<AccountScreen> {
       }
     }
     if(apiProvider.basicContactInfo==null) await apiProvider.getBasicContactInfo();
-    if(apiProvider.profileImageLink==null) apiProvider.getProfileImage();
     setState(()=> _isLoading=false);
   }
 
@@ -104,17 +104,27 @@ class _AccountScreenState extends State<AccountScreen> {
                             height: size.width * .45,
                             width: size.width * .45,
                             decoration: BoxDecoration(
-                                color: Colors.grey,
+                                color: Colors.white,
                                 borderRadius:
                                 BorderRadius.all(Radius.circular(10)),
-                                image: DecorationImage(
-                                    image: apiProvider.userInfoModel==null
-                                        ?AssetImage('assets/user.PNG')
-                                        : apiProvider.userInfoModel.content.profilePic!=''||
-                                        apiProvider.userInfoModel.content.profilePic!=null
-                                        ?NetworkImage(apiProvider.userInfoModel.content.profilePic)
-                                        :AssetImage('assets/user.PNG'),
-                                    fit: BoxFit.cover)),
+                            ),
+                            child: apiProvider.userInfoModel==null
+                                ? Image.asset('assets/user.PNG',height: size.width * .45,
+                              width: size.width * .45,fit: BoxFit.cover)
+                                :ClipRRect(
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              child: CachedNetworkImage(
+                                imageUrl: apiProvider.userInfoModel.content.profilePic,
+                                placeholder: (context, url) => Image.asset('assets/placeholder.png',
+                                  height: size.width * .45,
+                                  width: size.width * .45,
+                                  fit: BoxFit.cover),
+                                errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
+                                height: size.width * .45,
+                                width: size.width * .45,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         ):Container(
                           height: size.width * .45,

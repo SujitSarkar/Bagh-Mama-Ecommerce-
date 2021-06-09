@@ -51,6 +51,7 @@ flutter:
     - assets/logo.png
     - assets/user.PNG
     - assets/loading_image.jpeg
+    - assets/placeholder.png
   #Product Image
     - assets/product_image/cycle.jpg
     - assets/product_image/shoes.jpg

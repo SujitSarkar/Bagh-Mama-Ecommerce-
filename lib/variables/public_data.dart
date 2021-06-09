@@ -14,24 +14,9 @@ class PublicData {
   static final navBarNameList = <String>[
     'Home',
     'Category',
+    'Campain',
     'Cart',
     'Account'
-  ];
-
-  static final List<String> productCategoryList = [
-    'Women’s Clothing',
-    'Men’s Clothing',
-    'Consumer Electronics',
-    'Home Improvement & Tools',
-    'Jewelry & Watches',
-    'Phones & Accessories',
-    'Computer & Laptops, Office',
-    'Shoes & Bags',
-    'Baby, Kids & Toys',
-    'Home, Appliances & Pet',
-    'Sports & Outdoor Fun',
-    'Health & Beauty, Hair',
-    'Automobiles & Motorcycles'
   ];
 
 
