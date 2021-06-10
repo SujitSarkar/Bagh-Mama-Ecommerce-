@@ -26,7 +26,6 @@ class ProductCartTile extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(height: 2),
           Stack(
             children: [
               Container(

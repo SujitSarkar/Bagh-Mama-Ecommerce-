@@ -33,10 +33,6 @@ class ProductTile extends StatelessWidget {
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(5),
                           topRight: Radius.circular(5)),
-                      // image: DecorationImage(
-                      //     image: NetworkImage(productsModel.content[index].thumbnailImage),
-                      //     fit: BoxFit.fitHeight
-                      // )
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.only(

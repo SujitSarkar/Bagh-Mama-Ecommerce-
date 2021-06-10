@@ -108,23 +108,18 @@ class _AccountScreenState extends State<AccountScreen> {
                                 borderRadius:
                                 BorderRadius.all(Radius.circular(10)),
                             ),
-                            child: apiProvider.userInfoModel==null
-                                ? Image.asset('assets/user.PNG',height: size.width * .45,
-                              width: size.width * .45,fit: BoxFit.cover)
-                                :ClipRRect(
+                            child: apiProvider.userInfoModel!=null
+                                ?ClipRRect(
                               borderRadius: BorderRadius.all(Radius.circular(10)),
-                              child: CachedNetworkImage(
-                                imageUrl: apiProvider.userInfoModel.content.profilePic,
-                                placeholder: (context, url) => Image.asset('assets/placeholder.png',
+                              child: Image.network(apiProvider.userInfoModel.content.profilePic,
                                   height: size.width * .45,
-                                  width: size.width * .45,
-                                  fit: BoxFit.cover),
-                                errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
-                                height: size.width * .45,
-                                width: size.width * .45,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                                  width: size.width * .45,fit: BoxFit.cover),
+                            )
+                                : ClipRRect(
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  child: Image.asset('assets/user.PNG',height: size.width * .45,
+                              width: size.width * .45,fit: BoxFit.cover),
+                                )
                           ),
                         ):Container(
                           height: size.width * .45,
@@ -213,18 +208,18 @@ class _AccountScreenState extends State<AccountScreen> {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     if(pickedFile!=null){
       setState(() {
-        _isLoading=true;
+        showLoadingDialog('Updating please wait');
         _image = File(pickedFile.path);
       });
-      print('Image Path: $_image');
-      apiProvider.updateProfileImage(_image).then((value){
-        if(value==true){
-          setState(()=>_isLoading=false);
-          showSuccessMgs('Profile photo update successful');
-        }else{
-          setState(()=>_isLoading=false);
-          showErrorMgs('Profile photo update failed!');
-        }
+     await apiProvider.requestWithFile(files: _image, fileKey: 'ppic').then((value)async{
+       if(value){
+         await apiProvider.getUserInfo(pref.getString('username'));
+         closeLoadingDialog();
+         showSuccessMgs('Success');
+       }else{
+         closeLoadingDialog();
+         showErrorMgs('Failed!\nTry Again');
+       }
       });
     }
     else showSnackBar(context,'No image selected!',themeProvider);

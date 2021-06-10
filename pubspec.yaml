@@ -35,6 +35,9 @@ dependencies:
   sqflite:
   path_provider:
   flutter_html:
+  pull_to_refresh:
+  async: ^2.6.1
+  path: ^1.8.0
 
 dev_dependencies:
   flutter_test:

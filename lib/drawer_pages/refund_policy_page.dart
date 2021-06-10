@@ -6,21 +6,20 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 
-// ignore: must_be_immutable
-class AboutUsPage extends StatefulWidget {
+class RefundPolicyPage extends StatefulWidget {
 
   @override
-  _AboutUsPageState createState() => _AboutUsPageState();
+  _RefundPolicyPageState createState() => _RefundPolicyPageState();
 }
 
-class _AboutUsPageState extends State<AboutUsPage> {
+class _RefundPolicyPageState extends State<RefundPolicyPage> {
   int _counter=0;
   bool _isLoading=true;
   String pageContent='';
 
   _customInit(ThemeProvider themeProvider,APIProvider apiProvider)async{
     setState(()=>_counter++);
-    Map map = {"page_name":"about-us"};
+    Map map = {"page_name":"shipping-returns"};
     await apiProvider.getPageContent(map).then((value){
       setState(() {
         pageContent = value;
@@ -28,7 +27,6 @@ class _AboutUsPageState extends State<AboutUsPage> {
       });
     });
   }
-
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -45,7 +43,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
           color: Colors.grey,
         ),
         title: Text(
-          'About Us',
+          'Shipping Policy',
           style: TextStyle(
               color: themeProvider.toggleTextColor(),
               fontSize: size.width * .045),
@@ -109,4 +107,3 @@ class _AboutUsPageState extends State<AboutUsPage> {
         ),
       );
 }
-

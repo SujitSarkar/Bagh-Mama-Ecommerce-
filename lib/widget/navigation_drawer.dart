@@ -1,8 +1,10 @@
 import 'package:bagh_mama/drawer_pages/about_us.dart';
 import 'package:bagh_mama/drawer_pages/complain_page.dart';
-import 'package:bagh_mama/drawer_pages/faq_page.dart';
-import 'package:bagh_mama/drawer_pages/how_to_order.dart';
+import 'package:bagh_mama/drawer_pages/payment_method_page.dart';
+import 'package:bagh_mama/drawer_pages/privacy_policy_page.dart';
+import 'package:bagh_mama/drawer_pages/refund_policy_page.dart';
 import 'package:bagh_mama/drawer_pages/shop_page.dart';
+import 'package:bagh_mama/drawer_pages/terms_condition_page.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
   _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
     if(apiProvider.socialContactInfo==null) await apiProvider.getSocialContactInfo();
+    if(apiProvider.basicContactInfo==null) await apiProvider.getBasicContactInfo();
   }
 
   @override
@@ -44,21 +47,25 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                   BoxDecoration(color: themeProvider.whiteBlackToggleColor()),
                   margin: EdgeInsets.symmetric(horizontal: size.width*.03),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(height: size.width*.03),
                       Image.asset('assets/logo.png',height: size.width*.12,fit: BoxFit.cover),
                       SizedBox(height: size.width*.07),
                       Divider(color: Colors.grey,height: 0.5),
-                      _functionBuilder(themeProvider, size, 'Shop', FontAwesomeIcons.store),
+                      _functionBuilder(themeProvider, size, 'Shop', FontAwesomeIcons.storeAlt),
                       Divider(color: Colors.grey,height: 0.5),
-                      _functionBuilder(themeProvider, size, 'How To Order', FontAwesomeIcons.shoppingBasket),
+                      _functionBuilder(themeProvider, size, 'Terms & Condition', FontAwesomeIcons.gavel),
+                      Divider(color: Colors.grey,height: 0.5),
+                      _functionBuilder(themeProvider, size, 'Payment Methods', FontAwesomeIcons.fileInvoiceDollar),
+                      Divider(color: Colors.grey,height: 0.5),
+                      _functionBuilder(themeProvider, size, 'Refund Policy', FontAwesomeIcons.undo),
                       Divider(color: Colors.grey,height: 0.5),
                       _functionBuilder(themeProvider, size, 'About Us', FontAwesomeIcons.infoCircle),
                       Divider(color: Colors.grey,height: 0.5),
-                      _functionBuilder(themeProvider, size, 'Common FAQ', FontAwesomeIcons.solidQuestionCircle),
+                      _functionBuilder(themeProvider, size, 'Privacy Policy', FontAwesomeIcons.userSecret),
                       Divider(color: Colors.grey,height: 0.5),
-                      _functionBuilder(themeProvider, size, 'Complain', FontAwesomeIcons.exclamationTriangle),
+                      _functionBuilder(themeProvider, size, 'Complain', FontAwesomeIcons.solidQuestionCircle),
                       Divider(color: Colors.grey,height: 0.5),
                       SizedBox(height: size.width*.04),
 
@@ -111,14 +118,19 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     onTap: (){
       if(name=='Shop') Navigator.push(context,
           MaterialPageRoute(builder: (context) => ShopPage()));
-      else if(name=='How To Order') Navigator.push(context,
-          MaterialPageRoute(builder: (context) => HowToOrder()));
+      else if(name=='Terms & Condition') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => TermsConditionPage()));
+      else if(name=='Payment Methods') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => PaymentMethodPage()));
+      else if(name=='Refund Policy') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => RefundPolicyPage()));
       else if(name=='About Us') Navigator.push(context,
           MaterialPageRoute(builder: (context) => AboutUsPage()));
+      else if(name=='Privacy Policy') Navigator.push(context,
+          MaterialPageRoute(builder: (context) => PrivacyPolicyPage()));
       else if(name=='Complain') Navigator.push(context,
           MaterialPageRoute(builder: (context) => ComplainPage()));
-      else if(name=='Common FAQ') Navigator.push(context,
-          MaterialPageRoute(builder: (context) => FaqPage()));
+
     },
     leading: Icon(
       iconData,

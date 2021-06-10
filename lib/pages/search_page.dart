@@ -106,8 +106,8 @@ class _SearchPageState extends State<SearchPage> {
     padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
     child: GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: .71,
+          crossAxisCount: 3,
+          childAspectRatio: .65,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10
       ),

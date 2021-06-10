@@ -44,7 +44,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
               fontSize: size.width * .045),
         ),
       ),
-      body: _bodyUI(size, themeProvider,apiProvider),
+      body: apiProvider.mainCategoryList.isNotEmpty
+          ?  _bodyUI(size, themeProvider,apiProvider):Center(child: threeBounce(themeProvider)),
     );
   }
 
@@ -60,8 +61,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             Container(
               width: size.width * .24,
               color: themeProvider.whiteBlackToggleColor(),
-              child: apiProvider.mainCategoryList.isNotEmpty
-                  ? ListView.builder(
+              child:ListView.builder(
                 itemCount: apiProvider.mainCategoryList.length,
                 itemBuilder: (context, index) {
                   return InkWell(
@@ -86,7 +86,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     ),
                   );
                 },
-              ): threeBounce(themeProvider),
+              ),
             ),
 
             ///Main Page Section

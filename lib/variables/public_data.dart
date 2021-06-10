@@ -14,7 +14,6 @@ class PublicData {
   static final navBarNameList = <String>[
     'Home',
     'Category',
-    'Campain',
     'Cart',
     'Account'
   ];

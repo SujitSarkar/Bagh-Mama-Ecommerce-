@@ -19,6 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import 'package:async/async.dart';
+import 'package:path/path.dart';
 
 class APIProvider extends ChangeNotifier{
 
@@ -98,11 +101,34 @@ class APIProvider extends ChangeNotifier{
   void clearOrderList(){
   }
 
-  void getProfileImage()async{
+   Future<bool> requestWithFile({String fileKey, File files}) async {
+    var result;
+    var uri = Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate');
+    var request;
     SharedPreferences pref = await SharedPreferences.getInstance();
-    _profileImageLink= pref.getString('profileImageLink');
-    notifyListeners();
+
+      request = new http.MultipartRequest("POST", uri)..fields.addAll({
+        "id": pref.getString('userId'),});
+        var stream =
+        new http.ByteStream(DelegatingStream.typed(files.openRead()));
+        var length = await files.length();
+        var multipartFile = new http.MultipartFile(fileKey, stream, length,
+            filename: basename(files.path));
+        request.files.add(multipartFile);
+      request.headers.addAll({
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail,
+      });
+    var response = await request.send();
+    await response.stream.transform(utf8.decoder).listen((value) {
+      result = value;
+    });
+    var jsonData= json.decode(result);
+    if(jsonData['status']=='SUCCESS'){
+      return true;
+    }else return false;
   }
+
 
   Future<bool> updateProfileImage(File imageFile)async{
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -117,7 +143,7 @@ class APIProvider extends ChangeNotifier{
       },
         body: {
         "id": pref.getString('userId'),
-        'ppic': baseImage,
+        'ppic': imageFile.toString(),
       }
     );
     var jsonData = json.decode(response.body);
@@ -212,7 +238,6 @@ class APIProvider extends ChangeNotifier{
         );
         _mainCategoryWithId.add(model);
       });
-      print(_mainCategoryWithId.length);
       notifyListeners();
     }
   }
@@ -437,6 +462,7 @@ class APIProvider extends ChangeNotifier{
       body: body
     );
     if(response.statusCode==200){
+      _userInfoModel=null;
       String responseString = response.body;
       var jsonData = jsonDecode(response.body);
       _userInfoModel = userInfoModelFromJson(responseString);
@@ -761,5 +787,24 @@ class APIProvider extends ChangeNotifier{
     _shippingMethodsList.clear();
     notifyListeners();
   }
+
+  Future<String> getPageContent(Map map)async{
+    var body = jsonEncode(map);
+    var response = await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/pageContents'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail
+        },
+        body: body
+    );
+    var jsonData = json.decode(response.body);
+    if(jsonData['status']=='SUCCESS'){
+      return jsonData['content']['content'];
+    }
+    else return 'Failed to Load !';
+  }
+
 }
 

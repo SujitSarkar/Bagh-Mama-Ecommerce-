@@ -26,6 +26,7 @@ class ReviewOrder extends StatefulWidget {
 
 class _ReviewOrderState extends State<ReviewOrder> {
   String totalWithDeliveryCost='';
+  int _paymentRadioValue=1;
 
   @override
   void initState() {
@@ -144,20 +145,6 @@ class _ReviewOrderState extends State<ReviewOrder> {
             )),
               SizedBox(height: size.width * .07),
               _dottedContainer(themeProvider, size, RichText(
-                textAlign: TextAlign.start,
-                text: TextSpan(
-                  //text: 'Hello ',
-                  style: TextStyle(
-                      fontSize: size.width * .04,
-                      color: themeProvider.toggleTextColor()),
-                  children: <TextSpan>[
-                    TextSpan(text: 'Delivery Cost: '),
-                    TextSpan(text: '${widget.shippingMethod.cost}'),
-                  ],
-                ),
-              )),
-              SizedBox(height: size.width * .07),
-              _dottedContainer(themeProvider, size, RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   //text: 'Hello ',
@@ -171,6 +158,10 @@ class _ReviewOrderState extends State<ReviewOrder> {
                   ],
                 ),
               )),
+              _radioTileBuilder(1, 'Cash On Delivery', themeProvider, size),
+              _radioTileBuilder(2, 'Online Payment', themeProvider, size),
+              _radioTileBuilder(3, 'BKash', themeProvider, size),
+              _radioTileBuilder(4, 'Rocket', themeProvider, size),
               SizedBox(height: size.width * .07),
 
               ElevatedButton(
@@ -185,6 +176,33 @@ class _ReviewOrderState extends State<ReviewOrder> {
               )
             ],
           ),
+        ),
+      );
+
+  Widget _radioTileBuilder(int radioValue, String hint,
+      ThemeProvider themeProvider, Size size) =>
+      ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        minVerticalPadding: 0.0,
+        horizontalTitleGap: 0,
+        dense: true,
+        leading: Radio(
+          fillColor:
+          MaterialStateProperty.all(themeProvider.orangeWhiteToggleColor()),
+          value: radioValue,
+          groupValue: _paymentRadioValue,
+          onChanged: (int change){
+            setState(() {
+              _paymentRadioValue = change;
+              print('$_paymentRadioValue');
+            });
+          },
+        ),
+        title: Text(
+          hint,
+          style: TextStyle(
+              color: themeProvider.toggleTextColor(),
+              fontSize: size.width * .04),
         ),
       );
 

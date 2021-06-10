@@ -6,21 +6,20 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 
-// ignore: must_be_immutable
-class AboutUsPage extends StatefulWidget {
+class PrivacyPolicyPage extends StatefulWidget {
 
   @override
-  _AboutUsPageState createState() => _AboutUsPageState();
+  _PrivacyPolicyPageState createState() => _PrivacyPolicyPageState();
 }
 
-class _AboutUsPageState extends State<AboutUsPage> {
+class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   int _counter=0;
   bool _isLoading=true;
   String pageContent='';
 
   _customInit(ThemeProvider themeProvider,APIProvider apiProvider)async{
     setState(()=>_counter++);
-    Map map = {"page_name":"about-us"};
+    Map map = {"page_name":"privacy-policy"};
     await apiProvider.getPageContent(map).then((value){
       setState(() {
         pageContent = value;
@@ -45,7 +44,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
           color: Colors.grey,
         ),
         title: Text(
-          'About Us',
+          'Privacy Policy',
           style: TextStyle(
               color: themeProvider.toggleTextColor(),
               fontSize: size.width * .045),

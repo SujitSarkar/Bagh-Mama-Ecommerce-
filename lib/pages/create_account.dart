@@ -5,18 +5,16 @@ import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class CreateAccount extends StatefulWidget {
-  const CreateAccount({Key key}) : super(key: key);
 
   @override
   _CreateAccountState createState() => _CreateAccountState();
 }
 
 class _CreateAccountState extends State<CreateAccount> {
-
+  bool _isObscure=true;
   TextEditingController _firstName= TextEditingController();
   TextEditingController _lastName= TextEditingController();
   TextEditingController _email= TextEditingController();
@@ -176,12 +174,16 @@ class _CreateAccountState extends State<CreateAccount> {
             :hint=='District/City'?_city
             :hint=='Postal Code'?_postalCode
             :_country,
+        obscureText: hint=='Password' || hint=='Confirm Password'?_isObscure:false,
         style: TextStyle(
             color: themeProvider.toggleTextColor(), fontSize: size.width * .04),
         decoration: boxFormDecoration(size).copyWith(
           labelText: hint,
           contentPadding: EdgeInsets.symmetric(vertical: size.width*.038,horizontal: size.width*.038), //Change this value to custom as you like
           isDense: true,
+          suffixIcon: hint=='Password' || hint=='Confirm Password'?
+               IconButton(icon: Icon(_isObscure? CupertinoIcons.eye_slash: CupertinoIcons.eye,color: Colors.grey,),
+              onPressed: ()=> setState(()=> _isObscure=!_isObscure)):null,
         ),
       );
 }
