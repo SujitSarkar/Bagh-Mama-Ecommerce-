@@ -21,30 +21,15 @@ class CartModel{
   String get pDiscount => _pDiscount;
   String get pPrice => _pPrice;
 
-  set pImageLink(String value) {
-    _pImageLink = value;
-  }
-  set pName(String value) {
-    _pName = value;
-  }
-  set pDiscount(String value) {
-    _pDiscount = value;
-  }
-  set pQuantity(String value) {
-    _pQuantity = value;
-  }
-  set pColor(String value) {
-    _pColor = value;
-  }
-  set pSize(String value) {
-    _pSize = value;
-  }
-  set pId(String value) {
-    _pId = value;
-  }
-  set pPrice(String value) {
-    _pPrice = value;
-  }
+  set pImageLink(String value) => _pImageLink = value;
+  set pName(String value) => _pName = value;
+  set pDiscount(String value) => _pDiscount = value;
+  set pQuantity(String value) => _pQuantity = value;
+  set pColor(String value)=> _pColor = value;
+  set pSize(String value)=> _pSize = value;
+  set pId(String value) => _pId = value;
+  set pPrice(String value)=> _pPrice = value;
+
 
   //Convert a note object to mop object
   Map<String, dynamic> toMap() {

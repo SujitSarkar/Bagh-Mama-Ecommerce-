@@ -1,5 +1,6 @@
 import 'package:bagh_mama/checkout_pages/user_info.dart';
 import 'package:bagh_mama/models/cart_model.dart';
+import 'package:bagh_mama/pages/login_page.dart';
 import 'package:bagh_mama/pages/product_details_page.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/sqlite_database_helper.dart';
@@ -37,9 +38,10 @@ class _CartScreenState extends State<CartScreen> {
         setState(() {
           _itemSavings = _itemSavings +  int.parse(databaseHelper.cartList[i].pQuantity)
               * (int.parse(databaseHelper.cartList[i].pPrice)*
-              (int.parse(databaseHelper.cartList[i].pDiscount)/100));
-          _total = _total + (int.parse(databaseHelper.cartList[i].pPrice) *
-              int.parse(databaseHelper.cartList[i].pQuantity));
+                  (int.parse(databaseHelper.cartList[i].pDiscount)/100));
+          _total = (_total + ((double.parse(databaseHelper.cartList[i].pPrice) -
+              double.parse(databaseHelper.cartList[i].pPrice)*(int.parse(databaseHelper.cartList[i].pDiscount)/100)) *
+              int.parse(databaseHelper.cartList[i].pQuantity)));
         });
       }
   }
@@ -50,7 +52,7 @@ class _CartScreenState extends State<CartScreen> {
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
     final DatabaseHelper databaseHelper = Provider.of<DatabaseHelper>(context);
-    if(_counter==0) _customInit(databaseHelper);
+    if(_counter==0)_customInit(databaseHelper);
 
     return Scaffold(
       backgroundColor: themeProvider.whiteBlackToggleColor(),
@@ -206,7 +208,7 @@ class _CartScreenState extends State<CartScreen> {
                   style: TextStyle(color: themeProvider.toggleTextColor(),
                     fontSize: size.width*.04),
                 ),
-                Text('Tk.$_itemSavings',
+                Text('${themeProvider.currency}${themeProvider.toggleCurrency(_itemSavings.toString())}',
                   style: TextStyle(color: themeProvider.toggleTextColor(),
                       fontSize: size.width*.04),
                 ),
@@ -222,7 +224,7 @@ class _CartScreenState extends State<CartScreen> {
                   style: TextStyle(color: themeProvider.toggleTextColor(),
                     fontSize: size.width*.04),
                 ),
-                Text('Tk.$_couponDiscount',
+                Text('${themeProvider.currency}${themeProvider.toggleCurrency(_couponDiscount.toString())}',
                   style: TextStyle(color: themeProvider.toggleTextColor(),
                       fontSize: size.width*.04),
                 ),
@@ -240,7 +242,7 @@ class _CartScreenState extends State<CartScreen> {
                   style: TextStyle(color: themeProvider.toggleTextColor(),
                       fontSize: size.width*.044,fontWeight: FontWeight.w500),
                 ),
-                Text('Tk.$_total',
+                Text('${themeProvider.currency}${themeProvider.toggleCurrency(_total.toString())}',
                   style: TextStyle(color: themeProvider.toggleTextColor(),
                       fontSize: size.width*.044,fontWeight: FontWeight.w500),
                 ),
@@ -257,16 +259,22 @@ class _CartScreenState extends State<CartScreen> {
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
           ),
-            onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>UserInfoPage(
-              itemTotal: '${databaseHelper.cartList.length}',
-              itemSavings: _itemSavings.toString(),
-              couponDiscount: _couponDiscount.toString(),
-              totalAmount: _total.toString(),
-            ))),
+            onPressed: (){
+            if(_sharedPreferences.getString('username')!=null){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>UserInfoPage(
+                itemTotal: '${databaseHelper.cartList.length}',
+                itemSavings: _itemSavings.toString(),
+                couponDiscount: _couponDiscount.toString(),
+                totalAmount: _total.toString(),
+              )));
+            }else{
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+            }
+            },
             child: Text('Proceed To Checkout',style: TextStyle(fontSize: size.width*.04),)
         ),
       ),
-      SizedBox(height: 30,),
+      SizedBox(height: 30),
     ],
   );
 
@@ -363,8 +371,8 @@ class _CartScreenState extends State<CartScreen> {
                       children: [
                         Text(
                           discountPrice!=0
-                              ? discountPrice.round().toString()
-                              : databaseHelper.cartList[index].pPrice,
+                              ? '${themeProvider.currency}${themeProvider.toggleCurrency(discountPrice.toString())}'
+                              : '${themeProvider.currency}${themeProvider.toggleCurrency(databaseHelper.cartList[index].pPrice)}',
                           maxLines: 1,
                           style: TextStyle(
                               fontSize:  size.width*.04, color: themeProvider.toggleTextColor(),fontWeight: FontWeight.w500),
@@ -372,7 +380,7 @@ class _CartScreenState extends State<CartScreen> {
                         SizedBox(width: size.width*.02),
 
                         databaseHelper.cartList[index].pDiscount!='0'
-                            ?Text('(${databaseHelper.cartList[index].pPrice})',
+                            ?Text('(${themeProvider.currency}${themeProvider.toggleCurrency(databaseHelper.cartList[index].pPrice)})',
                           maxLines: 1,
                           style: TextStyle(
                               fontSize:  size.width*.035,
@@ -382,7 +390,6 @@ class _CartScreenState extends State<CartScreen> {
                         ):Container(),
                       ],
                     ),
-
                     ///Button Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

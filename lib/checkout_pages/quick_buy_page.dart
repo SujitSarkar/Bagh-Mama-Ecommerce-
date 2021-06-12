@@ -1,8 +1,8 @@
-import 'package:bagh_mama/checkout_pages/confirm_payment.dart';
 import 'package:bagh_mama/models/shipping_location_model.dart';
 import 'package:bagh_mama/models/shipping_methods_model.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
+import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +38,8 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
   TextEditingController _name = TextEditingController();
   TextEditingController _mobile = TextEditingController();
   TextEditingController _shippingAddress = TextEditingController();
+  String totalWithDeliveryCost='';
+  int _paymentRadioValue=1;
 
   void _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
@@ -123,8 +125,8 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
                             color: Colors.grey))
                             :TextSpan(),
                         TextSpan(text: 'Quantity: $productQuantity Unit\n'),
-                        TextSpan(text: 'Unit Price: ${widget.productPrice}\n'),
-                        TextSpan(text: 'Total Price: $totalPrice'),
+                        TextSpan(text: 'Unit Price: ${themeProvider.currency}${themeProvider.toggleCurrency(widget.productPrice)}\n'),
+                        TextSpan(text: 'Total Price: ${themeProvider.currency}${themeProvider.toggleCurrency(totalPrice)}'),
                       ],
                     ),
                   )),
@@ -283,11 +285,22 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
               ):Container(),
               SizedBox(height: size.width * .04),
 
+              _textFieldBuilder(themeProvider, size, 'Full Name'),
+              SizedBox(height: size.width * .04),
+              _textFieldBuilder(themeProvider, size, 'Mobile Number'),
+              SizedBox(height: size.width * .04),
+              _textFieldBuilder(themeProvider, size, 'Shipping Address'),
+              SizedBox(height: size.width * .04),
+              _radioTileBuilder(1, 'Card Payment', themeProvider, size),
+              _radioTileBuilder(2, 'BKash', themeProvider, size),
+              _radioTileBuilder(3, 'Rocket', themeProvider, size),
+              SizedBox(height: size.width * .07),
+
               ElevatedButton(
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
                   ),
-                  onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ConfirmPayment())),
+                  onPressed: () {},
                   child: Container(
                       width: size.width,
                       alignment: Alignment.center,
@@ -295,6 +308,50 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
               )
             ],
           ),
+        ),
+      );
+
+  Widget _textFieldBuilder(
+      ThemeProvider themeProvider, Size size, String hint) =>
+      TextFormField(
+        controller: hint=='Full Name'?_name
+            :hint=='Mobile Number'?_mobile
+            :_shippingAddress,
+        maxLines: hint=='Shipping Address'?3:1,
+        style: TextStyle(
+            color: themeProvider.toggleTextColor(), fontSize: size.width * .04),
+        decoration: boxFormDecoration(size).copyWith(
+          labelText: hint,
+          alignLabelWithHint:hint=='Shipping Address'? true:false,
+          contentPadding: EdgeInsets.symmetric(vertical: size.width*.038,horizontal: size.width*.038), //Change this value to custom as you like
+          isDense: true,
+        ),
+      );
+
+  Widget _radioTileBuilder(int radioValue, String hint,
+      ThemeProvider themeProvider, Size size) =>
+      ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        minVerticalPadding: 0.0,
+        horizontalTitleGap: 0,
+        dense: true,
+        leading: Radio(
+          fillColor:
+          MaterialStateProperty.all(themeProvider.orangeWhiteToggleColor()),
+          value: radioValue,
+          groupValue: _paymentRadioValue,
+          onChanged: (int change){
+            setState(() {
+              _paymentRadioValue = change;
+              print('$_paymentRadioValue');
+            });
+          },
+        ),
+        title: Text(
+          hint,
+          style: TextStyle(
+              color: themeProvider.toggleTextColor(),
+              fontSize: size.width * .04),
         ),
       );
 

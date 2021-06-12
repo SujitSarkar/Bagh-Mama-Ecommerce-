@@ -127,7 +127,7 @@ class _WishListPageState extends State<WishListPage> {
                     ),
                     SizedBox(height: size.width*.02),
                     Text(
-                      'TK.${apiProvider.wishList[index].pPrice}',
+                      '${themeProvider.currency}${themeProvider.toggleCurrency(apiProvider.wishList[index].pPrice)}',
                       maxLines: 1,
                       style: TextStyle(
                           fontSize:  size.width*.04, color: themeProvider.toggleTextColor(),fontWeight: FontWeight.w500),

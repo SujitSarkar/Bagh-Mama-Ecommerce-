@@ -43,36 +43,8 @@ class _ProductDetailsState extends State<ProductDetails> {
   TextEditingController _ratingComment = TextEditingController();
   SharedPreferences _sharedPreferences;
 
-  // final List<VBarChartModel> barData = [
-  //   VBarChartModel(
-  //     index: 0,
-  //     label: "Delivery Speed:",
-  //     colors: [Colors.orange, Colors.deepOrange],
-  //     jumlah: 20,
-  //     tooltip: "20",
-  //     // description: Text(
-  //     //   "Most selling fruit last week",
-  //     //   style: TextStyle(fontSize: 10),
-  //     // ),
-  //   ),
-  //   VBarChartModel(
-  //     index: 1,
-  //     label: "Positive Rating:",
-  //     colors: [Colors.orange, Colors.deepOrange],
-  //     jumlah: 55,
-  //     tooltip: "55",
-  //   ),
-  //   VBarChartModel(
-  //     index: 2,
-  //     label: "Response Rate:",
-  //     colors: [Colors.teal, Colors.indigo],
-  //     jumlah: 12,
-  //     tooltip: "12",
-  //   ),
-  // ];
 
   void _customInit(APIProvider apiProvider, DatabaseHelper databaseHelper)async{
-    //ProductInfoModel productInfoModel;
     setState(()=> _counter++);
     _sharedPreferences = await SharedPreferences.getInstance();
     if(databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
@@ -229,14 +201,16 @@ class _ProductDetailsState extends State<ProductDetails> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               apiProvider.productInfoModel.content.discount!=0
-                  ?Text('TK.${apiProvider.productInfoModel.content.priceStock.price - (apiProvider.productInfoModel.content.priceStock.price*(apiProvider.productInfoModel.content.discount/100))}',
+                  ?Text('${themeProvider.currency}${themeProvider.toggleCurrency((apiProvider.productInfoModel.content.priceStock.price
+                  - (apiProvider.productInfoModel.content.priceStock.price)
+                      *(apiProvider.productInfoModel.content.discount/100)).toString())}',
                 textAlign: TextAlign.justify,
                 style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold),)
-                  :Text('Tk.${apiProvider.productInfoModel.content.priceStock.price}',
+                  :Text('${themeProvider.currency}${themeProvider.toggleCurrency(apiProvider.productInfoModel.content.priceStock.price.toString())}',
                   style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold)
               ),
               SizedBox(width: size.width*.02),
-              apiProvider.productInfoModel.content.discount!=0? Text('TK.${apiProvider.productInfoModel.content.priceStock.price}',
+              apiProvider.productInfoModel.content.discount!=0? Text('${themeProvider.currency}${themeProvider.toggleCurrency(apiProvider.productInfoModel.content.priceStock.price.toString())}',
                   maxLines: 1,
                   style: TextStyle(color: themeProvider.toggleTextColor(),
                       fontSize: size.width*.03,fontWeight: FontWeight.w400,
@@ -245,20 +219,6 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),
           Divider(height: 5.0,color: Colors.grey,thickness: 0.5),
           SizedBox(height: size.width*.04),
-
-          // ///Product code
-          // RichText(
-          //   textAlign: TextAlign.justify,
-          //   text: TextSpan(
-          //     //text: 'Hello ',
-          //     style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor()),
-          //     children: <TextSpan>[
-          //       TextSpan(text: 'Product Code: '),
-          //       TextSpan(text: '3', style: TextStyle(fontWeight: FontWeight.bold)),
-          //     ],
-          //   ),
-          // ),
-          // SizedBox(height: size.width*.04),
 
           ///Available Size
           apiProvider.productInfoModel.content.availableSizes.isNotEmpty?Column(
@@ -478,21 +438,6 @@ class _ProductDetailsState extends State<ProductDetails> {
 
             },
           ),
-
-          // ///Seller Review
-          // TextButton(
-          //   style: TextButton.styleFrom(
-          //       primary: themeProvider.toggleTextColor()),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     crossAxisAlignment: CrossAxisAlignment.end,
-          //     children: [
-          //       Text('Seller Review',style: TextStyle(fontSize: size.width*.044),),
-          //       Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
-          //     ],
-          //   ),
-          //   onPressed: (){_showSellerReviewDialog(size, themeProvider);},
-          // ),
 
           ///Product Questions
           TextButton(

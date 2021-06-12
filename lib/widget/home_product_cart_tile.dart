@@ -12,8 +12,8 @@ class ProductTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
-    final double discountPrice = int.parse(productsModel.content[index].priceStockChart[0].sP)
-        - (int.parse(productsModel.content[index].priceStockChart[0].sP)*(productsModel.content[index].discount/100));
+    final double discountPrice = double.parse(themeProvider.toggleCurrency(productsModel.content[index].priceStockChart[0].sP))
+        - (double.parse(themeProvider.toggleCurrency(productsModel.content[index].priceStockChart[0].sP))*(productsModel.content[index].discount/100));
     return Container(
         width: size.width * .35,
         margin: EdgeInsets.only(right: 10),
@@ -83,11 +83,11 @@ class ProductTile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('Tk.${productsModel.content[index].discount!=0? discountPrice: productsModel.content[index].priceStockChart[0].sP}',
+                      Text('${themeProvider.currency}${productsModel.content[index].discount!=0? discountPrice: themeProvider.toggleCurrency(productsModel.content[index].priceStockChart[0].sP)}',
                           maxLines: 1,
                           style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.038,fontWeight: FontWeight.w500)),
                       SizedBox(width: size.width*.02),
-                      productsModel.content[index].discount!=0? Text('Tk.${productsModel.content[index].priceStockChart[0].sP}',
+                      productsModel.content[index].discount!=0? Text('${themeProvider.currency}${themeProvider.toggleCurrency(productsModel.content[index].priceStockChart[0].sP)}',
                           maxLines: 1,
                           style: TextStyle(color: themeProvider.toggleTextColor(),
                               fontSize: size.width*.029,fontWeight: FontWeight.w400,

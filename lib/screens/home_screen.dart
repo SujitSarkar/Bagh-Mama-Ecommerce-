@@ -186,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           :Container(
     color: themeProvider.togglePageBgColor(),
     child: RefreshIndicator(
+      color: themeProvider.fabToggleBgColor(),
       backgroundColor: themeProvider.togglePageBgColor(),
       onRefresh: ()async{
         await apiProvider.getNewArrivalProducts();
@@ -336,7 +337,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   :apiProvider.allProductModel.content.length,
               itemBuilder: (context, index){
                 return InkWell(
-                    onTap: (){},
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                        productId: apiProvider.allProductModel.content[index].id,
+                        categoryId: apiProvider.allProductModel.content[index].categoryId,
+                      )));
+                    },
                     child: ProductCartTile(index: index,productsModel: apiProvider.allProductModel));
               },
             ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bagh_mama/variables/color_variables.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +10,23 @@ class ThemeProvider extends ChangeNotifier{
   bool _isLight;
   ThemeProvider(this._themeData,this._isLight);
   bool _internetConnected=true;
+  String _currencyTo='BDT';
+  String _currency='TK.';
 
   get themeData => _themeData;
   get isLight => _isLight;
   get internetConnected=> _internetConnected;
+  get currencyTo=> _currencyTo;
+  get currency=> _currency;
+
+  set currencyTo(String val){
+    _currencyTo = val;
+    notifyListeners();
+  }
+  set currency(String val){
+    _currency = val;
+    notifyListeners();
+  }
 
   Future<void> toggleThemeData()async{
     SharedPreferences pref= await SharedPreferences.getInstance();
@@ -30,7 +45,6 @@ class ThemeProvider extends ChangeNotifier{
               selectedItemColor: CColor.lightThemeColor
           )
       );
-      //_isLight=true;
       notifyListeners();
       pref.setBool('isLight', true);
     }else{
@@ -71,7 +85,19 @@ class ThemeProvider extends ChangeNotifier{
     }
   }
 
+  dynamic roundDouble(double value, int places){
+    double mod = pow(10.0, places);
+    return ((value * mod).round().toDouble() / mod);
+  }
 
+  String toggleCurrency(String amount){
+    if(_currencyTo=='USD'){
+      double result= roundDouble(double.parse(amount)*0.012, 3);
+      return result.toString();
+    }
+    else return amount;
+
+  }
   Color toggleBgColor()=> _isLight? Colors.white:CColor.darkThemeColor;
   Color toggleTextColor()=> _isLight? Colors.grey[800]:Colors.grey[300];
   Color orangeWhiteToggleColor()=> _isLight? CColor.lightThemeColor:Colors.white;

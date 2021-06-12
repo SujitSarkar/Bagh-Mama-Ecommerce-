@@ -1,4 +1,3 @@
-import 'package:bagh_mama/checkout_pages/confirm_payment.dart';
 import 'package:bagh_mama/models/shipping_methods_model.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
@@ -91,7 +90,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
                         TextSpan(text: 'Total In Cart : '),
                         TextSpan(text: '${widget.itemTotal} item(s)\n'),
                         TextSpan(text: 'Total Amount : '),
-                        TextSpan(text: 'BDT ${widget.totalAmount}'),
+                        TextSpan(text: '${themeProvider.currency}${themeProvider.toggleCurrency(widget.totalAmount)}'),
                       ],
                     ),
                   )),
@@ -114,7 +113,9 @@ class _ReviewOrderState extends State<ReviewOrder> {
                     TextSpan(text: 'Delivery Location : '),
                     TextSpan(text: '${widget.address}\n'),
                     TextSpan(text: 'Delivery Charge : '),
-                    TextSpan(text: 'BDT ${widget.shippingMethod.cost}'),
+                    TextSpan(text: '${widget.shippingMethod.cost.toLowerCase()=='free'?''
+                        :themeProvider.currency}${widget.shippingMethod.cost.toLowerCase()=='free'? 'Free'
+                    :themeProvider.toggleCurrency(widget.shippingMethod.cost)}'),
                   ],
                 ),
               )),
@@ -135,9 +136,9 @@ class _ReviewOrderState extends State<ReviewOrder> {
                         fontWeight: FontWeight.w500),
                   ),
                   TextSpan(text: 'Product Discount : '),
-                  TextSpan(text: 'TK. ${widget.itemSavings}\n'),
+                  TextSpan(text: '${themeProvider.currency}${themeProvider.toggleCurrency(widget.itemSavings)}\n'),
                   TextSpan(text: 'Coupon Discount : '),
-                  TextSpan(text: 'TK. ${widget.couponDiscount}'),
+                  TextSpan(text: '${themeProvider.currency}${themeProvider.toggleCurrency(widget.couponDiscount)}'),
                   // TextSpan(text: 'Other Discount : '),
                   // TextSpan(text: 'TK 0.0'),
                 ],
@@ -153,22 +154,21 @@ class _ReviewOrderState extends State<ReviewOrder> {
                       color: themeProvider.toggleTextColor()),
                   children: <TextSpan>[
                     TextSpan(text: 'Order Total\n'),
-                    TextSpan(text: 'TK. $totalWithDeliveryCost'),
+                    TextSpan(text: '${themeProvider.currency}${themeProvider.toggleCurrency(totalWithDeliveryCost)}'),
 
                   ],
                 ),
               )),
-              _radioTileBuilder(1, 'Cash On Delivery', themeProvider, size),
-              _radioTileBuilder(2, 'Online Payment', themeProvider, size),
-              _radioTileBuilder(3, 'BKash', themeProvider, size),
-              _radioTileBuilder(4, 'Rocket', themeProvider, size),
+              _radioTileBuilder(1, 'Card Payment', themeProvider, size),
+              _radioTileBuilder(2, 'BKash', themeProvider, size),
+              _radioTileBuilder(3, 'Rocket', themeProvider, size),
               SizedBox(height: size.width * .07),
 
               ElevatedButton(
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
                   ),
-                  onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ConfirmPayment())),
+                  onPressed: (){},
                   child: Container(
                     width: size.width,
                       alignment: Alignment.center,

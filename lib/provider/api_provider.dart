@@ -103,8 +103,8 @@ class APIProvider extends ChangeNotifier{
 
    Future<bool> requestWithFile({String fileKey, File files}) async {
     var result;
-    var uri = Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate');
     var request;
+    var uri = Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate');
     SharedPreferences pref = await SharedPreferences.getInstance();
 
       request = new http.MultipartRequest("POST", uri)..fields.addAll({
@@ -129,12 +129,10 @@ class APIProvider extends ChangeNotifier{
     }else return false;
   }
 
-
   Future<bool> updateProfileImage(File imageFile)async{
     SharedPreferences pref = await SharedPreferences.getInstance();
     var imageBytes = imageFile.readAsBytesSync();
     String baseImage = base64Encode(imageBytes);
-    //print('imageBytes: $imageBytes');
     var response = await http.post(
       Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate'),
       headers: {

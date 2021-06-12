@@ -13,7 +13,9 @@ import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -192,6 +194,8 @@ class _AccountScreenState extends State<AccountScreen> {
                     pref.getString('username')!=null?Divider(color: Colors.grey,height: 0.5):Container(),
                     _functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'Settings', FontAwesomeIcons.cog),
                     Divider(color: Colors.grey,height: 0.5),
+                    _functionBuilder(apiProvider, themeProvider, databaseHelper, size, 'Change Currency', FontAwesomeIcons.dollarSign),
+                    Divider(color: Colors.grey,height: 0.5),
                     pref.getString('username')!=null
                         ? _functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'Logout', FontAwesomeIcons.signOutAlt)
                         :_functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'LogIn', FontAwesomeIcons.signInAlt),
@@ -258,6 +262,7 @@ class _AccountScreenState extends State<AccountScreen> {
         onTap: ()async{
           if(name=='Settings') Navigator.push(context,
               MaterialPageRoute(builder: (context) => ChangeThemePage()));
+          else if(name=='Change Currency') _selectCurrency(themeProvider,size);
           else if(name=='WishLists') Navigator.push(context,
               MaterialPageRoute(builder: (context) => WishListPage()));
           else if(name=='Order History') Navigator.push(context,
@@ -298,6 +303,37 @@ class _AccountScreenState extends State<AccountScreen> {
           size: size.width * .044,
         ),
       );
+
+  void _selectCurrency(ThemeProvider themeProvider,Size size){
+    showAnimatedDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text('Select Currency',style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.05),),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10,vertical: 15),
+          backgroundColor: themeProvider.whiteBlackToggleColor(),
+          children: [
+            SimpleDialogOption(onPressed: (){
+              themeProvider.currencyTo='BDT';
+              themeProvider.currency='TK.';
+              Navigator.pop(context);
+            },child: Text('BDT',
+                style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.04)),),
+            SimpleDialogOption(onPressed: (){
+              themeProvider.currencyTo='USD';
+              themeProvider.currency ="\u0024 ";
+              Navigator.pop(context);
+            },child: Text('USD',
+                style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.04)),),
+          ],
+        );
+      },
+      animationType: DialogTransitionType.slideFromBottom,
+      curve: Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: 500),
+    );
+  }
 
   Widget _floatingActionButton(Size size, ThemeProvider themeProvider,APIProvider apiProvider) =>
       FabCircularMenu(
