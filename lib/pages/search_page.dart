@@ -121,6 +121,7 @@ class _SearchPageState extends State<SearchPage> {
               Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                 productId: apiProvider.categoryProductModel.content[index].id,
                 categoryId: apiProvider.categoryProductModel.content[index].categoryId,
+                  isCampaign: false
               )));
             },
             child: ProductCartTile(index: index,productsModel: apiProvider.categoryProductModel));

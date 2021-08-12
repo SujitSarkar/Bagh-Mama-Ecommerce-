@@ -64,7 +64,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               child:ListView.builder(
                 itemCount: apiProvider.mainCategoryList.length,
                 itemBuilder: (context, index) {
-                  return InkWell(
+                 return InkWell(
                     onTap: () {
                       apiProvider.updateSubCategoryList(apiProvider.mainCategoryList[index]);
                       setState(() => apiProvider.selectedIndex = index);

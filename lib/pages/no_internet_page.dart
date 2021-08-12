@@ -35,7 +35,7 @@ class NoInternet extends StatelessWidget {
             SizedBox(height: size.width*.05),
 
             TextButton(
-                onPressed: ()=>themeProvider.checkConnectivity(),
+                //onPressed: ()=>themeProvider.checkConnectivity(),
                 child: Text(
                   'Refresh',
                   style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.04),

@@ -118,7 +118,7 @@ class _WishListPageState extends State<WishListPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      apiProvider.wishList[index].pName,
+                      '${apiProvider.wishList[index].pName}',
                       maxLines: 3,
                       style: TextStyle(
                           fontSize: size.width*.038,
@@ -142,6 +142,7 @@ class _WishListPageState extends State<WishListPage> {
                           onTap: (){
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                               productId: int.parse(apiProvider.wishList[index].pId),
+                                isCampaign: false
                             )));
                           },
                           child: Container(

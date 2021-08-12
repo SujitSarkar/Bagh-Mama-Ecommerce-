@@ -30,7 +30,8 @@ dependencies:
   circular_reveal_animation:
   auto_size_text:
   http:
-  connectivity:
+  intl:
+#  connectivity:
   flutter_spinkit:
   sqflite:
   path_provider:
@@ -38,6 +39,7 @@ dependencies:
   pull_to_refresh:
   async: ^2.6.1
   path: ^1.8.0
+  flutter_sslcommerz: ^2.0.0-nullsafety.0
 
 dev_dependencies:
   flutter_test:
@@ -50,20 +52,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/bm_head.png
-    - assets/logo.png
-    - assets/user.PNG
-    - assets/loading_image.jpeg
-    - assets/placeholder.png
-  #Product Image
-    - assets/product_image/cycle.jpg
-    - assets/product_image/shoes.jpg
-    - assets/product_image/product.jpg
-  #Payment Image
-    - assets/payment_image/bkash.png
-    - assets/payment_image/cod.png
-    - assets/payment_image/nagad.png
-    - assets/payment_image/rocket.png
+    - assets/
+
+
 
   # fonts:
   #   - family: Schyler

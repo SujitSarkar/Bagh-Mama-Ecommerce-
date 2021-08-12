@@ -1,7 +1,9 @@
+import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/order_history_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderHistory extends StatefulWidget {
   @override
@@ -14,6 +16,7 @@ class _OrderHistoryState extends State<OrderHistory> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final APIProvider apiProvider = Provider.of<APIProvider>(context);
 
     return Scaffold(
       backgroundColor: themeProvider.whiteBlackToggleColor(),
@@ -30,12 +33,23 @@ class _OrderHistoryState extends State<OrderHistory> {
               fontSize: size.width * .045),
         ),
       ),
-      body: _bodyUI(themeProvider, size),
+      body: apiProvider.orderList.isEmpty
+          ? Center(child: Text('No order placed by you !',style: TextStyle(
+          color: themeProvider.toggleTextColor(),
+          fontSize: size.width*.045
+      ))): _bodyUI(themeProvider,apiProvider, size),
     );
   }
 
-  _bodyUI(ThemeProvider themeProvider, Size size)=>ListView.builder(
-    itemCount: 4,
-    itemBuilder: (context, index)=>OrderHistoryTile(index),
+  _bodyUI(ThemeProvider themeProvider,APIProvider apiProvider, Size size)=>RefreshIndicator(
+    onRefresh: ()async{
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      await apiProvider.getUserInfo(pref.getString('username'));
+    },
+    backgroundColor: Colors.white,
+    child: ListView.builder(
+      itemCount: apiProvider.orderList.length,
+      itemBuilder: (context, index)=>OrderHistoryTile(orderModel: apiProvider.orderList[index]),
+    ),
   );
 }

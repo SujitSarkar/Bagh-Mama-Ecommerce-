@@ -26,7 +26,8 @@ import 'login_page.dart';
 class ProductDetails extends StatefulWidget {
   int productId;
   int categoryId;
-  ProductDetails({this.productId,this.categoryId});
+  bool isCampaign;
+  ProductDetails({this.productId,this.categoryId, this.isCampaign});
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
 }
@@ -45,6 +46,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
 
   void _customInit(APIProvider apiProvider, DatabaseHelper databaseHelper)async{
+    print('isCampaign: ${widget.isCampaign}');
     setState(()=> _counter++);
     _sharedPreferences = await SharedPreferences.getInstance();
     if(databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
@@ -78,9 +80,33 @@ class _ProductDetailsState extends State<ProductDetails> {
                   SliverAppBar(
                     iconTheme: IconThemeData(color: Colors.grey),
                     actions: [
+                      Stack(
+                          alignment: Alignment.center,
+                          children:[
+                            IconButton(
+                              icon: Icon(FontAwesomeIcons.shoppingCart,size: size.width*.06),color: Colors.grey,
+                              onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen())),
+                              splashRadius: size.width*.07,
+                            ),
+                            Positioned(
+                              top: 8.0,
+                              right: 5.0,
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.all(size.width*.007),
+                                decoration: BoxDecoration(
+                                    color: Colors.deepOrange,
+                                    borderRadius: BorderRadius.all(Radius.circular(20))
+                                ),
+                                child: Text('${databaseHelper.cartList.length>9?'9+':databaseHelper.cartList.length}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: size.width*.024,fontWeight: FontWeight.w500,color: Colors.white),),
+                              ),
+                            )
+                          ] ),
                       IconButton(icon: Icon(Icons.ios_share,color: Colors.grey,),
                           onPressed: (){},
-                        splashRadius: size.width*.06,
+                        splashRadius: size.width*.07,
                       ),
                     ],
                     expandedHeight: size.width*.8,
@@ -103,7 +129,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                               child: CachedNetworkImage(
                                 imageUrl: _productImage,
                                 placeholder: (context, url) => threeBounce(themeProvider),
-                                errorWidget: (context, url, error) => Icon(Icons.error),
+                                errorWidget: (context, url, error) => Image.asset('assets/placeholder.png',
+                                    height: 70,
+                                    width: 70,
+                                    fit: BoxFit.cover),
                                 height: size.width*.8,
                                 width: size.width,
                                 fit: BoxFit.contain,
@@ -123,41 +152,44 @@ class _ProductDetailsState extends State<ProductDetails> {
                             apiProvider.productInfoModel.content.priceStock.stock.toString().isNotEmpty
                                 ? Text('In Stock',style: TextStyle(fontSize: size.width*.045,fontWeight: FontWeight.w500,color: Colors.green),)
                                 :Text('Out Of Stock',style: TextStyle(fontSize: size.width*.045,fontWeight: FontWeight.w500,color: Color(0xffF0A732)),),
-                            _sharedPreferences.getString('username')!=null? Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text('Add to wishlsist',style: TextStyle(fontSize: size.width*.045,color: themeProvider.toggleTextColor()),),
+                                Text('Add to wishlsist',style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor()),),
                                 // SizedBox(width: size.width*.03),
                                 IconButton(
                                   onPressed: ()async{
-                                    if(!apiProvider.wishListIdList.contains(widget.productId.toString())){
-                                      showLoadingDialog('Adding...');
-                                      Map map = {
-                                        "user_id":int.parse(_sharedPreferences.getString('userId')),
-                                        "product_id":widget.productId};
-                                      await apiProvider.addProductToWishlist(map).then((value)async{
-                                        if(value){
-                                          await apiProvider.getUserInfo(_sharedPreferences.getString('username')).then((value)async{
-                                            await apiProvider.getWishListProduct().then((value){
-                                              closeLoadingDialog();
-                                              setState(()=> _isTapped=!_isTapped);
-                                              showSuccessMgs('Product Added to Wishlist');
+                                    if(_sharedPreferences.getString('username')!=null){
+                                      if(!apiProvider.wishListIdList.contains(widget.productId.toString())){
+                                        showLoadingDialog('Adding...');
+                                        Map map = {
+                                          "user_id":int.parse(_sharedPreferences.getString('userId')),
+                                          "product_id":widget.productId};
+                                        await apiProvider.addProductToWishlist(map).then((value)async{
+                                          if(value){
+                                            await apiProvider.getUserInfo(_sharedPreferences.getString('username')).then((value)async{
+                                              await apiProvider.getWishListProduct().then((value){
+                                                closeLoadingDialog();
+                                                setState(()=> _isTapped=!_isTapped);
+                                                showSuccessMgs('Product Added to Wishlist');
+                                              });
                                             });
-                                          });
-                                        }else{
-                                          closeLoadingDialog();
-                                          showErrorMgs('Failed !');
-                                        }
-                                      });
-                                    }else showInfo('Already Added');
-
+                                          }else{
+                                            closeLoadingDialog();
+                                            showErrorMgs('Failed !');
+                                          }
+                                        });
+                                      }else showInfo('Already Added');
+                                    }else{
+                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+                                    }
                                   },
                                   icon: Icon(_isTapped? FontAwesomeIcons.solidHeart:FontAwesomeIcons.heart,color: Colors.pink),
                                   splashRadius: size.width*.06,
                                 ),
                               ],
-                            ):Container(),
+                            ),
                           ],
                         ),
                       ]
@@ -205,9 +237,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                   - (apiProvider.productInfoModel.content.priceStock.price)
                       *(apiProvider.productInfoModel.content.discount/100)).toString())}',
                 textAlign: TextAlign.justify,
-                style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold),)
+                style: TextStyle(fontSize: size.width*.05,color: themeProvider.orangeWhiteToggleColor(),fontWeight: FontWeight.bold),)
                   :Text('${themeProvider.currency}${themeProvider.toggleCurrency(apiProvider.productInfoModel.content.priceStock.price.toString())}',
-                  style: TextStyle(fontSize: size.width*.05,color: themeProvider.toggleTextColor(),fontWeight: FontWeight.bold)
+                  style: TextStyle(fontSize: size.width*.05,color: themeProvider.orangeWhiteToggleColor(),fontWeight: FontWeight.bold)
               ),
               SizedBox(width: size.width*.02),
               apiProvider.productInfoModel.content.discount!=0? Text('${themeProvider.currency}${themeProvider.toggleCurrency(apiProvider.productInfoModel.content.priceStock.price.toString())}',
@@ -363,9 +395,9 @@ class _ProductDetailsState extends State<ProductDetails> {
               style: TextStyle(color: Colors.grey,fontSize: size.width*.05)):Container(),
           apiProvider.relatedProductModel.content.isNotEmpty?SizedBox(height: size.width*.04):Container(),
           apiProvider.relatedProductModel.content.isNotEmpty?Container(
-            height: size.width*.5,
-            //color: Colors.red,
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            height: size.width*.55,
+            color: themeProvider.togglePageBgColor(),
+            //padding: EdgeInsets.symmetric(horizontal: 10),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: apiProvider.relatedProductModel.content.length,
@@ -373,9 +405,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                       productId: apiProvider.relatedProductModel.content[index].id,
+                        isCampaign: false
                     )));
                   },
-                  child: ProductTile(index: index,productsModel: apiProvider.relatedProductModel)),
+                  child: Container(
+                    margin: EdgeInsets.only(right: 10,top: 10,bottom: 10),
+                      child: ProductTile(index: index,productsModel: apiProvider.relatedProductModel))),
             ),
           ):Container(),
           apiProvider.relatedProductModel.content.isNotEmpty?SizedBox(height: size.width*.1):Container(),
@@ -571,42 +606,48 @@ class _ProductDetailsState extends State<ProductDetails> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        // Container(
+        //   decoration:BoxDecoration(
+        //     color: themeProvider.fabToggleBgColor(),
+        //     borderRadius: BorderRadius.only(
+        //       topLeft: Radius.circular(10)
+        //     )
+        //   ),
+        //   width: size.width*.18,
+        //   height: size.width*.14,
+        //   child: Stack(
+        //     alignment: Alignment.center,
+        //       children:[
+        //     IconButton(
+        //       icon: Icon(FontAwesomeIcons.shoppingCart),color: Colors.white,
+        //       onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen())),
+        //     ),
+        //     Positioned(
+        //       top: 8.0,
+        //       right: 5.0,
+        //       child: Container(
+        //         alignment: Alignment.center,
+        //         padding: EdgeInsets.all(size.width*.007),
+        //         decoration: BoxDecoration(
+        //             color: themeProvider.toggleBgColor(),
+        //             borderRadius: BorderRadius.all(Radius.circular(20))
+        //         ),
+        //         child: Text('${databaseHelper.cartList.length>9?'9+':databaseHelper.cartList.length}',
+        //           textAlign: TextAlign.center,
+        //           style: TextStyle(fontSize: size.width*.024,fontWeight: FontWeight.w500,color: themeProvider.toggleTextColor()),),
+        //       ),
+        //     )
+        //   ] ),
+        // ),
+
         Container(
-          decoration:BoxDecoration(
-            color: themeProvider.fabToggleBgColor(),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10)
-            )
+          decoration: BoxDecoration(
+              color: themeProvider.fabToggleBgColor(),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10)
+              )
           ),
-          width: size.width*.18,
-          height: size.width*.14,
-          child: Stack(
-            alignment: Alignment.center,
-              children:[
-            IconButton(
-              icon: Icon(FontAwesomeIcons.shoppingCart),color: Colors.white,
-              onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen())),
-            ),
-            Positioned(
-              top: 8.0,
-              right: 5.0,
-              child: Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.all(size.width*.007),
-                decoration: BoxDecoration(
-                    color: themeProvider.toggleBgColor(),
-                    borderRadius: BorderRadius.all(Radius.circular(20))
-                ),
-                child: Text('${databaseHelper.cartList.length>9?'9+':databaseHelper.cartList.length}',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: size.width*.024,fontWeight: FontWeight.w500,color: themeProvider.toggleTextColor()),),
-              ),
-            )
-          ] ),
-        ),
-        Container(
-          color: themeProvider.fabToggleBgColor(),
-          width: size.width*.4,
+          width: size.width*.497,
           child: TextButton(
             style: TextButton.styleFrom(
               primary: Colors.white,
@@ -671,60 +712,69 @@ class _ProductDetailsState extends State<ProductDetails> {
                   topRight: Radius.circular(10)
               )
           ),
-          width: size.width*.4,
+          width: size.width*.497,
           child: TextButton(
             style: TextButton.styleFrom(
               primary: Colors.white,
               //onSurface: Colors.red,
               minimumSize: Size(size.width*.14, size.width*.4),
             ),
-            child: Text('Quick Buy',style: TextStyle(fontSize: size.width*.044),),
+            child: Text('Buy Now',style: TextStyle(fontSize: size.width*.044)),
             onPressed: (){
-              if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
-                  apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
-                if(_selectedSize.isNotEmpty){
+              if(_sharedPreferences.getString('username')!=null){
+                if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
+                    apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
+                  if(_selectedSize.isNotEmpty){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
+                        productId: widget.productId.toString(),
+                        productSize:_selectedSize,
+                        productName:apiProvider.productInfoModel.content.name,
+                        productColor: _selectedColor,
+                        productPrice: apiProvider.productInfoModel.content.priceStock.price.toString(),
+                        isCampaign: widget.isCampaign
+                    )
+                    ));
+                  }else{showInfo('Select Product Size');}
+                }
+                else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
+                    apiProvider.productInfoModel.content.availableSizes.isEmpty){
+                  if(_selectedColor.isNotEmpty){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
+                        productId: widget.productId.toString(),
+                        productSize:_selectedSize,
+                        productName:apiProvider.productInfoModel.content.name,
+                        productColor: _selectedColor,
+                        productPrice: apiProvider.productInfoModel.content.priceStock.price.toString(),
+                        isCampaign: widget.isCampaign)
+                    ));
+                  }else{showInfo('Select Product Color');}
+                }
+                else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
+                    apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
+                  if(_selectedSize.isNotEmpty && _selectedColor.isNotEmpty){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
+                        productId: widget.productId.toString(),
+                        productSize:_selectedSize,
+                        productName:apiProvider.productInfoModel.content.name,
+                        productColor: _selectedColor,
+                        productPrice: apiProvider.productInfoModel.content.priceStock.price.toString(),
+                        isCampaign: widget.isCampaign)
+                    ));
+                  }else{showInfo('Select Product Size & Color');}
+                }
+                else if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
+                    apiProvider.productInfoModel.content.availableSizes.isEmpty){
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
                       productId: widget.productId.toString(),
                       productSize:_selectedSize,
                       productName:apiProvider.productInfoModel.content.name,
                       productColor: _selectedColor,
-                      productPrice: apiProvider.productInfoModel.content.priceStock.price.toString())
+                      productPrice: apiProvider.productInfoModel.content.priceStock.price.toString(),
+                      isCampaign: widget.isCampaign)
                   ));
-                }else{showInfo('Select Product Size');}
-              }
-              else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
-                  apiProvider.productInfoModel.content.availableSizes.isEmpty){
-                if(_selectedColor.isNotEmpty){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
-                      productId: widget.productId.toString(),
-                      productSize:_selectedSize,
-                      productName:apiProvider.productInfoModel.content.name,
-                      productColor: _selectedColor,
-                      productPrice: apiProvider.productInfoModel.content.priceStock.price.toString())
-                  ));
-                }else{showInfo('Select Product Color');}
-              }
-              else if(apiProvider.productInfoModel.content.availableColors.isNotEmpty &&
-                  apiProvider.productInfoModel.content.availableSizes.isNotEmpty){
-                if(_selectedSize.isNotEmpty && _selectedColor.isNotEmpty){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
-                      productId: widget.productId.toString(),
-                      productSize:_selectedSize,
-                      productName:apiProvider.productInfoModel.content.name,
-                      productColor: _selectedColor,
-                      productPrice: apiProvider.productInfoModel.content.priceStock.price.toString())
-                  ));
-                }else{showInfo('Select Product Size & Color');}
-              }
-              else if(apiProvider.productInfoModel.content.availableColors.isEmpty &&
-                  apiProvider.productInfoModel.content.availableSizes.isEmpty){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>QuickBuyPage(
-                    productId: widget.productId.toString(),
-                    productSize:_selectedSize,
-                    productName:apiProvider.productInfoModel.content.name,
-                    productColor: _selectedColor,
-                    productPrice: apiProvider.productInfoModel.content.priceStock.price.toString())
-                ));
+                }
+              }else{
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
               }
 
             },

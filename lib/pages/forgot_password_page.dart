@@ -24,7 +24,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   int _counter=0;
   _customInit(ThemeProvider themeProvider)async{
     setState(()=>_counter++);
-    themeProvider.checkConnectivity();
+    //themeProvider.checkConnectivity();
   }
   @override
   Widget build(BuildContext context) {
@@ -87,11 +87,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
               ),
               onPressed: ()async{
-                await themeProvider.checkConnectivity().then((value){
-                  if(themeProvider.internetConnected==true){
-                    _formValidation(apiProvider);
-                  } else showErrorMgs('No internet connection!');
-                },onError: (error)=>showErrorMgs(error.toString()));
+                _formValidation(apiProvider);
+                // await themeProvider.checkConnectivity().then((value){
+                //   if(themeProvider.internetConnected==true){
+                //     _formValidation(apiProvider);
+                //   } else showErrorMgs('No internet connection!');
+                // },onError: (error)=>showErrorMgs(error.toString()));
               },
               child: Text(_token.text.isEmpty? 'Send Code': 'Reset Password',style: TextStyle(fontSize: size.width*.04),)
           ),

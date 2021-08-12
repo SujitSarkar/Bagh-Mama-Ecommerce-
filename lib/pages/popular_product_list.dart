@@ -21,43 +21,17 @@ class _PopularProductListState extends State<PopularProductList> {
   RefreshController(initialRefresh: false);
 
   Future<void> _onRefresh(APIProvider apiProvider)async{
-    await apiProvider.getAllProducts().then((value){
-      if(apiProvider.popularProductModel.content.length>50){
-        setState(()=>itemExtend = 50);
-      }else{
-        setState(()=> itemExtend = apiProvider.popularProductModel.content.length);
-      }
+    await apiProvider.getAllProducts({"product_limit":102,"sort":"1"}).then((value){
+      setState(()=> itemExtend = apiProvider.popularProductModel.content.length+102);
     });
     _refreshController.refreshCompleted();
   }
 
   Future<void> _onLoading(APIProvider apiProvider) async{
-
-    await Future.delayed(Duration(milliseconds: 1000));
-    if(apiProvider.popularProductModel.content.length-itemExtend>50){
-      if(mounted) setState(()=>itemExtend = itemExtend+50);
-      print(itemExtend);
+    await apiProvider.getAllProducts({"product_limit":itemExtend,"sort":"1"}).then((value){
       _refreshController.refreshCompleted();
-    }
-    else if(apiProvider.popularProductModel.content.length-itemExtend <50 &&
-        apiProvider.allProductModel.content.length-itemExtend >0){
-      if(mounted){
-        setState(()=> itemExtend = itemExtend +
-            int.parse(apiProvider.popularProductModel.content.length));
-      }
-      print(itemExtend);
-      _refreshController.refreshCompleted();
-    }
-    else if(apiProvider.popularProductModel.content.length-itemExtend<0){
-      print(itemExtend);
-      if(mounted) setState(() {});
-      _refreshController.refreshCompleted();
-    }
-    else{
-      if(mounted)
-        setState(() {});
-      _refreshController.loadComplete();
-    }
+      setState(()=> itemExtend = apiProvider.popularProductModel.content.length+102);
+    });
     if(mounted)
       setState(() {});
     _refreshController.loadComplete();
@@ -65,17 +39,12 @@ class _PopularProductListState extends State<PopularProductList> {
 
   Future<void> _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
-    if(apiProvider.allProductModel==null){
-      await apiProvider.getPopularProducts().then((value){
-        if(apiProvider.popularProductModel.content.length>50){
-          setState(()=> itemExtend = 50);
-        }else{
-          setState(()=> itemExtend = apiProvider.popularProductModel.content.length);
-        }
+    if(apiProvider.popularProductModel==null){
+      await apiProvider.getAllProducts({"product_limit":102,"sort":"1"}).then((value){
+        setState(()=> itemExtend = apiProvider.popularProductModel.content.length+102);
       });
     }else{
-      if(apiProvider.popularProductModel.content.length>50) setState(()=> itemExtend = 50);
-      else setState(()=> itemExtend = apiProvider.popularProductModel.content.length);
+      setState(()=> itemExtend = apiProvider.popularProductModel.content.length+102);
     }
     print('Total Product: ${apiProvider.popularProductModel.content.length}');
   }
@@ -151,13 +120,14 @@ class _PopularProductListState extends State<PopularProductList> {
               ),
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
-              itemCount: itemExtend,
+              itemCount: apiProvider.popularProductModel.content.length,
               itemBuilder: (context, index){
                 return InkWell(
                     onTap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                         productId: apiProvider.popularProductModel.content[index].id,
                         categoryId: apiProvider.popularProductModel.content[index].categoryId,
+                          isCampaign: false
                       )));
                     },
                     child: ProductCartTile(index: index,productsModel: apiProvider.popularProductModel));

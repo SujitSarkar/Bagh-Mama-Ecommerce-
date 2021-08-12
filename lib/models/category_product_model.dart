@@ -59,13 +59,13 @@ class Content {
   int id;
   String name;
   int categoryId;
-  String brand;
+  dynamic brand;
   List<PriceStockChart> priceStockChart;
   List<String> sizes;
   List<String> colors;
   int views;
   int discount;
-  DateTime addedDate;
+  dynamic addedDate;
   String thumbnailImage;
   int status;
 
@@ -79,7 +79,7 @@ class Content {
     colors: List<String>.from(json["colors"].map((x) => x)),
     views: json["views"],
     discount: json["discount"],
-    addedDate: DateTime.parse(json["added_date"]),
+    addedDate: json["added_date"],
     thumbnailImage: json["thumbnail_image"],
     status: json["status"],
   );
@@ -94,7 +94,7 @@ class Content {
     "colors": List<dynamic>.from(colors.map((x) => x)),
     "views": views,
     "discount": discount,
-    "added_date": addedDate.toIso8601String(),
+    "added_date": addedDate,
     "thumbnail_image": thumbnailImage,
     "status": status,
   };

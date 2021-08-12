@@ -22,7 +22,7 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   _customInit(ThemeProvider themeProvider)async{
     setState(()=>_counter++);
-    themeProvider.checkConnectivity();
+    //themeProvider.checkConnectivity();
   }
 
   @override
@@ -79,12 +79,13 @@ class _ChangePasswordState extends State<ChangePassword> {
                       backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
                   ),
                   onPressed: ()async{
-                    await themeProvider.checkConnectivity().then((value){
-                      if(themeProvider.internetConnected==true){
-                        _formValidation(apiProvider);
-                      }
-                      else showErrorMgs('No internet connection!');
-                    },onError: (error)=>showErrorMgs(error.toString()));
+                    _formValidation(apiProvider);
+                    // await themeProvider.checkConnectivity().then((value){
+                    //   if(themeProvider.internetConnected==true){
+                    //     _formValidation(apiProvider);
+                    //   }
+                    //   else showErrorMgs('No internet connection!');
+                    // },onError: (error)=>showErrorMgs(error.toString()));
                   },
                   child: Text('Update',style: TextStyle(fontSize: size.width*.04),)
               ),

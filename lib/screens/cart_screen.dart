@@ -159,11 +159,12 @@ class _CartScreenState extends State<CartScreen> {
                     showLoadingDialog('Please Wait');
                     Map map= {"coupon_code":"${_coupon.text}"};
                     await apiProvider.getCouponDiscount(map).then((value){
-                      if(value.content.valid){
-
-                      }else{
+                      if(value==false){
                         closeLoadingDialog();
                         showInfo('No Discount Found');
+                      }else{
+                        closeLoadingDialog();
+                        showInfo('Something went wrong');
                       }
                     });
                   }else showInfo('Missing Coupon Code');
@@ -375,7 +376,7 @@ class _CartScreenState extends State<CartScreen> {
                               : '${themeProvider.currency}${themeProvider.toggleCurrency(databaseHelper.cartList[index].pPrice)}',
                           maxLines: 1,
                           style: TextStyle(
-                              fontSize:  size.width*.04, color: themeProvider.toggleTextColor(),fontWeight: FontWeight.w500),
+                              fontSize:  size.width*.04, color: themeProvider.orangeWhiteToggleColor(),fontWeight: FontWeight.w500),
                         ),
                         SizedBox(width: size.width*.02),
 

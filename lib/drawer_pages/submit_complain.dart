@@ -37,7 +37,7 @@ class _SubmitComplainState extends State<SubmitComplain> {
     _name.text =pref.getString('name')??'';
     _email.text =pref.getString('username')??'';
     _mobile.text =pref.getString('mobile')??'';
-    themeProvider.checkConnectivity();
+    //themeProvider.checkConnectivity();
   }
 
   @override
@@ -90,10 +90,11 @@ class _SubmitComplainState extends State<SubmitComplain> {
                       backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
                   ),
                   onPressed: ()async{
-                    await themeProvider.checkConnectivity().then((value){
-                      if(themeProvider.internetConnected==true) _formValidation(apiProvider,themeProvider,size);
-                      else showErrorMgs('No internet connection!');
-                    },onError: (error)=>showErrorMgs(error.toString()));
+                    _formValidation(apiProvider,themeProvider,size);
+                    // await themeProvider.checkConnectivity().then((value){
+                    //   if(themeProvider.internetConnected==true) _formValidation(apiProvider,themeProvider,size);
+                    //   else showErrorMgs('No internet connection!');
+                    // },onError: (error)=>showErrorMgs(error.toString()));
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

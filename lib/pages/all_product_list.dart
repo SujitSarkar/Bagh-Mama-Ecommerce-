@@ -21,42 +21,17 @@ class _AllProductListState extends State<AllProductList> {
   RefreshController(initialRefresh: false);
 
   Future<void> _onRefresh(APIProvider apiProvider)async{
-    await apiProvider.getAllProducts().then((value){
-      if(apiProvider.allProductModel.content.length>50){
-        setState(()=>itemExtend = 50);
-      }else{
-        setState(()=> itemExtend = apiProvider.allProductModel.content.length);
-      }
+    await apiProvider.getAllProducts({"product_limit":102}).then((value){
+      setState(()=> itemExtend = apiProvider.allProductModel.content.length+102);
     });
     _refreshController.refreshCompleted();
   }
 
   Future<void> _onLoading(APIProvider apiProvider) async{
-    await Future.delayed(Duration(milliseconds: 1000));
-    if(apiProvider.allProductModel.content.length-itemExtend>50){
-      if(mounted) setState(()=>itemExtend = itemExtend+50);
-      print(itemExtend);
+    await apiProvider.getAllProducts({"product_limit":itemExtend}).then((value){
       _refreshController.refreshCompleted();
-    }
-    else if(apiProvider.allProductModel.content.length-itemExtend <50 &&
-        apiProvider.allProductModel.content.length-itemExtend >0){
-      if(mounted){
-        setState(()=> itemExtend = itemExtend +
-            int.parse(apiProvider.allProductModel.content.length));
-      }
-      print(itemExtend);
-      _refreshController.refreshCompleted();
-    }
-    else if(apiProvider.allProductModel.content.length-itemExtend<0){
-      print(itemExtend);
-      if(mounted) setState(() {});
-      _refreshController.refreshCompleted();
-    }
-    else{
-      if(mounted)
-        setState(() {});
-      _refreshController.loadComplete();
-    }
+      setState(()=> itemExtend = apiProvider.allProductModel.content.length+102);
+    });
     if(mounted)
       setState(() {});
     _refreshController.loadComplete();
@@ -65,16 +40,11 @@ class _AllProductListState extends State<AllProductList> {
   Future<void> _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
     if(apiProvider.allProductModel==null){
-      await apiProvider.getAllProducts().then((value){
-        if(apiProvider.allProductModel.content.length>50){
-          setState(()=> itemExtend = 50);
-        }else{
-          setState(()=> itemExtend = apiProvider.allProductModel.content.length);
-        }
+      await apiProvider.getAllProducts({"product_limit":102}).then((value){
+        setState(()=> itemExtend = apiProvider.allProductModel.content.length+102);
       });
     }else{
-      if(apiProvider.allProductModel.content.length>50) setState(()=> itemExtend = 50);
-      else setState(()=> itemExtend = apiProvider.allProductModel.content.length);
+      setState(()=> itemExtend = apiProvider.allProductModel.content.length+102);
     }
     print('Total Product: ${apiProvider.allProductModel.content.length}');
   }
@@ -150,13 +120,14 @@ class _AllProductListState extends State<AllProductList> {
               ),
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
-              itemCount: itemExtend,
+              itemCount: apiProvider.allProductModel.content.length,
               itemBuilder: (context, index){
                 return InkWell(
                     onTap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                         productId: apiProvider.allProductModel.content[index].id,
                         categoryId: apiProvider.allProductModel.content[index].categoryId,
+                          isCampaign: false
                       )));
                     },
                     child: ProductCartTile(index: index,productsModel: apiProvider.allProductModel));

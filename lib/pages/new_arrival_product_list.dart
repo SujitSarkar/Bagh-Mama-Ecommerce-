@@ -20,44 +20,18 @@ class _NewArrivalProductListState extends State<NewArrivalProductList> {
   RefreshController _refreshController =
   RefreshController(initialRefresh: false);
 
-  void _onRefresh(APIProvider apiProvider)async{
-    await apiProvider.getAllProducts().then((value){
-      if(apiProvider.newArrivalProductModel.content.length>50){
-        setState(()=>itemExtend = 50);
-      }else{
-        setState(()=> itemExtend = apiProvider.newArrivalProductModel.content.length);
-      }
+  Future<void> _onRefresh(APIProvider apiProvider)async{
+    await apiProvider.getAllProducts({"product_limit":102,"sort":"2"}).then((value){
+      setState(()=> itemExtend = apiProvider.newArrivalProductModel.content.length+102);
     });
     _refreshController.refreshCompleted();
   }
 
-  void _onLoading(APIProvider apiProvider) async{
-
-    await Future.delayed(Duration(milliseconds: 1000));
-    if(apiProvider.newArrivalProductModel.content.length-itemExtend>50){
-      if(mounted) setState(()=>itemExtend = itemExtend+50);
-      print(itemExtend);
+  Future<void> _onLoading(APIProvider apiProvider) async{
+    await apiProvider.getAllProducts({"product_limit":itemExtend,"sort":"2"}).then((value){
       _refreshController.refreshCompleted();
-    }
-    else if(apiProvider.newArrivalProductModel.content.length-itemExtend <50 &&
-        apiProvider.newArrivalProductModel.content.length-itemExtend >0){
-      if(mounted){
-        setState(()=> itemExtend = itemExtend +
-            int.parse(apiProvider.newArrivalProductModel.content.length));
-      }
-      print(itemExtend);
-      _refreshController.refreshCompleted();
-    }
-    else if(apiProvider.newArrivalProductModel.content.length-itemExtend<0){
-      print(itemExtend);
-      if(mounted) setState(() {});
-      _refreshController.refreshCompleted();
-    }
-    else{
-      if(mounted)
-        setState(() {});
-      _refreshController.loadComplete();
-    }
+      setState(()=> itemExtend = apiProvider.newArrivalProductModel.content.length+102);
+    });
     if(mounted)
       setState(() {});
     _refreshController.loadComplete();
@@ -66,16 +40,11 @@ class _NewArrivalProductListState extends State<NewArrivalProductList> {
   Future<void> _customInit(APIProvider apiProvider)async{
     setState(()=>_counter++);
     if(apiProvider.newArrivalProductModel==null){
-      await apiProvider.getNewArrivalProducts().then((value){
-        if(apiProvider.newArrivalProductModel.content.length>50){
-          setState(()=> itemExtend = 50);
-        }else{
-          setState(()=> itemExtend = apiProvider.newArrivalProductModel.content.length);
-        }
+      await apiProvider.getAllProducts({"product_limit":102,"sort":"2"}).then((value){
+        setState(()=> itemExtend = apiProvider.newArrivalProductModel.content.length+102);
       });
     }else{
-      if(apiProvider.newArrivalProductModel.content.length>50) setState(()=> itemExtend = 50);
-      else setState(()=> itemExtend = apiProvider.newArrivalProductModel.content.length);
+      setState(()=> itemExtend = apiProvider.newArrivalProductModel.content.length+102);
     }
     print('Total Product: ${apiProvider.newArrivalProductModel.content.length}');
   }
@@ -151,7 +120,7 @@ class _NewArrivalProductListState extends State<NewArrivalProductList> {
               ),
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
-              itemCount: itemExtend,
+              itemCount: apiProvider.newArrivalProductModel.content.length,
               itemBuilder: (context, index){
                 return InkWell(
                     onTap: (){
@@ -159,6 +128,7 @@ class _NewArrivalProductListState extends State<NewArrivalProductList> {
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                         productId: apiProvider.newArrivalProductModel.content[index].id,
                         categoryId: apiProvider.newArrivalProductModel.content[index].categoryId,
+                          isCampaign: false
                       )));
                     },
                     child: ProductCartTile(index: index,productsModel: apiProvider.newArrivalProductModel));

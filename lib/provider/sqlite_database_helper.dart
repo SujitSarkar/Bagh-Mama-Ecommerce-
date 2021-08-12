@@ -101,4 +101,13 @@ class DatabaseHelper extends ChangeNotifier{
     await getCartList();
     return result;
   }
+
+  //Delete operation
+  Future<int> deleteAllCartList() async {
+    Database db = await this.database;
+    var result =
+    await db.rawDelete('DELETE FROM $cartTable');
+    await getCartList();
+    return result;
+  }
 }

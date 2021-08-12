@@ -1,10 +1,14 @@
 import 'dart:io';
 import 'package:bagh_mama/models/all_product_model.dart';
 import 'package:bagh_mama/models/basic_contact_info_model.dart';
+import 'package:bagh_mama/models/campaign_product_model.dart';
+import 'package:bagh_mama/models/campaigns_date_model.dart';
 import 'package:bagh_mama/models/category_product_model.dart';
 import 'package:bagh_mama/models/coupon_discount_model.dart';
 import 'package:bagh_mama/models/create_support_ticket_model.dart';
 import 'package:bagh_mama/models/new_arrival_products_model.dart';
+import 'package:bagh_mama/models/order_info_model.dart';
+import 'package:bagh_mama/models/order_model.dart';
 import 'package:bagh_mama/models/popular_product_model.dart';
 import 'package:bagh_mama/models/product_category_model.dart';
 import 'package:bagh_mama/models/product_info_model.dart';
@@ -17,6 +21,7 @@ import 'package:bagh_mama/models/user_info_model.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -37,6 +42,7 @@ class APIProvider extends ChangeNotifier{
   List<String> _mainCategoryList=[];
   List<ProductCategoryModel> _subCategoryList=[];
   List<WishListModel> _wishList=[];
+  List<OrderModel> _orderList=[];
   AllProductModel _allProductModel;
   NewArrivalProductModel _newArrivalProductModel;
   PopularProductModel _popularProductModel;
@@ -49,10 +55,15 @@ class APIProvider extends ChangeNotifier{
   SocialContactInfo _socialContactInfo;
   BasicContactInfo _basicContactInfo;
   List<ShippingLocationModel> _shippingLocationList=[];
+  List<String> _shippingLocationSubList=[];
+  List<String> _shippingCityList=[];
   List<ShippingMethodsModel> _shippingMethodsList=[];
   String _profileImageLink;
   List<String> _wishListIdList=[];
   List<Notifications> _notificationList=[];
+  CampaignsDateModel _campaignsDateModel;
+  OrderInfoModel _orderInfoModel;
+  CampaignProductModel _campaignProductModel;
 
   get selectedIndex => _selectedIndex;
   get bannerImageList => _bannerImageList;
@@ -75,9 +86,15 @@ class APIProvider extends ChangeNotifier{
   get profileImageLink => _profileImageLink;
   get wishListIdList => _wishListIdList;
   get wishList => _wishList;
+  get orderList => _orderList;
   get notificationList=> _notificationList;
-  get shippingLocationList=> _shippingLocationList;
+  //get shippingLocationList=> _shippingLocationList;
+  get shippingLocationSubList=> _shippingLocationSubList;
+  get shippingCityList=> _shippingCityList;
   get shippingMethodsList=> _shippingMethodsList;
+  get campaignsDateModel=>_campaignsDateModel;
+  get orderInfoModel=>_orderInfoModel;
+  get campaignProductModel=>_campaignProductModel;
 
   set userInfoModel(UserInfoModel value){
     _userInfoModel = value;
@@ -98,17 +115,15 @@ class APIProvider extends ChangeNotifier{
   void clearNotificationList(){
     _notificationList.clear();
   }
-  void clearOrderList(){
-  }
 
-   Future<bool> requestWithFile({String fileKey, File files}) async {
+  Future<bool> requestWithFile({String fileKey, File files}) async {
     var result;
     var request;
     var uri = Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate');
     SharedPreferences pref = await SharedPreferences.getInstance();
 
       request = new http.MultipartRequest("POST", uri)..fields.addAll({
-        "id": pref.getString('userId'),});
+        "id": pref.getString('userId')});
         var stream =
         new http.ByteStream(DelegatingStream.typed(files.openRead()));
         var length = await files.length();
@@ -120,124 +135,115 @@ class APIProvider extends ChangeNotifier{
         'X-Auth-Email': _xAuthEmail,
       });
     var response = await request.send();
-    await response.stream.transform(utf8.decoder).listen((value) {
+    await response.stream.transform(utf8.decoder).listen((value){
       result = value;
     });
     var jsonData= json.decode(result);
     if(jsonData['status']=='SUCCESS'){
-      return true;
-    }else return false;
-  }
-
-  Future<bool> updateProfileImage(File imageFile)async{
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    var imageBytes = imageFile.readAsBytesSync();
-    String baseImage = base64Encode(imageBytes);
-    var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate'),
-      headers: {
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail,
-      },
-        body: {
-        "id": pref.getString('userId'),
-        'ppic': imageFile.toString(),
-      }
-    );
-    var jsonData = json.decode(response.body);
-    if(jsonData['status']=='SUCCESS'){
-      return jsonData['content']['success'];
-    }else{
-      return jsonData['content']['success'];
-    }
+      return Future.value(true);
+    }else return Future.value(false);
   }
 
   Future<void> getBannerImageList()async{
-     Map data = {"banner_type":"home page banners"};
-     var body = json.encode(data);
+    try{
+      Map data = {"banner_type":"home page banners"};
+      var body = json.encode(data);
 
-    await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/bannerSlider'),
-      headers: {
-        'Content-Type': _contentType,
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail,
-      },
-      body:body,
-    ).then((response){
-      var jsonData = jsonDecode(response.body);
-      if(jsonData['status']=='SUCCESS'){
-        _bannerImageList.clear();
-        jsonData['content'].forEach((element){
-          _bannerImageList.add(element['image']);
-        });
-        _networkImageList = _bannerImageList
-            .map<NetworkImage>((item) => NetworkImage('https://baghmama.com.bd/$item')
-        ).toList();
-        notifyListeners();
-      }
-      else showInfo('failed to get banner image');
-    });
-  }
-
-  Future<void> getProductCategories()async{
-    final Map map= {"fetch_all":"true"};
-    var body= json.encode(map);
-    var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
+      await http.post(
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/bannerSlider'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-      body: body
-        );
-    if(response.statusCode==200){
-       var jsonData = jsonDecode(response.body);
-       Set _categorySet=Set.from({'All'});
+        body:body,
+      ).then((response){
+        var jsonData = jsonDecode(response.body);
+        if(jsonData['status']=='SUCCESS'){
+          _bannerImageList.clear();
+          jsonData['content'].forEach((element){
+            _bannerImageList.add(element['image']);
+          });
+          _networkImageList = _bannerImageList
+              .map<NetworkImage>((item) => NetworkImage('https://baghmama.com.bd/$item')
+          ).toList();
+          notifyListeners();
+        }
+        else showInfo('failed to get banner image');
+      });
+    }on SocketException{
+      showInfo('No Internet Connection !');
+    }
 
-      jsonData['content'].forEach((element) {
-        ProductCategoryModel model = ProductCategoryModel(
-          id: element['id'],
-          main: element['main'],
-          header: element['header'],
-          sub: element['sub'],
-          position: element['position'],
-          categoryIcon: element['category_icon']
-        );
-        _allCategoryList.add(model);
-        _categorySet.add(element['main']);
-      });
-      _subCategoryList.addAll(_allCategoryList);
-      _categorySet.forEach((element) {
-        _mainCategoryList.add(element);
-      });
-      notifyListeners();
+  }
+
+  Future<void> getProductCategories()async{
+    try{
+      final Map map= {"fetch_all":"true"};
+      var body= json.encode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail,
+          },
+          body: body
+      );
+      if(response.statusCode==200){
+        var jsonData = jsonDecode(response.body);
+        Set _categorySet=Set.from({'All'});
+
+        jsonData['content'].forEach((element) {
+          ProductCategoryModel model = ProductCategoryModel(
+              id: element['id'],
+              main: element['main'],
+              header: element['header'],
+              sub: element['sub'],
+              position: element['position'],
+              categoryIcon: element['category_icon']
+          );
+          _allCategoryList.add(model);
+          _categorySet.add(element['main']);
+        });
+        _subCategoryList.addAll(_allCategoryList);
+        _categorySet.forEach((element) {
+          _mainCategoryList.add(element);
+        });
+        notifyListeners();
+      }
+    }on SocketException{
+      showInfo('No Internet Connection !');
     }
   }
 
   Future<void> getMainCategoryWithId()async{
-    var response = await http.post(
+    try{
+      var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-    );
-    if(response.statusCode==200){
-      var jsonData = jsonDecode(response.body);
-      jsonData['content'].forEach((element) {
-        MainCategoryWithId model = MainCategoryWithId(
-            id: element['id'],
-            main: element['main'],
-            position: element['position'],
-            categoryIcon: element['category_icon']
-        );
-        _mainCategoryWithId.add(model);
-      });
-      notifyListeners();
+      );
+      if(response.statusCode==200){
+        var jsonData = jsonDecode(response.body);
+        jsonData['content'].forEach((element) {
+          MainCategoryWithId model = MainCategoryWithId(
+              id: element['id'],
+              main: element['main'],
+              position: element['position'],
+              categoryIcon: element['category_icon']
+          );
+          _mainCategoryWithId.add(model);
+        });
+        notifyListeners();
+      }
+    }on SocketException{
+      showInfo('No Internet Connection !');
     }
+
   }
 
   void updateSubCategoryList(String mainCategory){
@@ -257,60 +263,74 @@ class APIProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> getAllProducts()async{
-    var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
-        headers: {
-          'Content-Type': _contentType,
-          'X-Auth-Key': _xAuthKey,
-          'X-Auth-Email': _xAuthEmail,
-        },
-    );
-    if(response.statusCode==200){
-      final String responseString = response.body;
-      _allProductModel= allProductModelFromJson(responseString);
-      notifyListeners();
-    }
-  }
-
-  Future<void> getNewArrivalProducts()async{
-    Map map = {"sort":"2"};
-    var body = json.encode(map);
-
-    var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
-      headers: {
-        'Content-Type': _contentType,
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail,
-      },
-      body: body
+  Future<void> getAllProducts(Map map)async{
+    try{
+      var body = json.encode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail,
+          },
+          body: body
       );
-    if(response.statusCode==200){
-      final String responseString = response.body;
-      _newArrivalProductModel= newArrivalProductModelFromJson(responseString);
-      notifyListeners();
+      if(response.statusCode==200){
+        final String responseString = response.body;
+        _allProductModel= allProductModelFromJson(responseString);
+        print(_allProductModel.content.length);
+        notifyListeners();
+      }
+    } on SocketException{
+      showInfo('No Internet Connection !');
     }
   }
 
-  Future<void> getPopularProducts()async{
-    Map map = {"sort":"1"};
-    var body = json.encode(map);
-
-    var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
-        headers: {
-          'Content-Type': _contentType,
-          'X-Auth-Key': _xAuthKey,
-          'X-Auth-Email': _xAuthEmail,
-        },
-        body: body
-    );
-    if(response.statusCode==200){
-      final String responseString = response.body;
-      _popularProductModel= popularProductModelFromJson(responseString);
-      notifyListeners();
+  Future<void> getNewArrivalProducts(Map map)async{
+    try{
+      var body = json.encode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail,
+          },
+          body: body
+      );
+      if(response.statusCode==200){
+        final String responseString = response.body;
+        _newArrivalProductModel= newArrivalProductModelFromJson(responseString);
+        print(_newArrivalProductModel.content.length);
+        notifyListeners();
+      }
+    }on SocketException{
+      showInfo('No Internet Connection !');
     }
+  }
+
+  Future<void> getPopularProducts(Map map)async{
+    try{
+      var body = json.encode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail,
+          },
+          body: body
+      );
+      if(response.statusCode==200){
+        final String responseString = response.body;
+        _popularProductModel= popularProductModelFromJson(responseString);
+        print(_popularProductModel.content.length);
+        notifyListeners();
+      }
+    }on SocketException{
+      showInfo('No Internet Connection !');
+    }
+
   }
 
   Future<void> getCategoryProducts(Map map)async{
@@ -446,58 +466,78 @@ class APIProvider extends ChangeNotifier{
   }
 
   Future<bool> getUserInfo(String username)async{
-     SharedPreferences pref = await SharedPreferences.getInstance();
-     Map map = {"column_type": "username", "field": "$username"};
-     var body = json.encode(map);
+    try{
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      Map map = {"column_type": "username", "field": "$username"};
+      var body = json.encode(map);
 
-    var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/userInfo'),
-      headers: {
-        'Content-Type': _contentType,
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail,
-      },
-      body: body
-    );
-    if(response.statusCode==200){
-      _userInfoModel=null;
-      String responseString = response.body;
-      var jsonData = jsonDecode(response.body);
-      _userInfoModel = userInfoModelFromJson(responseString);
-      await pref.setString('username', _userInfoModel.content.username);
-      await pref.setString('userId', _userInfoModel.content.id.toString());
-      await pref.setString('mobile', _userInfoModel.content.mobileNumber.toString());
-      await pref.setString('fullAddress',
-          '${_userInfoModel.content.address},${_userInfoModel.content.postalcode},'
-              '${_userInfoModel.content.city},${_userInfoModel.content.state},'
-              '${_userInfoModel.content.country}');
-      await pref.setString('name', '${_userInfoModel.content.firstName} ${_userInfoModel.content.lastName}');
-      ///Get Wishlist ID
-      if(_userInfoModel.content.wishlists.isNotEmpty){
-        _wishListIdList.clear();
-        _userInfoModel.content.wishlists.forEach((element) {
-          _wishListIdList.add(element);
-        });
-      }else _wishListIdList.clear();
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/userInfo'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail,
+          },
+          body: body
+      );
+      if(response.statusCode==200){
+        var jsonData = jsonDecode(response.body);
+        _userInfoModel = userInfoModelFromJson(response.body);
 
-      ///Get Notifications
-      if(jsonData['content']['notifications'].isNotEmpty){
-        _notificationList.clear();
-        jsonData['content']['notifications'].forEach((element){
-          Notifications notifications = Notifications(
-            notificationType: element['notificationType'],
-            notificationText: element['notificationText'],
-            link: element['link'],
-            status: element['status']
-          );
-          _notificationList.add(notifications);
-        });
-      }else _notificationList.clear();
-      notifyListeners();
-      return true;
-    }else{
+        print(_userInfoModel.content.profilePic);
+
+        await pref.setString('username', _userInfoModel.content.username);
+        await pref.setString('userId', _userInfoModel.content.id.toString());
+        await pref.setString('mobile', _userInfoModel.content.mobileNumber.toString());
+        await pref.setString('fullAddress',
+            '${_userInfoModel.content.address},${_userInfoModel.content.postalcode},'
+                '${_userInfoModel.content.city},${_userInfoModel.content.state},'
+                '${_userInfoModel.content.country}');
+        await pref.setString('name', '${_userInfoModel.content.firstName} ${_userInfoModel.content.lastName}');
+
+        ///Get Wishlist ID
+        if(_userInfoModel.content.wishlists.isNotEmpty){
+          _wishListIdList.clear();
+          _userInfoModel.content.wishlists.forEach((element) {
+            _wishListIdList.add(element);
+          });
+        }else _wishListIdList.clear();
+
+        if(jsonData['content']['customer_orders'].isNotEmpty){
+          _orderList.clear();
+          jsonData['content']['customer_orders'].forEach((element){
+            OrderModel model = OrderModel(
+              orderNo: element["order_no"],
+              date: DateTime.parse(element["date"])
+            );
+            _orderList.add(model);
+          });
+          notifyListeners();
+        }
+
+        ///Get Notifications
+        if(jsonData['content']['notifications'].isNotEmpty){
+          _notificationList.clear();
+          jsonData['content']['notifications'].forEach((element){
+            Notifications notifications = Notifications(
+                notificationType: element['notificationType'],
+                notificationText: element['notificationText'],
+                link: element['link'],
+                status: element['status']
+            );
+            _notificationList.add(notifications);
+          });
+        }else _notificationList.clear();
+        notifyListeners();
+        return true;
+      }else{
+        return false;
+      }
+    }on SocketException{
+      showInfo('No Internet Connection!');
       return false;
     }
+
   }
 
   Future<bool> updateUserInfo(Map map)async{
@@ -519,24 +559,23 @@ class APIProvider extends ChangeNotifier{
   }
 
   Future<void> getSocialContactInfo()async{
-    Map map = {
-      "sort":"1"
-    };
-    var body= json.encode(map);
-    var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/socialContactInfo'),
-      headers: {
-        'Content-Type': _contentType,
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail
-      },
-      body: body
-        );
-    if(response.statusCode==200){
-      String responseString = response.body;
-      _socialContactInfo= socialContactInfoFromJson(responseString);
-      notifyListeners();
-    }else showInfo('failed to get Social Data');
+    try{
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/socialContactInfo'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail
+          });
+      if(response.statusCode==200){
+        String responseString = response.body;
+        _socialContactInfo= socialContactInfoFromJson(responseString);
+        notifyListeners();
+      }else showInfo('failed to get Social Data');
+    }on SocketException{
+      showInfo('No Internet Connection !');
+    }
+
   }
 
   Future<void> getBasicContactInfo()async{
@@ -707,7 +746,7 @@ class APIProvider extends ChangeNotifier{
     else return jsonData['content']['success'];
   }
 
-  Future<CouponDiscountModel> getCouponDiscount(Map map)async{
+  Future<dynamic> getCouponDiscount(Map map)async{
     var body = jsonEncode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/couponDiscount'),
@@ -718,9 +757,16 @@ class APIProvider extends ChangeNotifier{
         },
         body: body
     );
-    String responseString = response.body;
-    CouponDiscountModel _couponDiscountModel = couponDiscountModelFromJson(responseString);
-    return _couponDiscountModel;
+    if(response.statusCode==200){
+      var jsonData = jsonDecode(response.body);
+      if(jsonData['content']['success']==true){
+        String responseString = response.body;
+        CouponDiscountModel _couponDiscountModel = couponDiscountModelFromJson(responseString);
+        return _couponDiscountModel;
+      }else{
+        return false;
+      }
+    }else return false;
   }
 
   Future<bool> getShippingLocations()async{
@@ -735,6 +781,7 @@ class APIProvider extends ChangeNotifier{
     var jsonData = json.decode(response.body);
     if(jsonData['status']=='SUCCESS'){
       _shippingLocationList.clear();
+      _shippingLocationSubList.clear();
       jsonData['content'].forEach((element){
         ShippingLocationModel model = ShippingLocationModel(
           id: element['id'],
@@ -743,10 +790,22 @@ class APIProvider extends ChangeNotifier{
           status: element['status'],
         );
         _shippingLocationList.add(model);
+        if(!_shippingLocationSubList.contains(element['city'])){
+          _shippingLocationSubList.add(element['city']);
+        }
       });
       notifyListeners();
       return true;
      } else return false;
+  }
+
+  void getShippingCity(String city){
+    _shippingCityList.clear();
+    for(int i=0; i<_shippingLocationList.length;i++){
+      if(_shippingLocationList[i].city==city){
+        _shippingCityList.add(_shippingLocationList[i].location);
+      }
+    }
   }
 
   Future<bool> getShippingMethods(Map map)async{
@@ -802,6 +861,101 @@ class APIProvider extends ChangeNotifier{
       return jsonData['content']['content'];
     }
     else return 'Failed to Load !';
+  }
+
+  Future<bool> placeOrder(Map map)async{
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String userName= pref.getString('username');
+    try{
+      var body = jsonEncode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/orderSubmit'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail
+          },
+          body: body
+      );
+      var jsonData = json.decode(response.body);
+      if(jsonData['status']=='SUCCESS'){
+       await getUserInfo(userName);
+       return true;
+      }else{
+        return false;
+      }
+
+    }on SocketException{
+      showInfo('No Internet Connection !');
+      return false;
+    }
+
+
+  }
+
+  Future<bool> getOrderInfo(Map map)async{
+    try{
+      var body = jsonEncode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/orderInfo'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail
+          },
+          body: body
+      );
+      if(response.statusCode==200){
+        _orderInfoModel = orderInfoModelFromJson(response.body);
+        _orderInfoModel.content.products[0].productColor;
+        notifyListeners();
+        return true;
+      }else return false;
+
+    }on SocketException{
+      showInfo('No Internet Connection !');
+      return false;
+    }
+  }
+
+  Future<void> getCampaignsDate({Map map})async{
+    var response = await http.post(
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/campaigns'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail,
+      },
+    );
+    if(response.statusCode==200){
+      final String responseString = response.body;
+      _campaignsDateModel= campaignsDateModelFromJson(responseString);
+      notifyListeners();
+    }
+  }
+
+  Future<bool> getCampaignProductList(Map map)async{
+    try{
+      var body = jsonEncode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/campaignProducts'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail
+          },
+          body: body
+      );
+      if(response.statusCode==200){
+        _campaignProductModel = campaignProductModelFromJson(response.body);
+        notifyListeners();
+        return true;
+      }else return false;
+
+    }on SocketException{
+      showInfo('No Internet Connection !');
+      return false;
+    }
   }
 
 }

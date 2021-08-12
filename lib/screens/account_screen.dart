@@ -37,7 +37,7 @@ class _AccountScreenState extends State<AccountScreen> {
   void _customInit(ThemeProvider themeProvider, APIProvider apiProvider,DatabaseHelper databaseHelper)async{
     pref = await SharedPreferences.getInstance();
     setState(()=> _counter++);
-    await themeProvider.checkConnectivity();
+    //await themeProvider.checkConnectivity();
     if(databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
     if(pref.getString('username')!=null){
       if(apiProvider.userInfoModel==null){
@@ -100,9 +100,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ///Profile Image Container
-                        !_isLoading? Container(
-                          width: size.width*.45,
-                          child: Container(
+                        Container(
                             height: size.width * .45,
                             width: size.width * .45,
                             decoration: BoxDecoration(
@@ -113,22 +111,28 @@ class _AccountScreenState extends State<AccountScreen> {
                             child: apiProvider.userInfoModel!=null
                                 ?ClipRRect(
                               borderRadius: BorderRadius.all(Radius.circular(10)),
-                              child: Image.network(apiProvider.userInfoModel.content.profilePic,
+                              child: CachedNetworkImage(
+                                  imageUrl: apiProvider.userInfoModel.content.profilePic,
+                                  placeholder: (context, url) => Image.asset('assets/placeholder.png',
+                                      height: size.width * .45,
+                                      width: size.width * .45,
+                                      fit: BoxFit.cover),
+                                  errorWidget: (context, url, error) => Image.asset('assets/placeholder.png',
+                                      height: size.width * .45,
+                                      width: size.width * .45,
+                                      fit: BoxFit.cover),
                                   height: size.width * .45,
-                                  width: size.width * .45,fit: BoxFit.cover),
-                            )
+                                  width: size.width * .45,
+                                  fit: BoxFit.cover,
+                                ))
                                 : ClipRRect(
                                 borderRadius: BorderRadius.all(Radius.circular(10)),
-                                  child: Image.asset('assets/user.PNG',height: size.width * .45,
-                              width: size.width * .45,fit: BoxFit.cover),
+                                  child: Image.asset('assets/user.PNG',
+                                      height: size.width * .45,
+                                      width: size.width * .45,
+                                      fit: BoxFit.cover),
                                 )
                           ),
-                        ):Container(
-                          height: size.width * .45,
-                          width: size.width * .45,
-                          alignment: Alignment.center,
-                          child: Center(child: threeBounce(themeProvider)),
-                        ),
 
                         ///User Information
                         apiProvider.userInfoModel!=null? Container(
@@ -136,7 +140,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           child:RichText(
                             textAlign: TextAlign.justify,
                             text: TextSpan(
-                              //text: 'Hello ',
+                              //text: 'Hello',
                               style: TextStyle(fontSize: size.width*.038,color: themeProvider.toggleTextColor()),
                               children: <TextSpan>[
                                 TextSpan(text: '${apiProvider.userInfoModel.content.firstName} ${apiProvider.userInfoModel.content.lastName}\n',style: TextStyle(fontSize: size.width*.05,fontWeight: FontWeight.w500)),
@@ -245,10 +249,11 @@ class _AccountScreenState extends State<AccountScreen> {
       child: Icon(iconData,color: Colors.white,size: size.width*.07),
       onPressed: ()async{
         if(iconData==Icons.camera_alt){
-          await themeProvider.checkConnectivity().then((value){
-            if(themeProvider.internetConnected==true) _getImageFromGallery(themeProvider,apiProvider);
-            else showErrorMgs('No internet connection!');
-          },onError: (error)=>showErrorMgs(error.toString()));
+          _getImageFromGallery(themeProvider,apiProvider);
+          // await themeProvider.checkConnectivity().then((value){
+          //   if(themeProvider.internetConnected==true) _getImageFromGallery(themeProvider,apiProvider);
+          //   else showErrorMgs('No internet connection!');
+          // },onError: (error)=>showErrorMgs(error.toString()));
         }
         else if(iconData==Icons.vpn_key_sharp) Navigator.push(context,
             MaterialPageRoute(builder: (context) => ChangePassword()));

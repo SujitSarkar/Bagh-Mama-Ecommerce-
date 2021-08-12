@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:bagh_mama/variables/color_variables.dart';
-import 'package:connectivity/connectivity.dart';
+// import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -71,19 +71,19 @@ class ThemeProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> checkConnectivity() async {
-    var result = await (Connectivity().checkConnectivity());
-    if (result == ConnectivityResult.none) {
-      _internetConnected = false;
-      notifyListeners();
-    } else if (result == ConnectivityResult.mobile) {
-      _internetConnected = true;
-      notifyListeners();
-    } else if (result == ConnectivityResult.wifi) {
-      _internetConnected = true;
-      notifyListeners();
-    }
-  }
+  // Future<void> checkConnectivity() async {
+  //   var result = await (Connectivity().checkConnectivity());
+  //   if (result == ConnectivityResult.none) {
+  //     _internetConnected = false;
+  //     notifyListeners();
+  //   } else if (result == ConnectivityResult.mobile) {
+  //     _internetConnected = true;
+  //     notifyListeners();
+  //   } else if (result == ConnectivityResult.wifi) {
+  //     _internetConnected = true;
+  //     notifyListeners();
+  //   }
+  // }
 
   dynamic roundDouble(double value, int places){
     double mod = pow(10.0, places);

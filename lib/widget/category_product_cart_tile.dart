@@ -24,33 +24,33 @@ class ProductCartTile extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(5))
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
               Container(
                 width: size.width * .5,
                 height: size.width*.22,
+                margin: EdgeInsets.only(top: 10,left: 10,right: 10),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5),
                       topRight: Radius.circular(5)),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      topRight: Radius.circular(5)),
-                  child: CachedNetworkImage(
-                    imageUrl: productsModel.content[index].thumbnailImage,
-                    placeholder: (context, url) => Image.asset('assets/placeholder.png',
-                      width: size.width * .5,
-                      height: size.width*.22,
-                      fit: BoxFit.cover,),
-                    errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
+                child: CachedNetworkImage(
+                  imageUrl: productsModel.content[index].thumbnailImage,
+                  placeholder: (context, url) => Image.asset('assets/placeholder.png',
                     width: size.width * .5,
                     height: size.width*.22,
-                    fit: BoxFit.fitHeight,
-                  ),
+                    fit: BoxFit.cover),
+                  errorWidget: (context, url, error) => Image.asset('assets/placeholder.png',
+                    width: size.width * .5,
+                    height: size.width*.22,
+                    fit: BoxFit.cover),
+                  width: size.width * .5,
+                  height: size.width*.22,
+                  fit: BoxFit.contain,
                 ),
               ),
               productsModel.content[index].discount!=0? Positioned(
@@ -75,21 +75,24 @@ class ProductCartTile extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 6,vertical: 5),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('${productsModel.content[index].name}',
-                    maxLines: 3,
+                    maxLines: 2,
                     style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.03)),
                 SizedBox(height: size.width*.02),
-                Text('${themeProvider.currency}${productsModel.content[index].discount!=0? discountPrice: themeProvider.toggleCurrency(productsModel.content[index].priceStockChart[0].sP)}',
-                    maxLines: 1,
-                    style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.032,fontWeight: FontWeight.w500)),
-                SizedBox(height: size.width*.01),
                 productsModel.content[index].discount!=0? Text('${themeProvider.currency}${themeProvider.toggleCurrency(productsModel.content[index].priceStockChart[0].sP)}',
                     maxLines: 1,
                     style: TextStyle(color: themeProvider.toggleTextColor(),
-                        fontSize: size.width*.025,fontWeight: FontWeight.w400,
+                        fontSize: size.width*.026,fontWeight: FontWeight.w400,
                         decoration: TextDecoration.lineThrough)):Container(),
+                SizedBox(height: size.width*.01),
+                Text('${themeProvider.currency}${productsModel.content[index].discount!=0? discountPrice: themeProvider.toggleCurrency(productsModel.content[index].priceStockChart[0].sP)}',
+                    maxLines: 1,
+                    style: TextStyle(color: themeProvider.orangeWhiteToggleColor(),fontSize: size.width*.032,fontWeight: FontWeight.w500)),
+
+
               ],
             ),
           ),

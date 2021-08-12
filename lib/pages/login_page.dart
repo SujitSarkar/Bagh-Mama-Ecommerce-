@@ -24,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   int _counter=0;
   _customInit(ThemeProvider themeProvider)async{
     setState(()=>_counter++);
-    themeProvider.checkConnectivity();
+    //themeProvider.checkConnectivity();
   }
 
   @override
@@ -86,12 +86,13 @@ class _LoginPageState extends State<LoginPage> {
 
               TextButton(
                   onPressed: () async{
-                    await themeProvider.checkConnectivity().then((value){
-                      if(themeProvider.internetConnected==true){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
-                      }
-                      else showErrorMgs('No internet connection!');
-                    },onError: (error)=>showErrorMgs(error.toString()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
+                    // await themeProvider.checkConnectivity().then((value){
+                    //   if(themeProvider.internetConnected==true){
+                    //     Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordPage()));
+                    //   }
+                    //   else showErrorMgs('No internet connection!');
+                    // },onError: (error)=>showErrorMgs(error.toString()));
 
                     },
                   child: Text('Forgot password?',style: TextStyle(
@@ -108,10 +109,11 @@ class _LoginPageState extends State<LoginPage> {
                   backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
               ),
               onPressed: ()async{
-                await themeProvider.checkConnectivity().then((value){
-                  if(themeProvider.internetConnected==true) _validateForm(apiProvider);
-                  else showErrorMgs('No internet connection!');
-                },onError: (error)=>showErrorMgs(error.toString()));
+                _validateForm(apiProvider);
+                // await themeProvider.checkConnectivity().then((value){
+                //   if(themeProvider.internetConnected==true) _validateForm(apiProvider);
+                //   else showErrorMgs('No internet connection!');
+                // },onError: (error)=>showErrorMgs(error.toString()));
               },
               child: Text('Log In',style: TextStyle(fontSize: size.width*.04),)
           ),

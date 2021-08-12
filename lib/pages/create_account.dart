@@ -1,3 +1,4 @@
+import 'package:bagh_mama/models/shipping_location_model.dart';
 import 'package:bagh_mama/pages/no_internet_page.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
@@ -15,22 +16,29 @@ class CreateAccount extends StatefulWidget {
 
 class _CreateAccountState extends State<CreateAccount> {
   bool _isObscure=true;
+  String _shippingLocation;
+  String _shippingCity;
   TextEditingController _firstName= TextEditingController();
   TextEditingController _lastName= TextEditingController();
   TextEditingController _email= TextEditingController();
   TextEditingController _phone= TextEditingController();
   TextEditingController _address= TextEditingController();
-  TextEditingController _state= TextEditingController();
-  TextEditingController _city= TextEditingController();
   TextEditingController _postalCode= TextEditingController();
-  TextEditingController _country= TextEditingController();
   TextEditingController _password= TextEditingController();
   TextEditingController _confirmPassword= TextEditingController();
   int _counter=0;
   bool _isLoading=false;
   void _customInit(APIProvider apiProvider,ThemeProvider themeProvider)async{
-    setState(()=>_counter++);
-    themeProvider.checkConnectivity();
+    setState((){
+      _counter++;
+      _isLoading=true;
+    });
+    //themeProvider.checkConnectivity();
+    await apiProvider.getShippingLocations().then((value){
+      setState(() {
+        _isLoading=false;
+      });
+    });
     }
 
     @override
@@ -55,7 +63,10 @@ class _CreateAccountState extends State<CreateAccount> {
               fontSize: size.width * .045),
         ),
       ),
-      body: themeProvider.internetConnected? _bodyUI(themeProvider,apiProvider, size):NoInternet(),
+      body: _isLoading
+          ? Center(child: threeBounce(themeProvider))
+          :_bodyUI(themeProvider,apiProvider, size),
+      //body: themeProvider.internetConnected? _bodyUI(themeProvider,apiProvider, size):NoInternet(),
     );
   }
 
@@ -81,13 +92,77 @@ class _CreateAccountState extends State<CreateAccount> {
             SizedBox(height: size.width * .04),
             _textFieldBuilder(themeProvider, size, 'Address'),
             SizedBox(height: size.width * .04),
-            _textFieldBuilder(themeProvider, size, 'Division/State'),
+            ///Division/State
+            Container(
+              padding: EdgeInsets.symmetric(vertical: size.width*.01,horizontal: size.width*.03),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey,width: 1),
+                  borderRadius: BorderRadius.all(Radius.circular(5))
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _shippingLocation,
+                  isExpanded: true,
+                  isDense: true,
+                  hint: Text("Select Division/State",style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: size.width*.04)),
+                  onChanged: (value)async{
+                    setState((){
+                      _shippingCity=null;
+                      _shippingLocation = value;
+                    });
+                    apiProvider.getShippingCity(value);
+                  },
+                  dropdownColor: themeProvider.whiteBlackToggleColor(),
+                  items: apiProvider.shippingLocationSubList
+                      .map<DropdownMenuItem<String>>((String model){
+                    return DropdownMenuItem<String>(
+                      value: model,
+                      child: Text('$model',
+                          style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.04)),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
             SizedBox(height: size.width * .04),
-            _textFieldBuilder(themeProvider, size, 'District/City'),
-            SizedBox(height: size.width * .04),
+
+            ///District/City
+           _shippingLocation!=null? Container(
+              padding: EdgeInsets.symmetric(vertical: size.width*.01,horizontal: size.width*.03),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey,width: 1),
+                  borderRadius: BorderRadius.all(Radius.circular(5))
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _shippingCity,
+                  isExpanded: true,
+                  isDense: true,
+                  hint: Text("Select District/City",style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: size.width*.04)),
+                  onChanged: (value)async{
+                    setState((){
+                      _shippingCity = value;
+                    });
+                  },
+                  dropdownColor: themeProvider.whiteBlackToggleColor(),
+                  items: apiProvider.shippingCityList
+                      .map<DropdownMenuItem<String>>((String model){
+                    return DropdownMenuItem<String>(
+                      value: model,
+                      child: Text('$model',
+                          style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.04)),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ):Container(),
+            _shippingLocation!=null? SizedBox(height: size.width * .04):Container(),
+
             _textFieldBuilder(themeProvider, size, 'Postal Code'),
-            SizedBox(height: size.width * .04),
-            _textFieldBuilder(themeProvider, size, 'Country'),
             SizedBox(height: size.width * .04),
             _isLoading
                 ? threeBounce(themeProvider)
@@ -100,10 +175,11 @@ class _CreateAccountState extends State<CreateAccount> {
                         backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
                     ),
                     onPressed: ()async{
-                      await themeProvider.checkConnectivity().then((value){
-                        if(themeProvider.internetConnected==true) _registerUser(apiProvider);
-                        else showErrorMgs('No internet connection!');
-                      },onError: (error)=>showErrorMgs(error.toString()));
+                      _registerUser(apiProvider);
+                      // await themeProvider.checkConnectivity().then((value){
+                      //   if(themeProvider.internetConnected==true) _registerUser(apiProvider);
+                      //   else showErrorMgs('No internet connection!');
+                      // },onError: (error)=>showErrorMgs(error.toString()));
                     },
                     child: Text('Create an account',style: TextStyle(fontSize: size.width*.04),)
                 ),
@@ -124,7 +200,7 @@ class _CreateAccountState extends State<CreateAccount> {
   void _registerUser(APIProvider apiProvider)async{
     if(_firstName.text.isNotEmpty && _lastName.text.isNotEmpty && _email.text.isNotEmpty
     && _phone.text.isNotEmpty && _password.text.isNotEmpty && _confirmPassword.text.isNotEmpty
-    && _address.text.isNotEmpty && _state.text.isNotEmpty && _city.text.isNotEmpty
+    && _address.text.isNotEmpty && _shippingLocation!=null && _shippingCity!=null
     && _postalCode.text.isNotEmpty){
       if(_email.text.contains('@')){
         if(_email.text.contains('.com')){
@@ -138,11 +214,11 @@ class _CreateAccountState extends State<CreateAccount> {
               "last_name": "${_lastName.text}",
               "email": "${_email.text}",
               "address": "${_address.text}",
-              "city": "${_city.text}",
-              "state": "${_state.text}",
+              "city": _shippingCity,
+              "state": _shippingLocation,
               "postalcode": "${_postalCode.text}",
               "mobile_number": "${_phone.text}",
-              "country": "${_country.text.isEmpty?"" :_country.text}"
+              "country": "Bangladesh"
             };
             apiProvider.registerUser(data).then((registerUserModel){
               if(registerUserModel.content.success==true){
@@ -170,10 +246,8 @@ class _CreateAccountState extends State<CreateAccount> {
             :hint=='Address'?_address
             :hint=='Password'?_password
             :hint=='Confirm Password'? _confirmPassword
-            :hint=='Division/State'?_state
-            :hint=='District/City'?_city
-            :hint=='Postal Code'?_postalCode
-            :_country,
+            :_postalCode,
+
         obscureText: hint=='Password' || hint=='Confirm Password'?_isObscure:false,
         style: TextStyle(
             color: themeProvider.toggleTextColor(), fontSize: size.width * .04),

@@ -30,7 +30,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
   void _customInit(APIProvider apiProvider,ThemeProvider themeProvider)async{
     setState(()=>_counter++);
-    themeProvider.checkConnectivity();
+    //themeProvider.checkConnectivity();
     pref = await SharedPreferences.getInstance();
     if(pref.getString('username')!=null){
       if(apiProvider.userInfoModel==null){
@@ -111,10 +111,11 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
                         ),
                         onPressed: ()async{
-                          await themeProvider.checkConnectivity().then((value){
-                            if(themeProvider.internetConnected==true) _updateUserInfo(apiProvider);
-                            else showErrorMgs('No internet connection!');
-                          },onError: (error)=>showErrorMgs(error.toString()));
+                          _updateUserInfo(apiProvider);
+                          // await themeProvider.checkConnectivity().then((value){
+                          //   if(themeProvider.internetConnected==true) _updateUserInfo(apiProvider);
+                          //   else showErrorMgs('No internet connection!');
+                          // },onError: (error)=>showErrorMgs(error.toString()));
                         },
                         child: Text('Update',style: TextStyle(fontSize: size.width*.04),)
                     ),
