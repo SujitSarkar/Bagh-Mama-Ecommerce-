@@ -203,18 +203,24 @@ class PaymentInfo {
 class Product {
   Product({
     this.productId,
+    this.productName,
+    this.productThumb,
     this.productSize,
     this.productColor,
     this.productQuantity,
   });
 
-  int productId;
+  String productId;
+  String productName;
+  String productThumb;
   String productSize;
   String productColor;
   int productQuantity;
 
   factory Product.fromJson(Map<String, dynamic> json) => Product(
     productId: json["productId"],
+    productName: json["productName"],
+    productThumb: json["productThumb"],
     productSize: json["productSize"],
     productColor: json["productColor"],
     productQuantity: json["productQuantity"],
@@ -222,6 +228,8 @@ class Product {
 
   Map<String, dynamic> toJson() => {
     "productId": productId,
+    "productName": productName,
+    "productThumb": productThumb,
     "productSize": productSize,
     "productColor": productColor,
     "productQuantity": productQuantity,

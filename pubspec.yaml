@@ -40,10 +40,15 @@ dependencies:
   async: ^2.6.1
   path: ^1.8.0
   flutter_sslcommerz: ^2.0.0-nullsafety.0
+  flutter_launcher_icons: ^0.9.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/bm_head.png"
 
 
 # The following section is specific to Flutter.

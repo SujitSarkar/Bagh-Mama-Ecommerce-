@@ -907,7 +907,7 @@ class APIProvider extends ChangeNotifier{
       );
       if(response.statusCode==200){
         _orderInfoModel = orderInfoModelFromJson(response.body);
-        _orderInfoModel.content.products[0].productColor;
+        _orderInfoModel.content.orderSummery.totalCostWithoutDiscount;
         notifyListeners();
         return true;
       }else return false;

@@ -106,9 +106,29 @@ class _OrderDetailsState extends State<OrderDetails> {
                   TextSpan(text: apiProvider.orderInfoModel.content.paymentInfo.paymentType),
                   TextSpan(text: '\n\nShipping Address: ',style: TextStyle(fontWeight: FontWeight.w500)),
                   TextSpan(text: apiProvider.orderInfoModel.content.shippingInfo.shippingAddress),
-                  TextSpan(text: '\n\nProduct Info:',style: TextStyle(fontWeight: FontWeight.w500)),
+
                 ]
             ),
+          ),
+          SizedBox(height: size.width*.08),
+
+          ///ProductInfo
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("Product Info:",style: TextStyle(
+                color: themeProvider.toggleTextColor(),
+                  fontWeight: FontWeight.w500,fontSize: size.width*.04)),
+              Text(
+                'Total: ${apiProvider.orderInfoModel.content.orderSummery.totalCostWithoutDiscount} TK',
+                maxLines: 3,
+                style: TextStyle(
+                    fontSize: size.width*.04,
+                    color: themeProvider.orangeWhiteToggleColor(),
+                    fontWeight: FontWeight.w500),
+              )
+            ],
           ),
 
           ListView.builder(
@@ -117,7 +137,8 @@ class _OrderDetailsState extends State<OrderDetails> {
             physics: ClampingScrollPhysics(),
             itemBuilder: (context, index)=>
                 _productTile(index, themeProvider, apiProvider,size),
-          )
+          ),
+          SizedBox(height: size.width*.04),
 
         ],
       ),
@@ -144,7 +165,7 @@ class _OrderDetailsState extends State<OrderDetails> {
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(5)),
                 child: CachedNetworkImage(
-                  imageUrl: 'https://baghmama.com.bd/images/user/57.png',
+                  imageUrl: apiProvider.orderInfoModel.content.products[index].productThumb,
                   placeholder: (context, url) => Image.asset('assets/placeholder.png'),
                   errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
                   height: size.width * .18,
@@ -167,7 +188,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
                   ///Name Container
                   Text(
-                    'Thi is product name',
+                    apiProvider.orderInfoModel.content.products[index].productName,
                     maxLines: 3,
                     style: TextStyle(
                         fontSize: size.width*.038,
@@ -203,7 +224,15 @@ class _OrderDetailsState extends State<OrderDetails> {
                       ):Container(),
                     ],
                   ),
-                  SizedBox(height: size.width*.01),
+                  SizedBox(height: size.width*.005),
+                  Text(
+                    'Quantity: ${apiProvider.orderInfoModel.content.products[index].productQuantity}',
+                    maxLines: 1,
+                    style: TextStyle(
+                        fontSize: size.width*.035,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w400),
+                  )
 
                   ///Price Row
                   // Row(

@@ -28,7 +28,7 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "bd.com.bagh_mama"
+        applicationId "bd.com.baghmama.bm"
         minSdkVersion 19
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()

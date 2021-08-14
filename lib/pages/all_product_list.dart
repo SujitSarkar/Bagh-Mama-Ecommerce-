@@ -82,7 +82,7 @@ class _AllProductListState extends State<AllProductList> {
               builder: (context, mode){
                 Widget bdy;
                 if(mode== LoadStatus.idle){
-                  bdy = Text("pull up load");
+                  bdy = Text("pull up to load");
                 }
                 else if(mode==LoadStatus.loading){
                   bdy =  Padding(
