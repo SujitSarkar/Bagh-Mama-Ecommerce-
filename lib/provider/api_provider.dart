@@ -457,7 +457,7 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Email': _xAuthEmail,
         },
         body: body
-    );
+     );
     if(response.statusCode==200){
       var jsonData = jsonDecode(response.body);
       return jsonData['content']['valid'];
@@ -907,7 +907,6 @@ class APIProvider extends ChangeNotifier{
       );
       if(response.statusCode==200){
         _orderInfoModel = orderInfoModelFromJson(response.body);
-        _orderInfoModel.content.orderSummery.totalCostWithoutDiscount;
         notifyListeners();
         return true;
       }else return false;

@@ -338,7 +338,6 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
                           });
                         }else showInfo('Write a reply');
                       }else Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
-
                     },
                     child:Icon(Icons.send,
                         size: size.width*.09,

@@ -21,7 +21,7 @@ void showSnackBar(BuildContext context,String message,ThemeProvider themeProvide
 }
 
  Widget threeBounce(ThemeProvider themeProvider){
-  return Image.asset('assets/loading_image.jpeg',height: 70,width: 70,);
+  return Image.asset('assets/bm_head.png',height: 70,width: 70,);
   // return SpinKitThreeBounce(
   //   color: themeProvider.fabToggleBgColor(),
   //   size: 35.0,
