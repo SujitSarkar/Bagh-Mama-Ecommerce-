@@ -46,8 +46,10 @@ class _OrderHistoryState extends State<OrderHistory> {
       SharedPreferences pref = await SharedPreferences.getInstance();
       await apiProvider.getUserInfo(pref.getString('username'));
     },
-    backgroundColor: Colors.white,
+    color: themeProvider.fabToggleBgColor(),
+    backgroundColor: themeProvider.togglePageBgColor(),
     child: ListView.builder(
+      physics: BouncingScrollPhysics(),
       itemCount: apiProvider.orderList.length,
       itemBuilder: (context, index)=>OrderHistoryTile(orderModel: apiProvider.orderList[index]),
     ),

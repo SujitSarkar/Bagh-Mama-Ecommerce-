@@ -46,7 +46,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
 
   void _customInit(APIProvider apiProvider, DatabaseHelper databaseHelper)async{
-    print('isCampaign: ${widget.isCampaign}');
+
     setState(()=> _counter++);
     _sharedPreferences = await SharedPreferences.getInstance();
     if(databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
@@ -129,7 +129,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               child: CachedNetworkImage(
                                 imageUrl: _productImage,
                                 placeholder: (context, url) => threeBounce(themeProvider),
-                                errorWidget: (context, url, error) => Image.asset('assets/placeholder.png',
+                                errorWidget: (context, url, error) => Image.asset('assets/logo_512.png',
                                     height: 70,
                                     width: 70,
                                     fit: BoxFit.cover),
@@ -210,6 +210,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   Widget _bodyUI(Size size, ThemeProvider themeProvider,APIProvider apiProvider)=> Container(
     padding: EdgeInsets.symmetric(horizontal: 10),
     child: SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -400,6 +401,7 @@ class _ProductDetailsState extends State<ProductDetails> {
             //padding: EdgeInsets.symmetric(horizontal: 10),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
+              physics: BouncingScrollPhysics(),
               itemCount: apiProvider.relatedProductModel.content.length,
               itemBuilder: (context, index)=>InkWell(
                   onTap: (){
@@ -463,7 +465,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text('Write Your Review',style: TextStyle(fontSize: size.width*.044)),
-                Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05,)
+                Icon(Icons.keyboard_arrow_right_outlined,size: size.width*.05)
               ],
             ),
             onPressed: (){

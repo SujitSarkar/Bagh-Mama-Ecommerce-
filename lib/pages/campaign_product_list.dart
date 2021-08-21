@@ -78,8 +78,7 @@ class _CampaignProductListState extends State<CampaignProductList> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10
         ),
-        shrinkWrap: true,
-        physics: ClampingScrollPhysics(),
+        physics: BouncingScrollPhysics(),
         itemCount: apiProvider.campaignProductModel.content.length,
         itemBuilder: (context, index){
           return InkWell(

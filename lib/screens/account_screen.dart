@@ -85,6 +85,7 @@ class _AccountScreenState extends State<AccountScreen> {
           ?Center(child: threeBounce(themeProvider))
           :Container(
         child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Column(
             children: [
 
@@ -202,7 +203,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     Divider(color: Colors.grey,height: 0.5),
                     pref.getString('username')!=null
                         ? _functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'Logout', FontAwesomeIcons.signOutAlt)
-                        :_functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'LogIn', FontAwesomeIcons.signInAlt),
+                        :_functionBuilder(apiProvider,themeProvider,databaseHelper, size, 'Account Create', FontAwesomeIcons.signInAlt),
                   ],
                 ),
               )
@@ -274,7 +275,7 @@ class _AccountScreenState extends State<AccountScreen> {
               MaterialPageRoute(builder: (context) => OrderHistory()));
           else if(name=='Notifications') Navigator.push(context,
               MaterialPageRoute(builder: (context) => NotificationList()));
-          else if(name=='LogIn') Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
+          else if(name=='Account Create') Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
 
           else if(name=='Logout') {
             showLoadingDialog('Logging Out...');

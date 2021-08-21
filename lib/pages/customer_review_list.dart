@@ -45,6 +45,7 @@ class _CustomerReviewListState extends State<CustomerReviewList> {
   }
 
   Widget _bodyUI(ThemeProvider themeProvider,APIProvider apiProvider, Size size)=> ListView(
+    physics: BouncingScrollPhysics(),
     children: [
       Container(
         padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),

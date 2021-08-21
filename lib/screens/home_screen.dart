@@ -196,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
              ),
               //indicatorColor: Colors.green,
               indicatorSize: TabBarIndicatorSize.label,
+              physics: BouncingScrollPhysics(),
               tabs: PublicData.categoryWidgetList(apiProvider,themeProvider),
             ):PreferredSize(
                 child: Container(), preferredSize: Size.fromHeight(50.0)),
@@ -215,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   decoration: BoxDecoration(
                       //borderRadius: BorderRadius.all(Radius.circular(40)),
                       image: DecorationImage(
-                        image: AssetImage('assets/bm_head.png'),
+                        image: AssetImage('assets/logo_512.png'),
                         fit: BoxFit.fitWidth,
                       )
                   ),
@@ -230,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         decoration: BoxDecoration(
                             //borderRadius: BorderRadius.all(Radius.circular(40)),
                             image: DecorationImage(
-                                image: AssetImage('assets/bm_head.png'),
+                                image: AssetImage('assets/logo_512.png'),
                                 fit: BoxFit.fitWidth
                             )
                         ),
@@ -260,31 +261,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ?Center(child: threeBounce(themeProvider))
           :Container(
     color: themeProvider.togglePageBgColor(),
-    child: RefreshIndicator(
-      color: themeProvider.fabToggleBgColor(),
-      backgroundColor: themeProvider.togglePageBgColor(),
-      onRefresh: ()async{
-        await apiProvider.getNewArrivalProducts({"product_limit":51,"sort":"2"});
-        await apiProvider.getPopularProducts({"product_limit":51,"sort":"1"});
-        await apiProvider.getAllProducts({"product_limit":51});
+    child: NotificationListener(
+      onNotification: (scrollNotification) {
+        if (_scrollController.position.userScrollDirection ==
+            ScrollDirection.reverse) {
+          setState(() {
+            position =Offset(320, 356);
+          });
+        } else if (_scrollController.position.userScrollDirection ==
+            ScrollDirection.forward) {
+          setState(() {
+            position =Offset(285, 356);
+          });
+        }
+        return true;
       },
-      child: NotificationListener(
-        onNotification: (scrollNotification) {
-          if (_scrollController.position.userScrollDirection ==
-              ScrollDirection.reverse) {
-            setState(() {
-              position =Offset(320, 356);
-            });
-          } else if (_scrollController.position.userScrollDirection ==
-              ScrollDirection.forward) {
-            setState(() {
-              position =Offset(285, 356);
-            });
-          }
-          return true;
+      child: RefreshIndicator(
+        color: themeProvider.fabToggleBgColor(),
+        backgroundColor: themeProvider.togglePageBgColor(),
+        onRefresh: ()async{
+          await apiProvider.getNewArrivalProducts({"product_limit":51,"sort":"2"});
+          await apiProvider.getPopularProducts({"product_limit":51,"sort":"1"});
+          await apiProvider.getAllProducts({"product_limit":51});
         },
         child: ListView(
           controller: _scrollController,
+          physics: BouncingScrollPhysics(),
           children: [
             SizedBox(height: size.width*.04),
             ///Image Slider
@@ -295,8 +297,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               decoration: BoxDecoration(
                   color: Colors.white,
                 image: DecorationImage(
-                  image: AssetImage('assets/placeholder.png'),
-                  fit: BoxFit.cover
+                  image: AssetImage('assets/logo_512.png'),
+                  fit: BoxFit.contain
                 )
               ),
               child: Carousel(
@@ -359,7 +361,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ):Center(child: Text('No Product !',
                 style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.04))),
             SizedBox(height: size.width*.08),
-
 
             ///Popular Products
             Container(
@@ -475,6 +476,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     },
     child: ListView(
       controller: _scrollController,
+      physics: BouncingScrollPhysics(),
       children: [
         SizedBox(height: size.width*.05),
         ///Subcategory Section
@@ -483,6 +485,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           width: size.width,
           padding: EdgeInsets.symmetric(horizontal: 10),
           child: ListView.builder(
+            physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemCount: apiProvider.subCategoryList.length,
             itemBuilder: (context, index)=>InkWell(
@@ -519,7 +522,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               child: Text('No Product',style: TextStyle(color: themeProvider.toggleTextColor())),
             ))
             : Container(
-          // height: size.height,
           color: themeProvider.togglePageBgColor(),
           padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           child: GridView.builder(
@@ -530,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 mainAxisSpacing: 10
           ),
             shrinkWrap: true,
-            physics: ClampingScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             itemCount: apiProvider.categoryProductModel.content.length,
             itemBuilder: (context, index){
                 return InkWell(

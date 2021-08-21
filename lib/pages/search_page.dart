@@ -111,8 +111,7 @@ class _SearchPageState extends State<SearchPage> {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10
       ),
-      shrinkWrap: true,
-      physics: ClampingScrollPhysics(),
+      physics: BouncingScrollPhysics(),
       itemCount: apiProvider.categoryProductModel.content.length,
       itemBuilder: (context, index){
         return InkWell(

@@ -39,6 +39,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
         child: Container(
           color: themeProvider.whiteBlackToggleColor(),
           child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
             child: Column(
               children: [
                 ///Body

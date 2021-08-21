@@ -58,6 +58,7 @@ class _CampaignsListPageState extends State<CampaignsListPage> {
               await apiProvider.getCampaignsDate();
             },
             child: ListView.builder(
+              physics: BouncingScrollPhysics(),
               itemCount: apiProvider.campaignsDateModel.content.length,
               itemBuilder: (context, index)=>InkWell(
                   onTap: (){

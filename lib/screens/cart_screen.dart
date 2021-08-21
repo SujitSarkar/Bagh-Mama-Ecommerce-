@@ -83,6 +83,7 @@ class _CartScreenState extends State<CartScreen> {
         fontSize: size.width*.045
       )))
           :ListView(
+        physics: BouncingScrollPhysics(),
     children: [
       ListView.builder(
         physics: ClampingScrollPhysics(),
@@ -93,6 +94,7 @@ class _CartScreenState extends State<CartScreen> {
               onTap: (){
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                   productId: int.parse(databaseHelper.cartList[index].pId),
+                  isCampaign: false,
                   //categoryId: apiProvider.categoryProductModel.content[index].categoryId,
                 )));
               },
@@ -299,17 +301,17 @@ class _CartScreenState extends State<CartScreen> {
                 width: size.width * .3,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(5)),
-                  color: Colors.grey,
+                  color: Colors.white,
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   child: CachedNetworkImage(
                     imageUrl: databaseHelper.cartList[index].pImageLink,
-                    placeholder: (context, url) => Image.asset('assets/placeholder.png'),
+                    placeholder: (context, url) => Image.asset('assets/logo_512.png'),
                     errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
                     height: size.width * .18,
                     width: size.width * .18,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),

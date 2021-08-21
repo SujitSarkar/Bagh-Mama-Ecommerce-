@@ -37,11 +37,11 @@ class ProductTile extends StatelessWidget {
                   ),
                   child: CachedNetworkImage(
                     imageUrl: productsModel.content[index].thumbnailImage,
-                    placeholder: (context, url) => Image.asset('assets/placeholder.png',
+                    placeholder: (context, url) => Image.asset('assets/logo_512.png',
                       width: size.width * .5,
                       height: size.width*.22,
                       fit: BoxFit.cover),
-                    errorWidget: (context, url, error) => Image.asset('assets/placeholder.png',
+                    errorWidget: (context, url, error) => Image.asset('assets/logo_512.png',
                         width: size.width * .5,
                         height: size.width*.22,
                         fit: BoxFit.cover),

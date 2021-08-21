@@ -96,6 +96,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
 
   Widget _bodyUI(ThemeProvider themeProvider,APIProvider apiProvider,DatabaseHelper databaseHelper, Size size) =>
       SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: size.width * .03),
           child: Column(

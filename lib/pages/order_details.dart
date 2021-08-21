@@ -63,6 +63,7 @@ class _OrderDetailsState extends State<OrderDetails> {
     );
   }
   Widget _bodyUI(ThemeProvider themeProvider, APIProvider apiProvider, Size size)=>SingleChildScrollView(
+    physics: BouncingScrollPhysics(),
     child: Container(
       padding: EdgeInsets.symmetric(horizontal: size.width*.03,vertical: size.width*.03),
       child: Column(
@@ -160,17 +161,17 @@ class _OrderDetailsState extends State<OrderDetails> {
               width: size.width * .25,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5)),
-                color: Colors.grey,
+                color: Colors.white,
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(5)),
                 child: CachedNetworkImage(
                   imageUrl: apiProvider.orderInfoModel.content.products[index].productThumb,
-                  placeholder: (context, url) => Image.asset('assets/placeholder.png'),
+                  placeholder: (context, url) => Image.asset('assets/logo_512.png'),
                   errorWidget: (context, url, error) => Icon(Icons.error,color: Colors.grey),
                   height: size.width * .18,
                   width: size.width * .18,
-                  fit: BoxFit.fill,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
@@ -188,7 +189,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
                   ///Name Container
                   Text(
-                    apiProvider.orderInfoModel.content.products[index].productName,
+                    '${apiProvider.orderInfoModel.content.products[index].productName}',
                     maxLines: 3,
                     style: TextStyle(
                         fontSize: size.width*.038,

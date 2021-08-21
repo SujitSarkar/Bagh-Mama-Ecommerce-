@@ -1,7 +1,6 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 void showSnackBar(BuildContext context,String message,ThemeProvider themeProvider){
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -21,7 +20,7 @@ void showSnackBar(BuildContext context,String message,ThemeProvider themeProvide
 }
 
  Widget threeBounce(ThemeProvider themeProvider){
-  return Image.asset('assets/bm_head.png',height: 70,width: 70,);
+  return Image.asset('assets/logo_512.png',height: 70,width: 70,);
   // return SpinKitThreeBounce(
   //   color: themeProvider.fabToggleBgColor(),
   //   size: 35.0,

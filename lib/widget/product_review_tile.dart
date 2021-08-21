@@ -3,6 +3,7 @@ import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
@@ -75,10 +76,10 @@ class ProductReviewTile extends StatelessWidget {
                     ),
                     SizedBox(height: 3),
                     Text(
-                      apiProvider.productReviewList[index].date,
+                      apiProvider.productReviewList[index].date.toString(),
                       maxLines: 2,
                       style: TextStyle(
-                          fontSize:  size.width*.034, color: Colors.grey[600]),
+                          fontSize:  size.width*.03, color: Colors.grey[600]),
                     )
                   ],
                 ),

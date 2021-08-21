@@ -34,6 +34,7 @@ class ComplainPage extends StatelessWidget {
 
   Widget _bodyUI(ThemeProvider themeProvider, Size size, BuildContext context) =>
       SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: size.width * .03),
           child: Column(

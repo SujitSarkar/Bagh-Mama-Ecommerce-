@@ -56,6 +56,7 @@ class _NotificationListState extends State<NotificationList> {
   }
 
   _bodyUI(ThemeProvider themeProvider,APIProvider apiProvider, Size size)=>ListView.builder(
+    physics: BouncingScrollPhysics(),
     itemCount: apiProvider.notificationList.length,
     itemBuilder: (context, index)=>InkWell(
       child: Container(

@@ -67,6 +67,7 @@ class _WishListPageState extends State<WishListPage> {
           fontSize: size.width*.045
       )))
           :ListView.builder(
+        physics: BouncingScrollPhysics(),
     itemCount: apiProvider.wishList.length,
     itemBuilder: (context,index)=>_wishListCartTile(themeProvider, apiProvider, size, index),
   );
@@ -88,20 +89,20 @@ class _WishListPageState extends State<WishListPage> {
                 decoration: BoxDecoration(
                   //color: Colors.red,
                   borderRadius: BorderRadius.all(Radius.circular(5)),
-                  color: Colors.grey,
+                  color: Colors.white,
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   child: CachedNetworkImage(
                     imageUrl: apiProvider.wishList[index].pImageLink,
-                    placeholder: (context, url) => Image.asset('assets/placeholder.png',
+                    placeholder: (context, url) => Image.asset('assets/logo_512.png',
                       height: size.width * .3,
                       width: size.width * .3,
-                      fit: BoxFit.cover,),
+                      fit: BoxFit.cover),
                     errorWidget: (context, url, error) => Icon(Icons.error),
                     height: size.width * .18,
                     width: size.width * .18,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),

@@ -62,6 +62,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               width: size.width * .24,
               color: themeProvider.whiteBlackToggleColor(),
               child:ListView.builder(
+                physics: BouncingScrollPhysics(),
                 itemCount: apiProvider.mainCategoryList.length,
                 itemBuilder: (context, index) {
                  return InkWell(
@@ -94,7 +95,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               width: size.width * .74,
               //color: themeProvider.whiteBlackToggleColor(),
               child: GridView.builder(
-                  physics: ClampingScrollPhysics(),
+                  physics: BouncingScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     childAspectRatio: 1.1,

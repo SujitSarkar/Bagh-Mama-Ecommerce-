@@ -4,6 +4,7 @@ import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -49,6 +50,7 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
   }
 
   Widget _bodyUI(ThemeProvider themeProvider,APIProvider apiProvider, Size size)=>ListView(
+    physics: BouncingScrollPhysics(),
     children: [
   Container(
   height: size.width*.12,
@@ -193,11 +195,11 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
                     ),
                     SizedBox(height: 3),
                     Text(
-                      apiProvider.productQuestionList[index].date.toString(),
+                        DateFormat('dd-MMM-yyyy – hh:mm aa').format(apiProvider.productQuestionList[index].date),
                       maxLines: 2,
                       style: TextStyle(
-                          fontSize:  size.width*.034, color: Colors.grey[600]),
-                    )
+                          fontSize:  size.width*.03, color: Colors.grey[600]),
+                    ),
                   ],
                 ),
               ),
@@ -257,10 +259,10 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
                           ),
                           SizedBox(height: 3),
                           Text(
-                            apiProvider.productQuestionList[index].replies[ind].date.toString(),
+                            DateFormat('dd-MMM-yyyy – hh:mm aa').format(apiProvider.productQuestionList[index].replies[ind].date),
                             maxLines: 2,
                             style: TextStyle(
-                                fontSize:  size.width*.034, color: Colors.grey[600]),
+                                fontSize:  size.width*.03, color: Colors.grey[600]),
                           ),
                           ExpandableText(
                             apiProvider.productQuestionList[index].replies[ind].qusText,

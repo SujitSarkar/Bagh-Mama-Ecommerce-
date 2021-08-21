@@ -66,13 +66,13 @@ class OrderHistoryTile extends StatelessWidget {
                 ),
                 borderRadius:BorderRadius.all(Radius.circular(5)),
               ),
-              InkWell(
-                child: Padding(
-                  padding:  EdgeInsets.symmetric(vertical: 5),
-                  child: Text('Cancel Order',style: TextStyle(color: Colors.grey,fontSize: size.width*.035),),
-                ),
-                onTap: (){},
-              )
+              // InkWell(
+              //   child: Padding(
+              //     padding:  EdgeInsets.symmetric(vertical: 5),
+              //     child: Text('Cancel Order',style: TextStyle(color: Colors.grey,fontSize: size.width*.035),),
+              //   ),
+              //   onTap: (){},
+              // )
             ],
           )
         ],

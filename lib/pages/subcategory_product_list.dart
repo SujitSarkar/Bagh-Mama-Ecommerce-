@@ -140,8 +140,8 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10
       ),
-      shrinkWrap: true,
-      physics: ClampingScrollPhysics(),
+      //shrinkWrap: true,
+      physics: BouncingScrollPhysics(),
       itemCount: apiProvider.categoryProductModel.content.length,
       itemBuilder: (context, index){
         return InkWell(
@@ -149,6 +149,7 @@ class _SubcategoryProductListState extends State<SubcategoryProductList> {
               Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
                 productId: apiProvider.categoryProductModel.content[index].id,
                 categoryId: apiProvider.categoryProductModel.content[index].categoryId,
+                isCampaign: false,
               )));
             },
             child: ProductCartTile(index: index,productsModel: apiProvider.categoryProductModel));

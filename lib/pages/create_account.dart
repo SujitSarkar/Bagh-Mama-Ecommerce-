@@ -71,6 +71,7 @@ class _CreateAccountState extends State<CreateAccount> {
   }
 
   Widget _bodyUI(ThemeProvider themeProvider,APIProvider apiProvider, Size size) => SingleChildScrollView(
+    physics: BouncingScrollPhysics(),
     child: Container(
       margin: EdgeInsets.symmetric(horizontal: size.width*.03),
       child: Column(
