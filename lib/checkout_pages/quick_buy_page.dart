@@ -1,3 +1,4 @@
+import 'package:bagh_mama/checkout_pages/nagad_payment_webview.dart';
 import 'package:bagh_mama/models/shipping_location_model.dart';
 import 'package:bagh_mama/models/shipping_methods_model.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
@@ -323,53 +324,6 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
                   ],
                 ),
               ),
-
-              ///Shipping Location
-              // _isLoading1
-              //     ?Center(child: threeBounce(themeProvider))
-              //     :Container(
-              //   padding: EdgeInsets.symmetric(vertical: size.width*.01,horizontal: size.width*.03),
-              //   decoration: BoxDecoration(
-              //       border: Border.all(color: Colors.grey,width: 1),
-              //       borderRadius: BorderRadius.all(Radius.circular(5))
-              //   ),
-              //   child: DropdownButtonHideUnderline(
-              //     child: DropdownButton<ShippingLocationModel>(
-              //       value: _shippingLocation,
-              //       isExpanded: true,
-              //       hint: Text("Select Delivery Location",style: TextStyle(
-              //           color: Colors.grey,
-              //           fontSize: size.width*.04)),
-              //       onChanged: (value)async{
-              //         setState((){
-              //           _shippingLocation = value;
-              //           _isLoading2=true;
-              //           _shippingMethod=null;
-              //         });
-              //         Map map;
-              //         if(widget.isCampaign){
-              //           map = {"location":"${_shippingLocation.status}","campaigns": true};
-              //         }else{
-              //           map = {"location":"${_shippingLocation.status}"};
-              //         }
-              //         apiProvider.getShippingMethods(map).then((value){
-              //           setState((){
-              //             _isLoading2=false;
-              //           });
-              //         });
-              //       },
-              //       dropdownColor: themeProvider.whiteBlackToggleColor(),
-              //       items: apiProvider.shippingLocationList
-              //           .map<DropdownMenuItem<ShippingLocationModel>>((ShippingLocationModel model){
-              //         return DropdownMenuItem<ShippingLocationModel>(
-              //           value: model,
-              //           child: Text('${model.city}',
-              //               style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.04)),
-              //         );
-              //       }).toList(),
-              //     ),
-              //   ),
-              // ),
               SizedBox(height: size.width * .04),
 
               ///Shipping Methods
@@ -513,7 +467,29 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
                   ),
                 ],
               ),
-              _radioTileBuilder(2, 'Cash On Delivery', themeProvider, size),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Radio(
+                    fillColor: MaterialStateProperty.all(
+                        themeProvider.orangeWhiteToggleColor()),
+                    value: 2,
+                    groupValue: _paymentRadioValue,
+                    onChanged: (int change) {
+                      setState(() {
+                        _paymentRadioValue = change;
+                        print('$_paymentRadioValue');
+                      });
+                    },
+                  ),
+                  Image.asset(
+                    'assets/nagad.png',
+                    height: 30,
+                  ),
+                ],
+              ),
+              _radioTileBuilder(3, 'Cash On Delivery', themeProvider, size),
               SizedBox(height: size.width * .07),
 
               ElevatedButton(
@@ -530,8 +506,10 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
                           showInfo('Select Payment Option');
                         else {
                           if (_paymentRadioValue == 1)
-                            _playNow(apiProvider);
-                          else if (_paymentRadioValue == 2)
+                            _paySSLCommerz(apiProvider);
+                          else if(_paymentRadioValue==2)
+                            _payNagad(apiProvider);
+                          else if (_paymentRadioValue == 3)
                             placeOrder(apiProvider);
                         }
                       } else
@@ -617,7 +595,7 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
         child: richText,
       );
 
-  Future<void> _playNow(APIProvider apiProvider) async {
+  Future<void> _paySSLCommerz(APIProvider apiProvider) async {
     Sslcommerz sslcommerz = Sslcommerz(
         initializer: SSLCommerzInitialization(
             //Use the ipn if you have valid one, or it will fail the transaction.
@@ -689,12 +667,35 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
     }
   }
 
+  Future<void> _payNagad(APIProvider apiProvider)async{
+    showLoadingDialog('Please wait');
+    Map map={
+      "payment_amount":  totalPrice
+    };
+    await apiProvider.initNagadPayment(map).then((value)async{
+      if(value){
+        closeLoadingDialog();
+        print(apiProvider.initNagadModel.content.redirectUrl);
+        bool result =await Navigator.push(context, MaterialPageRoute(builder: (context)=>
+            NagadPaymentWebView(initUrl: apiProvider.initNagadModel.content.redirectUrl)));
+
+        print(result);
+        // print(apiProvider.initNagadModel.content.paymentRefId);
+        // print(apiProvider.initNagadModel.content.redirectUrl);
+      }
+      else{
+        closeLoadingDialog();
+        print('Failed! Try again');
+      }
+    });
+  }
+
   void placeOrder(APIProvider apiProvider,
       {SSLCTransactionInfoModel model}) async {
     showLoadingDialog('Ordering...');
-    var sslResponseArray;
+    var paymentResponseObject;
     if (model != null) {
-      sslResponseArray =
+      paymentResponseObject =
         {
           "status": model.status,
           "error": "",
@@ -714,7 +715,7 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
           "value_a": model.valueA
         };
     } else {
-      sslResponseArray = '';
+      paymentResponseObject = '';
     }
     Map map = {
       "fullName": _name.text,
@@ -734,7 +735,7 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
           "q": productQuantity.toString()
         }
       ],
-      "gatewayResponse": sslResponseArray,
+      "gatewayResponse": paymentResponseObject,
       "pmntMethod": _paymentRadioValue == 1 ? 'SSLCommerz' : 'Cash On Delivery',
       "pmntAmount": totalPrice.toString(),
       "pmntCurrency": "BDT"

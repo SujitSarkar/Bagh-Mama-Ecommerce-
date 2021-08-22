@@ -6,6 +6,7 @@ import 'package:bagh_mama/models/campaigns_date_model.dart';
 import 'package:bagh_mama/models/category_product_model.dart';
 import 'package:bagh_mama/models/coupon_discount_model.dart';
 import 'package:bagh_mama/models/create_support_ticket_model.dart';
+import 'package:bagh_mama/models/init_nagad_model.dart';
 import 'package:bagh_mama/models/new_arrival_products_model.dart';
 import 'package:bagh_mama/models/order_info_model.dart';
 import 'package:bagh_mama/models/order_model.dart';
@@ -21,7 +22,6 @@ import 'package:bagh_mama/models/user_info_model.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -64,6 +64,7 @@ class APIProvider extends ChangeNotifier{
   CampaignsDateModel _campaignsDateModel;
   OrderInfoModel _orderInfoModel;
   CampaignProductModel _campaignProductModel;
+  InitNagadModel _initNagadModel;
 
   get selectedIndex => _selectedIndex;
   get bannerImageList => _bannerImageList;
@@ -95,6 +96,7 @@ class APIProvider extends ChangeNotifier{
   get campaignsDateModel=>_campaignsDateModel;
   get orderInfoModel=>_orderInfoModel;
   get campaignProductModel=>_campaignProductModel;
+  get initNagadModel=> _initNagadModel;
 
   set userInfoModel(UserInfoModel value){
     _userInfoModel = value;
@@ -947,6 +949,30 @@ class APIProvider extends ChangeNotifier{
       );
       if(response.statusCode==200){
         _campaignProductModel = campaignProductModelFromJson(response.body);
+        notifyListeners();
+        return true;
+      }else return false;
+
+    }on SocketException{
+      showInfo('No Internet Connection !');
+      return false;
+    }
+  }
+
+  Future<bool> initNagadPayment(Map map)async{
+    try{
+      var body = jsonEncode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/nagadPaymentInit'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail
+          },
+          body: body
+      );
+      if(response.statusCode==200){
+        _initNagadModel = initNagadModelFromJson(response.body);
         notifyListeners();
         return true;
       }else return false;
