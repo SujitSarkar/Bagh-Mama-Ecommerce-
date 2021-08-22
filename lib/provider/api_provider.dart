@@ -7,6 +7,7 @@ import 'package:bagh_mama/models/category_product_model.dart';
 import 'package:bagh_mama/models/coupon_discount_model.dart';
 import 'package:bagh_mama/models/create_support_ticket_model.dart';
 import 'package:bagh_mama/models/init_nagad_model.dart';
+import 'package:bagh_mama/models/nagad_payment_model.dart';
 import 'package:bagh_mama/models/new_arrival_products_model.dart';
 import 'package:bagh_mama/models/order_info_model.dart';
 import 'package:bagh_mama/models/order_model.dart';
@@ -65,6 +66,7 @@ class APIProvider extends ChangeNotifier{
   OrderInfoModel _orderInfoModel;
   CampaignProductModel _campaignProductModel;
   InitNagadModel _initNagadModel;
+  NagadPaymentModel _nagadPaymentModel;
 
   get selectedIndex => _selectedIndex;
   get bannerImageList => _bannerImageList;
@@ -97,6 +99,7 @@ class APIProvider extends ChangeNotifier{
   get orderInfoModel=>_orderInfoModel;
   get campaignProductModel=>_campaignProductModel;
   get initNagadModel=> _initNagadModel;
+  get nagadPaymentModel=> _nagadPaymentModel;
 
   set userInfoModel(UserInfoModel value){
     _userInfoModel = value;
@@ -973,6 +976,31 @@ class APIProvider extends ChangeNotifier{
       );
       if(response.statusCode==200){
         _initNagadModel = initNagadModelFromJson(response.body);
+        notifyListeners();
+        return true;
+      }else return false;
+
+    }on SocketException{
+      showInfo('No Internet Connection !');
+      return false;
+    }
+  }
+
+  Future<bool> nagadPaymentCheck(Map map)async{
+    try{
+      var body = jsonEncode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/nagadPaymentCheck'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail
+          },
+          body: body
+      );
+      if(response.statusCode==200){
+        _nagadPaymentModel = nagadPaymentModelFromJson(response.body);
+        _nagadPaymentModel.content.status;
         notifyListeners();
         return true;
       }else return false;

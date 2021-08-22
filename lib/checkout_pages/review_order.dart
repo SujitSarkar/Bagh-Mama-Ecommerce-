@@ -1,4 +1,5 @@
 import 'package:bagh_mama/models/cart_model.dart';
+import 'package:bagh_mama/models/nagad_payment_model.dart';
 import 'package:bagh_mama/models/shipping_methods_model.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/sqlite_database_helper.dart';
@@ -21,6 +22,8 @@ import 'package:flutter_sslcommerz/model/sslproductinitilizer/SSLCProductInitial
 import 'package:flutter_sslcommerz/sslcommerz.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'nagad_payment_webview.dart';
 
 // ignore: must_be_immutable
 class ReviewOrder extends StatefulWidget {
@@ -194,6 +197,8 @@ class _ReviewOrderState extends State<ReviewOrder> {
                 ),
               )),
               SizedBox(height: size.width * .04),
+
+              ///SSL Commerz Radio
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -213,7 +218,30 @@ class _ReviewOrderState extends State<ReviewOrder> {
                   Image.asset('assets/ssl_commerz.png',height: 30,),
                 ],
               ),
-              _radioTileBuilder(2, 'Cash On Delivery', themeProvider, size),
+              ///Nagad Radio
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Radio(
+                    fillColor: MaterialStateProperty.all(
+                        themeProvider.orangeWhiteToggleColor()),
+                    value: 2,
+                    groupValue: _paymentRadioValue,
+                    onChanged: (int change) {
+                      setState(() {
+                        _paymentRadioValue = change;
+                        print('$_paymentRadioValue');
+                      });
+                    },
+                  ),
+                  Image.asset(
+                    'assets/nagad.png',
+                    height: 30,
+                  ),
+                ],
+              ),
+              _radioTileBuilder(3, 'Cash On Delivery', themeProvider, size),
               SizedBox(height: size.width * .07),
 
               ElevatedButton(
@@ -223,8 +251,9 @@ class _ReviewOrderState extends State<ReviewOrder> {
                   onPressed: (){
                     if(_paymentRadioValue==0)showInfo('Select Payment Option');
                     else{
-                      if(_paymentRadioValue==1) _playNow(apiProvider, databaseHelper);
-                      if(_paymentRadioValue==2) placeOrder(apiProvider, databaseHelper);
+                      if(_paymentRadioValue==1) _paySSlCommerzNow(apiProvider, databaseHelper);
+                      if(_paymentRadioValue==2) _payNagad(apiProvider, databaseHelper);
+                      if(_paymentRadioValue==3) placeOrder(apiProvider, databaseHelper);
                     }
                   },
                   child: Container(
@@ -280,7 +309,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
         child: richText,
       );
 
-  Future<void> _playNow(APIProvider apiProvider, DatabaseHelper databaseHelper) async {
+  Future<void> _paySSlCommerzNow(APIProvider apiProvider, DatabaseHelper databaseHelper) async {
     Sslcommerz sslcommerz = Sslcommerz(
         initializer: SSLCommerzInitialization(
           //Use the ipn if you have valid one, or it will fail the transaction.
@@ -353,7 +382,41 @@ class _ReviewOrderState extends State<ReviewOrder> {
     }
   }
 
-  void placeOrder(APIProvider apiProvider, DatabaseHelper databaseHelper,{SSLCTransactionInfoModel model})async{
+  Future<void> _payNagad(APIProvider apiProvider, DatabaseHelper databaseHelper)async{
+    showLoadingDialog('Please wait');
+    Map map={
+      "payment_amount":  double.parse(totalWithDeliveryCost)
+    };
+    await apiProvider.initNagadPayment(map).then((value)async{
+      if(value){
+        closeLoadingDialog();
+        print(apiProvider.initNagadModel.content.redirectUrl);
+        bool result =await Navigator.push(context, MaterialPageRoute(builder: (context)=>
+            NagadPaymentWebView(initUrl: apiProvider.initNagadModel.content.redirectUrl)));
+
+        if(result==true){
+          showLoadingDialog('Please wait');
+          Map map={ "payment_ref_id":apiProvider.initNagadModel.content.paymentRefId};
+          await apiProvider.nagadPaymentCheck(map).then((value){
+            closeLoadingDialog();
+            if(apiProvider.nagadPaymentModel.content.status.toLowerCase()=='success'){
+              placeOrder(apiProvider, databaseHelper, nagadPaymentModel: apiProvider.nagadPaymentModel);
+            }
+          });
+        }
+        if(result==false){
+          showInfo('Incomplete Payment');
+        }
+      }
+      else{
+        closeLoadingDialog();
+        print('Failed! Try again');
+      }
+    });
+  }
+
+  void placeOrder(APIProvider apiProvider, DatabaseHelper databaseHelper,
+      {SSLCTransactionInfoModel model,NagadPaymentModel nagadPaymentModel})async{
     showLoadingDialog('Ordering...');
 
     var _orderingProductList=[];
@@ -366,9 +429,9 @@ class _ReviewOrderState extends State<ReviewOrder> {
       };
       _orderingProductList.add(map);
     });
-    var sslResponseArray;
-    if (model != null) {
-      sslResponseArray =
+    var paymentResponseObject;
+    if (model != null && nagadPaymentModel==null) {
+      paymentResponseObject =
       {
         "status": model.status,
         "error": "",
@@ -387,8 +450,27 @@ class _ReviewOrderState extends State<ReviewOrder> {
         "currency_amount": model.currencyAmount,
         "value_a": model.valueA
       };
-    } else {
-      sslResponseArray = '';
+    }
+    else if(model == null && nagadPaymentModel!=null){
+      paymentResponseObject={
+        "merchantId": nagadPaymentModel.content.merchantId,
+        "orderId": nagadPaymentModel.content.orderId,
+        "paymentRefId": nagadPaymentModel.content.paymentRefId,
+        "amount": nagadPaymentModel.content.amount,
+        "clientMobileNo": nagadPaymentModel.content.clientMobileNo,
+        "merchantMobileNo": nagadPaymentModel.content.merchantMobileNo,
+        "orderDateTime": nagadPaymentModel.content.orderDateTime,
+        "issuerPaymentDateTime": nagadPaymentModel.content.issuerPaymentDateTime,
+        "issuerPaymentRefNo": nagadPaymentModel.content.issuerPaymentRefNo,
+        "additionalMerchantInfo": nagadPaymentModel.content.additionalMerchantInfo,
+        "status": nagadPaymentModel.content.status,
+        "statusCode": nagadPaymentModel.content.statusCode,
+        "cancelIssuerDateTime": nagadPaymentModel.content.cancelIssuerDateTime,
+        "cancelIssuerRefNo": nagadPaymentModel.content.cancelIssuerRefNo
+      };
+    }
+    else {
+      paymentResponseObject = '';
     }
     Map map ={
       "fullName": widget.name,
@@ -401,8 +483,11 @@ class _ReviewOrderState extends State<ReviewOrder> {
       "shippingAddress": widget.address,
       "orderLocation": widget.shippingMethod.location,
       "products": _orderingProductList,
-      "gatewayResponse": sslResponseArray,
-      "pmntMethod": _paymentRadioValue == 1 ? 'SSLCommerz' : 'Cash On Delivery',
+      "gatewayResponse": paymentResponseObject,
+      "pmntMethod": _paymentRadioValue == 1
+          ? 'SSLCommerz'
+          : _paymentRadioValue == 2 ?'Nagad'
+          : 'Cash On Delivery',
       "pmntAmount":"$totalWithDeliveryCost",
       "pmntCurrency":"BDT"
     };

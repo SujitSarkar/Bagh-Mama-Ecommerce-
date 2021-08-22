@@ -1,4 +1,5 @@
 import 'package:bagh_mama/checkout_pages/nagad_payment_webview.dart';
+import 'package:bagh_mama/models/nagad_payment_model.dart';
 import 'package:bagh_mama/models/shipping_location_model.dart';
 import 'package:bagh_mama/models/shipping_methods_model.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
@@ -679,9 +680,19 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
         bool result =await Navigator.push(context, MaterialPageRoute(builder: (context)=>
             NagadPaymentWebView(initUrl: apiProvider.initNagadModel.content.redirectUrl)));
 
-        print(result);
-        // print(apiProvider.initNagadModel.content.paymentRefId);
-        // print(apiProvider.initNagadModel.content.redirectUrl);
+        if(result==true){
+          showLoadingDialog('Please wait');
+          Map map={ "payment_ref_id":apiProvider.initNagadModel.content.paymentRefId};
+          await apiProvider.nagadPaymentCheck(map).then((value){
+            closeLoadingDialog();
+            if(apiProvider.nagadPaymentModel.content.status.toLowerCase()=='success'){
+              placeOrder(apiProvider, nagadPaymentModel: apiProvider.nagadPaymentModel);
+            }
+          });
+        }
+        if(result==false){
+          showInfo('Incomplete Payment');
+        }
       }
       else{
         closeLoadingDialog();
@@ -691,10 +702,10 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
   }
 
   void placeOrder(APIProvider apiProvider,
-      {SSLCTransactionInfoModel model}) async {
+      {SSLCTransactionInfoModel model, NagadPaymentModel nagadPaymentModel}) async {
     showLoadingDialog('Ordering...');
     var paymentResponseObject;
-    if (model != null) {
+    if (model != null && nagadPaymentModel==null) {
       paymentResponseObject =
         {
           "status": model.status,
@@ -714,7 +725,26 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
           "currency_amount": model.currencyAmount,
           "value_a": model.valueA
         };
-    } else {
+    }
+    else if(model == null && nagadPaymentModel!=null){
+      paymentResponseObject={
+        "merchantId": nagadPaymentModel.content.merchantId,
+        "orderId": nagadPaymentModel.content.orderId,
+        "paymentRefId": nagadPaymentModel.content.paymentRefId,
+        "amount": nagadPaymentModel.content.amount,
+        "clientMobileNo": nagadPaymentModel.content.clientMobileNo,
+        "merchantMobileNo": nagadPaymentModel.content.merchantMobileNo,
+        "orderDateTime": nagadPaymentModel.content.orderDateTime,
+        "issuerPaymentDateTime": nagadPaymentModel.content.issuerPaymentDateTime,
+        "issuerPaymentRefNo": nagadPaymentModel.content.issuerPaymentRefNo,
+        "additionalMerchantInfo": nagadPaymentModel.content.additionalMerchantInfo,
+        "status": nagadPaymentModel.content.status,
+        "statusCode": nagadPaymentModel.content.statusCode,
+        "cancelIssuerDateTime": nagadPaymentModel.content.cancelIssuerDateTime,
+        "cancelIssuerRefNo": nagadPaymentModel.content.cancelIssuerRefNo
+      };
+    }
+    else {
       paymentResponseObject = '';
     }
     Map map = {
@@ -736,7 +766,11 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
         }
       ],
       "gatewayResponse": paymentResponseObject,
-      "pmntMethod": _paymentRadioValue == 1 ? 'SSLCommerz' : 'Cash On Delivery',
+      "pmntMethod": _paymentRadioValue == 1
+          ? 'SSLCommerz'
+          : _paymentRadioValue == 2
+          ? 'Nagad'
+          : 'Cash On Delivery',
       "pmntAmount": totalPrice.toString(),
       "pmntCurrency": "BDT"
     };

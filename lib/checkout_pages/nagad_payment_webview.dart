@@ -14,13 +14,17 @@ class NagadPaymentWebView extends StatefulWidget {
 class _NagadPaymentWebViewState extends State<NagadPaymentWebView> {
   double progress = 0;
 
+  _backPressed()async{
+    Navigator.pop(context,false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
 
     return WillPopScope(
-      onWillPop: ()async =>false,
+      onWillPop: ()async=> _backPressed(),
       child: Scaffold(
         backgroundColor: themeProvider.whiteBlackToggleColor(),
         appBar: AppBar(
@@ -57,11 +61,11 @@ class _NagadPaymentWebViewState extends State<NagadPaymentWebView> {
                         onPageCommitVisible:
                             (InAppWebViewController controller, Uri uri) {
                           print(uri);
-                          if (uri == Uri.parse('https://baghmama.com.bd/ajax/')) {
+                          if (uri == Uri.parse('https://baghmama.com.bd/?nagadSuccess')) {
                             print(uri);
-                            //Navigator.pop(context, true);
-                          }else{
-                            //Navigator.pop(context, false);
+                            Navigator.pop(context, true);
+                          }else if(uri == Uri.parse('https://baghmama.com.bd/?nagadFailed')){
+                            Navigator.pop(context, false);
                           }
                         },
                         onProgressChanged:
