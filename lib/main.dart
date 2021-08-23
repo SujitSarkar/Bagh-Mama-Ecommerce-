@@ -16,7 +16,8 @@ void main() async{
   final bool isLight = pref.getBool('isLight') ?? true;
   SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-      statusBarColor: Colors.white,
+        //statusBarBrightness: isLight? Brightness.light:Brightness.dark,
+        statusBarColor:Colors.white,
   ));
   runApp(MyApp(isLight));
 }

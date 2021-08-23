@@ -74,12 +74,18 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _socialIconBuilder(FontAwesomeIcons.facebookSquare,apiProvider, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.twitterSquare,apiProvider, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.instagramSquare,apiProvider, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.youtubeSquare,apiProvider, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.pinterestSquare,apiProvider, themeProvider, size),
-                          _socialIconBuilder(FontAwesomeIcons.skype,apiProvider, themeProvider, size),
+                          apiProvider.socialContactInfo.content.facebook.isNotEmpty
+                              ? _socialIconBuilder(FontAwesomeIcons.facebookSquare,apiProvider, themeProvider, size):Container(),
+                          apiProvider.socialContactInfo.content.twitter.isNotEmpty
+                              ? _socialIconBuilder(FontAwesomeIcons.twitterSquare,apiProvider, themeProvider, size):Container(),
+                          apiProvider.socialContactInfo.content.instagram.isNotEmpty
+                              ? _socialIconBuilder(FontAwesomeIcons.instagramSquare,apiProvider, themeProvider, size):Container(),
+                          apiProvider.socialContactInfo.content.youtube.isNotEmpty
+                              ? _socialIconBuilder(FontAwesomeIcons.youtubeSquare,apiProvider, themeProvider, size):Container(),
+                          apiProvider.socialContactInfo.content.yahoo.isNotEmpty
+                              ? _socialIconBuilder(FontAwesomeIcons.pinterestSquare,apiProvider, themeProvider, size):Container(),
+                          apiProvider.socialContactInfo.content.skype.isNotEmpty
+                              ? _socialIconBuilder(FontAwesomeIcons.skype,apiProvider, themeProvider, size):Container(),
                         ],
                       )
                     ],
