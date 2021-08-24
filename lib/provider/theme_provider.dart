@@ -110,6 +110,8 @@ class ThemeProvider extends ChangeNotifier{
   Color toggleCartColor()=> _isLight? Colors.white :Colors.grey[800];
   Color liteDeepGreyToggleColor()=> _isLight? Colors.grey[700] :Colors.grey[800];
   Color toggleSnackBgColor()=> _isLight? Colors.black.withOpacity(0.7) :Colors.grey[600].withOpacity(0.7);
+  Color toggleGoogleColor()=> _isLight? Color(0xff009650):Colors.grey;
+  Color toggleFacebookColor()=> _isLight? Color(0xff0073E6):Colors.grey;
 
   ThemeColor themeMode() {
     return ThemeColor(

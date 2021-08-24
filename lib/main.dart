@@ -9,9 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart' as firebase_core;
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  firebase_core.Firebase.initializeApp();
   SharedPreferences pref= await SharedPreferences.getInstance();
   final bool isLight = pref.getBool('isLight') ?? true;
   SystemChrome.setSystemUIOverlayStyle(

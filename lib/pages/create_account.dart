@@ -6,6 +6,7 @@ import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -171,25 +172,48 @@ class _CreateAccountState extends State<CreateAccount> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
-                    ),
-                    onPressed: ()async{
-                      _registerUser(apiProvider);
-                      // await themeProvider.checkConnectivity().then((value){
-                      //   if(themeProvider.internetConnected==true) _registerUser(apiProvider);
-                      //   else showErrorMgs('No internet connection!');
-                      // },onError: (error)=>showErrorMgs(error.toString()));
-                    },
-                    child: Text('Create an account',style: TextStyle(fontSize: size.width*.04),)
+                Expanded(
+                  child: ElevatedButton( 
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(themeProvider.fabToggleBgColor())
+                      ),
+                      onPressed: ()async{
+                        _registerUser(apiProvider);
+                        // await themeProvider.checkConnectivity().then((value){
+                        //   if(themeProvider.internetConnected==true) _registerUser(apiProvider);
+                        //   else showErrorMgs('No internet connection!');
+                        // },onError: (error)=>showErrorMgs(error.toString()));
+                      },
+                      child: Text('Create an account',style: TextStyle(fontSize: size.width*.04),)
+                  ),
                 ),
-                ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[600])
-                    ),
-                    onPressed: ()=>Navigator.pop(context),
-                    child: Text('Cancel',style: TextStyle(fontSize: size.width*.04),)
+                SizedBox(width: size.width*.04),
+                Expanded(
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(Colors.grey[600])
+                      ),
+                      onPressed: ()=>Navigator.pop(context),
+                      child: Text('Cancel',style: TextStyle(fontSize: size.width*.04),)
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: size.width * .03),
+
+            Text('or register with',style: TextStyle(color: Colors.grey)),
+            ///Social Login
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                    onPressed: (){},
+                    icon: Icon(FontAwesomeIcons.facebook,color: themeProvider.toggleFacebookColor(),size: size.width*.09)
+                ),
+
+                IconButton(
+                    onPressed: (){},
+                    icon: Icon(FontAwesomeIcons.google,color: themeProvider.toggleGoogleColor(),size: size.width*.09)
                 ),
               ],
             ),

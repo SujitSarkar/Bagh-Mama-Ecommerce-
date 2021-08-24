@@ -5,8 +5,11 @@ import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/form_decoration.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -115,8 +118,33 @@ class _LoginPageState extends State<LoginPage> {
                 //   else showErrorMgs('No internet connection!');
                 // },onError: (error)=>showErrorMgs(error.toString()));
               },
-              child: Text('Log In',style: TextStyle(fontSize: size.width*.04),)
+              child: Padding(
+                padding:  EdgeInsets.symmetric(horizontal: size.width*.2),
+                child: Text('Log In',style: TextStyle(fontSize: size.width*.04),),
+              )
           ),
+          //SizedBox(height: size.width*.03),
+
+          Text('or login with',style: TextStyle(color: Colors.grey)),
+          ///Social Login
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                  onPressed: (){
+                    apiProvider.signInWithFacebook();
+                  },
+                  icon: Icon(FontAwesomeIcons.facebook,color: themeProvider.toggleFacebookColor(),size: size.width*.09)
+              ),
+
+              IconButton(
+                  onPressed: (){
+                    apiProvider.signInWithGoogle();
+                  },
+                  icon: Icon(FontAwesomeIcons.google,color: themeProvider.toggleGoogleColor(),size: size.width*.09)
+              ),
+            ],
+          )
         ],
       ),
     ),
@@ -170,6 +198,7 @@ class _LoginPageState extends State<LoginPage> {
       isDense: true,
     ),
   );
+
 
 
 }

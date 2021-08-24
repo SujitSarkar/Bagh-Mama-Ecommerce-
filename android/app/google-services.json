@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "764498399617",
+    "project_id": "baghmama1230",
+    "storage_bucket": "baghmama1230.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:764498399617:android:c05e65a5183d77d8dd9880",
+        "android_client_info": {
+          "package_name": "bd.com.baghmama.bm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "764498399617-jlqf0v4k24oilf2d1n9a26sje9ufumqf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "bd.com.baghmama.bm",
+            "certificate_hash": "f7392e8bbb76af27a660752fa332be102914fda5"
+          }
+        },
+        {
+          "client_id": "764498399617-f29vab8vq14cv3f3ktq26uoa124eurjv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDloWP10UDs8MNcPpt4kcrCy10NYCyhmTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "764498399617-f29vab8vq14cv3f3ktq26uoa124eurjv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

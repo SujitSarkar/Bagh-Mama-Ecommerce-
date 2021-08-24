@@ -21,7 +21,10 @@ import 'package:bagh_mama/models/shipping_methods_model.dart';
 import 'package:bagh_mama/models/social_contact_info_model.dart';
 import 'package:bagh_mama/models/user_info_model.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1000,7 +1003,6 @@ class APIProvider extends ChangeNotifier{
       );
       if(response.statusCode==200){
         _nagadPaymentModel = nagadPaymentModelFromJson(response.body);
-        _nagadPaymentModel.content.status;
         notifyListeners();
         return true;
       }else return false;
@@ -1009,6 +1011,40 @@ class APIProvider extends ChangeNotifier{
       showInfo('No Internet Connection !');
       return false;
     }
+  }
+
+  Future<User> signInWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+
+    showLoadingDialog('please wait');
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    // Once signed in, return the UserCredential
+    UserCredential cred = await FirebaseAuth.instance.signInWithCredential(credential);
+    closeLoadingDialog();
+    print('Success with: ${cred.user.email}');
+    return cred.user;
+  }
+
+  Future<User> signInWithFacebook() async {
+    // Trigger the sign-in flow
+    final LoginResult loginResult = await FacebookAuth.instance.login();
+
+    // Create a credential from the access token
+    final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken.token);
+
+    // Once signed in, return the UserCredential
+    UserCredential cred= await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+    print("Success with: ${cred.user.email}, ${cred.user.displayName}");
+
+    return cred.user;
   }
 
 }
