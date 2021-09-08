@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "764498399617-9khhbmah6nml579k58j7rri60vca29jf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "bd.com.baghmama.bm",
+            "certificate_hash": "5b5aebb24d61a8f057b3149e055667dad04d5755"
+          }
+        },
+        {
           "client_id": "764498399617-jlqf0v4k24oilf2d1n9a26sje9ufumqf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

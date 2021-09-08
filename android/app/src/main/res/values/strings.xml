@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Baghmama</string>
-    <string name="facebook_app_id">876436429947240</string>
-    <string name="fb_login_protocol_scheme">fb876436429947240</string>
+    <string name="facebook_app_id">2933343590263327</string>
+    <string name="fb_login_protocol_scheme">fb2933343590263327</string>
 </resources>

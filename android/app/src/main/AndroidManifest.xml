@@ -3,7 +3,7 @@
     package="bd.com.baghmama.bm">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-       tools:replace="android:label"
+        tools:replace="android:label"
         android:label="Baghmama"
         android:icon="@mipmap/launcher_icon"
        android:usesCleartextTraffic="true">
@@ -43,6 +43,7 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
+        <!--Facebook metadata-->
        <meta-data android:name="com.facebook.sdk.ApplicationId"
            android:value="@string/facebook_app_id"/>
 
@@ -60,6 +61,8 @@
                <data android:scheme="@string/fb_login_protocol_scheme" />
            </intent-filter>
        </activity>
+       <!--Facebook metadata-->
+
 
 
    </application>

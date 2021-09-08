@@ -23,7 +23,7 @@ import 'package:bagh_mama/models/user_info_model.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -32,39 +32,38 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:path/path.dart';
 
-class APIProvider extends ChangeNotifier{
-
+class APIProvider extends ChangeNotifier {
   final String _xAuthKey = 'aHR0cHN+YmFnaG1hbWEuY29tLmJkfmFwaQ';
-  final String _contentType='application/json';
-  final String _xAuthEmail='info@baghmama.com.bd';
+  final String _contentType = 'application/json';
+  final String _xAuthEmail = 'info@baghmama.com.bd';
 
-  int _selectedIndex=0;
-  List<String> _bannerImageList=[];
-  List<NetworkImage> _networkImageList=[];
-  List<ProductCategoryModel> _allCategoryList=[];
+  int _selectedIndex = 0;
+  List<String> _bannerImageList = [];
+  List<NetworkImage> _networkImageList = [];
+  List<ProductCategoryModel> _allCategoryList = [];
   List<MainCategoryWithId> _mainCategoryWithId = [];
-  List<String> _mainCategoryList=[];
-  List<ProductCategoryModel> _subCategoryList=[];
-  List<WishListModel> _wishList=[];
-  List<OrderModel> _orderList=[];
+  List<String> _mainCategoryList = [];
+  List<ProductCategoryModel> _subCategoryList = [];
+  List<WishListModel> _wishList = [];
+  List<OrderModel> _orderList = [];
   AllProductModel _allProductModel;
   NewArrivalProductModel _newArrivalProductModel;
   PopularProductModel _popularProductModel;
   CategoryProductModel _categoryProductModel;
   RelatedProductModel _relatedProductModel;
   ProductInfoModel _productInfoModel;
-  List<ProductReviewModel> _productReviewList=[];
-  List<ProductQuestionModel> _productQuestionList=[];
+  List<ProductReviewModel> _productReviewList = [];
+  List<ProductQuestionModel> _productQuestionList = [];
   UserInfoModel _userInfoModel;
   SocialContactInfo _socialContactInfo;
   BasicContactInfo _basicContactInfo;
-  List<ShippingLocationModel> _shippingLocationList=[];
-  List<String> _shippingLocationSubList=[];
-  List<String> _shippingCityList=[];
-  List<ShippingMethodsModel> _shippingMethodsList=[];
+  List<ShippingLocationModel> _shippingLocationList = [];
+  List<String> _shippingLocationSubList = [];
+  List<String> _shippingCityList = [];
+  List<ShippingMethodsModel> _shippingMethodsList = [];
   String _profileImageLink;
-  List<String> _wishListIdList=[];
-  List<Notifications> _notificationList=[];
+  List<String> _wishListIdList = [];
+  List<Notifications> _notificationList = [];
   CampaignsDateModel _campaignsDateModel;
   OrderInfoModel _orderInfoModel;
   CampaignProductModel _campaignProductModel;
@@ -86,109 +85,115 @@ class APIProvider extends ChangeNotifier{
   get allCategoryList => _allCategoryList;
   get mainCategoryList => _mainCategoryList;
   get subCategoryList => _subCategoryList;
-  get mainCategoryWithId=> _mainCategoryWithId;
+  get mainCategoryWithId => _mainCategoryWithId;
   get socialContactInfo => _socialContactInfo;
   get basicContactInfo => _basicContactInfo;
   get profileImageLink => _profileImageLink;
   get wishListIdList => _wishListIdList;
   get wishList => _wishList;
   get orderList => _orderList;
-  get notificationList=> _notificationList;
+  get notificationList => _notificationList;
   //get shippingLocationList=> _shippingLocationList;
-  get shippingLocationSubList=> _shippingLocationSubList;
-  get shippingCityList=> _shippingCityList;
-  get shippingMethodsList=> _shippingMethodsList;
-  get campaignsDateModel=>_campaignsDateModel;
-  get orderInfoModel=>_orderInfoModel;
-  get campaignProductModel=>_campaignProductModel;
-  get initNagadModel=> _initNagadModel;
-  get nagadPaymentModel=> _nagadPaymentModel;
+  get shippingLocationSubList => _shippingLocationSubList;
+  get shippingCityList => _shippingCityList;
+  get shippingMethodsList => _shippingMethodsList;
+  get campaignsDateModel => _campaignsDateModel;
+  get orderInfoModel => _orderInfoModel;
+  get campaignProductModel => _campaignProductModel;
+  get initNagadModel => _initNagadModel;
+  get nagadPaymentModel => _nagadPaymentModel;
 
-  set userInfoModel(UserInfoModel value){
+  set userInfoModel(UserInfoModel value) {
     _userInfoModel = value;
     notifyListeners();
   }
-  set selectedIndex(int value){
+
+  set selectedIndex(int value) {
     _selectedIndex = value;
     notifyListeners();
   }
-  set categoryProductModel(var model){
+
+  set categoryProductModel(var model) {
     _categoryProductModel = model;
     notifyListeners();
   }
 
-  void clearWishlist(){
+  void clearWishlist() {
     _wishList.clear();
   }
-  void clearNotificationList(){
+
+  void clearNotificationList() {
     _notificationList.clear();
   }
 
   Future<bool> requestWithFile({String fileKey, File files}) async {
     var result;
     var request;
-    var uri = Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate');
+    var uri =
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate');
     SharedPreferences pref = await SharedPreferences.getInstance();
 
-      request = new http.MultipartRequest("POST", uri)..fields.addAll({
-        "id": pref.getString('userId')});
-        var stream =
-        new http.ByteStream(DelegatingStream.typed(files.openRead()));
-        var length = await files.length();
-        var multipartFile = new http.MultipartFile(fileKey, stream, length,
-            filename: basename(files.path));
-        request.files.add(multipartFile);
-      request.headers.addAll({
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail,
-      });
+    request = new http.MultipartRequest("POST", uri)
+      ..fields.addAll({"id": pref.getString('userId')});
+    var stream = new http.ByteStream(DelegatingStream.typed(files.openRead()));
+    var length = await files.length();
+    var multipartFile = new http.MultipartFile(fileKey, stream, length,
+        filename: basename(files.path));
+    request.files.add(multipartFile);
+    request.headers.addAll({
+      'X-Auth-Key': _xAuthKey,
+      'X-Auth-Email': _xAuthEmail,
+    });
     var response = await request.send();
-    await response.stream.transform(utf8.decoder).listen((value){
+    await response.stream.transform(utf8.decoder).listen((value) {
       result = value;
     });
-    var jsonData= json.decode(result);
-    if(jsonData['status']=='SUCCESS'){
+    var jsonData = json.decode(result);
+    if (jsonData['status'] == 'SUCCESS') {
       return Future.value(true);
-    }else return Future.value(false);
+    } else
+      return Future.value(false);
   }
 
-  Future<void> getBannerImageList()async{
-    try{
-      Map data = {"banner_type":"home page banners"};
+  Future<void> getBannerImageList() async {
+    try {
+      Map data = {"banner_type": "home page banners"};
       var body = json.encode(data);
 
-      await http.post(
+      await http
+          .post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/bannerSlider'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-        body:body,
-      ).then((response){
+        body: body,
+      )
+          .then((response) {
         var jsonData = jsonDecode(response.body);
-        if(jsonData['status']=='SUCCESS'){
+        if (jsonData['status'] == 'SUCCESS') {
           _bannerImageList.clear();
-          jsonData['content'].forEach((element){
+          jsonData['content'].forEach((element) {
             _bannerImageList.add(element['image']);
           });
           _networkImageList = _bannerImageList
-              .map<NetworkImage>((item) => NetworkImage('https://baghmama.com.bd/$item')
-          ).toList();
+              .map<NetworkImage>(
+                  (item) => NetworkImage('https://baghmama.com.bd/$item'))
+              .toList();
           notifyListeners();
-        }
-        else showInfo('failed to get banner image');
+        } else
+          showInfo('failed to get banner image');
       });
-    }on SocketException{
+    } on SocketException {
       showInfo('No Internet Connection !');
     }
-
   }
 
-  Future<void> getProductCategories()async{
-    try{
-      final Map map= {"fetch_all":"true"};
-      var body= json.encode(map);
+  Future<void> getProductCategories() async {
+    try {
+      final Map map = {"fetch_all": "true"};
+      var body = json.encode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
           headers: {
@@ -196,11 +201,10 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail,
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
-        Set _categorySet=Set.from({'All'});
+        Set _categorySet = Set.from({'All'});
 
         jsonData['content'].forEach((element) {
           ProductCategoryModel model = ProductCategoryModel(
@@ -209,8 +213,7 @@ class APIProvider extends ChangeNotifier{
               header: element['header'],
               sub: element['sub'],
               position: element['position'],
-              categoryIcon: element['category_icon']
-          );
+              categoryIcon: element['category_icon']);
           _allCategoryList.add(model);
           _categorySet.add(element['main']);
         });
@@ -220,13 +223,13 @@ class APIProvider extends ChangeNotifier{
         });
         notifyListeners();
       }
-    }on SocketException{
+    } on SocketException {
       showInfo('No Internet Connection !');
     }
   }
 
-  Future<void> getMainCategoryWithId()async{
-    try{
+  Future<void> getMainCategoryWithId() async {
+    try {
       var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
         headers: {
@@ -235,35 +238,33 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Email': _xAuthEmail,
         },
       );
-      if(response.statusCode==200){
+      if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
         jsonData['content'].forEach((element) {
           MainCategoryWithId model = MainCategoryWithId(
               id: element['id'],
               main: element['main'],
               position: element['position'],
-              categoryIcon: element['category_icon']
-          );
+              categoryIcon: element['category_icon']);
           _mainCategoryWithId.add(model);
         });
         notifyListeners();
       }
-    }on SocketException{
+    } on SocketException {
       showInfo('No Internet Connection !');
     }
-
   }
 
-  void updateSubCategoryList(String mainCategory){
-    _categoryProductModel=null;
+  void updateSubCategoryList(String mainCategory) {
+    _categoryProductModel = null;
     _subCategoryList.clear();
-    if(mainCategory=='All'){
+    if (mainCategory == 'All') {
       _subCategoryList.addAll(_allCategoryList);
       notifyListeners();
       print(_subCategoryList.length);
-    }else{
-      for(int i=0;i<_allCategoryList.length;i++){
-        if(_allCategoryList[i].main.contains(mainCategory)){
+    } else {
+      for (int i = 0; i < _allCategoryList.length; i++) {
+        if (_allCategoryList[i].main.contains(mainCategory)) {
           _subCategoryList.add(_allCategoryList[i]);
         }
       }
@@ -271,8 +272,8 @@ class APIProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> getAllProducts(Map map)async{
-    try{
+  Future<void> getAllProducts(Map map) async {
+    try {
       var body = json.encode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
@@ -281,21 +282,20 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail,
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         final String responseString = response.body;
-        _allProductModel= allProductModelFromJson(responseString);
+        _allProductModel = allProductModelFromJson(responseString);
         print(_allProductModel.content.length);
         notifyListeners();
       }
-    } on SocketException{
+    } on SocketException {
       showInfo('No Internet Connection !');
     }
   }
 
-  Future<void> getNewArrivalProducts(Map map)async{
-    try{
+  Future<void> getNewArrivalProducts(Map map) async {
+    try {
       var body = json.encode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
@@ -304,21 +304,21 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail,
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         final String responseString = response.body;
-        _newArrivalProductModel= newArrivalProductModelFromJson(responseString);
+        _newArrivalProductModel =
+            newArrivalProductModelFromJson(responseString);
         print(_newArrivalProductModel.content.length);
         notifyListeners();
       }
-    }on SocketException{
+    } on SocketException {
       showInfo('No Internet Connection !');
     }
   }
 
-  Future<void> getPopularProducts(Map map)async{
-    try{
+  Future<void> getPopularProducts(Map map) async {
+    try {
       var body = json.encode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
@@ -327,21 +327,19 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail,
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         final String responseString = response.body;
-        _popularProductModel= popularProductModelFromJson(responseString);
+        _popularProductModel = popularProductModelFromJson(responseString);
         print(_popularProductModel.content.length);
         notifyListeners();
       }
-    }on SocketException{
+    } on SocketException {
       showInfo('No Internet Connection !');
     }
-
   }
 
-  Future<void> getCategoryProducts(Map map)async{
+  Future<void> getCategoryProducts(Map map) async {
     var body = json.encode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
@@ -350,17 +348,16 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-        body: body
-    );
-    if(response.statusCode==200){
+        body: body);
+    if (response.statusCode == 200) {
       final String responseString = response.body;
-      _categoryProductModel= categoryProductModelFromJson(responseString);
+      _categoryProductModel = categoryProductModelFromJson(responseString);
       notifyListeners();
     }
   }
 
-  Future<void> getRelatedProducts(int categoryId)async{
-    Map map = {"category_id":"$categoryId"};
+  Future<void> getRelatedProducts(int categoryId) async {
+    Map map = {"category_id": "$categoryId"};
     var body = json.encode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
@@ -369,36 +366,34 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-        body: body
-    );
-    if(response.statusCode==200){
+        body: body);
+    if (response.statusCode == 200) {
       final String responseString = response.body;
-      _relatedProductModel= relatedProductModelFromJson(responseString);
+      _relatedProductModel = relatedProductModelFromJson(responseString);
       notifyListeners();
     }
   }
 
-  Future<void> getProductInfo(int id)async{
-    Map map = {"product_id":"$id"};
+  Future<void> getProductInfo(int id) async {
+    Map map = {"product_id": "$id"};
     var body = json.encode(map);
     var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/productInfo'),
-      headers: {
-        'Content-Type': _contentType,
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail,
-      },
-      body: body
-    );
-    if(response.statusCode==200){
-       String responseString = response.body;
-      _productInfoModel= productInfoModelFromJson(responseString);
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/productInfo'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail,
+        },
+        body: body);
+    if (response.statusCode == 200) {
+      String responseString = response.body;
+      _productInfoModel = productInfoModelFromJson(responseString);
 
       ///get product review
       var jsonData = jsonDecode(response.body);
-      if(jsonData['content']['product_reviews'].isNotEmpty){
+      if (jsonData['content']['product_reviews'].isNotEmpty) {
         _productReviewList.clear();
-        jsonData['content']['product_reviews'].forEach((element){
+        jsonData['content']['product_reviews'].forEach((element) {
           ProductReviewModel model = ProductReviewModel(
             reviewId: element['reviewId'],
             date: element['date'],
@@ -409,17 +404,21 @@ class APIProvider extends ChangeNotifier{
           );
           _productReviewList.add(model);
         });
-      }else _productReviewList.clear();
-       ///get product Question
-      if(jsonData['content']['product_questions'].isNotEmpty){
-        _productQuestionList = productQuestionModelFromJson(jsonEncode(jsonData['content']['product_questions']));
-      }else _productQuestionList.clear();
+      } else
+        _productReviewList.clear();
+
+      ///get product Question
+      if (jsonData['content']['product_questions'].isNotEmpty) {
+        _productQuestionList = productQuestionModelFromJson(
+            jsonEncode(jsonData['content']['product_questions']));
+      } else
+        _productQuestionList.clear();
 
       notifyListeners();
     }
   }
 
-  Future<bool> replyProductQuestion(Map map)async{
+  Future<bool> replyProductQuestion(Map map) async {
     var body = json.encode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/productQuestion'),
@@ -428,16 +427,15 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-        body: body
-    );
+        body: body);
     var jsonData = jsonDecode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       return jsonData['content']['success'];
-    }
-    else return jsonData['content']['success'];
+    } else
+      return jsonData['content']['success'];
   }
 
-  Future<bool> writeProductReview(Map map)async{
+  Future<bool> writeProductReview(Map map) async {
     var body = json.encode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/productReview'),
@@ -446,15 +444,15 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-        body: body
-    );
-    if(response.statusCode==200){
+        body: body);
+    if (response.statusCode == 200) {
       return true;
-    }else return false;
+    } else
+      return false;
   }
 
-  Future<bool> validateUser(String email, String password)async{
-    Map map = {"username":"$email","password":"$password"};
+  Future<bool> validateUser(String email, String password) async {
+    Map map = {"username": "$email", "password": "$password"};
     var body = json.encode(map);
 
     var response = await http.post(
@@ -464,17 +462,16 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-        body: body
-     );
-    if(response.statusCode==200){
+        body: body);
+    if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       return jsonData['content']['valid'];
-    }
-    else return false;
+    } else
+      return false;
   }
 
-  Future<bool> getUserInfo(String username)async{
-    try{
+  Future<bool> getUserInfo(String username) async {
+    try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       Map map = {"column_type": "username", "field": "$username"};
       var body = json.encode(map);
@@ -486,9 +483,8 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail,
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
         _userInfoModel = userInfoModelFromJson(response.body);
 
@@ -496,59 +492,61 @@ class APIProvider extends ChangeNotifier{
 
         await pref.setString('username', _userInfoModel.content.username);
         await pref.setString('userId', _userInfoModel.content.id.toString());
-        await pref.setString('mobile', _userInfoModel.content.mobileNumber.toString());
-        await pref.setString('fullAddress',
+        await pref.setString(
+            'mobile', _userInfoModel.content.mobileNumber.toString());
+        await pref.setString(
+            'fullAddress',
             '${_userInfoModel.content.address},${_userInfoModel.content.postalcode},'
                 '${_userInfoModel.content.city},${_userInfoModel.content.state},'
                 '${_userInfoModel.content.country}');
-        await pref.setString('name', '${_userInfoModel.content.firstName} ${_userInfoModel.content.lastName}');
+        await pref.setString('name',
+            '${_userInfoModel.content.firstName} ${_userInfoModel.content.lastName}');
 
         ///Get Wishlist ID
-        if(_userInfoModel.content.wishlists.isNotEmpty){
+        if (_userInfoModel.content.wishlists.isNotEmpty) {
           _wishListIdList.clear();
           _userInfoModel.content.wishlists.forEach((element) {
             _wishListIdList.add(element);
           });
-        }else _wishListIdList.clear();
+        } else
+          _wishListIdList.clear();
 
-        if(jsonData['content']['customer_orders'].isNotEmpty){
+        if (jsonData['content']['customer_orders'].isNotEmpty) {
           _orderList.clear();
-          jsonData['content']['customer_orders'].forEach((element){
+          jsonData['content']['customer_orders'].forEach((element) {
             OrderModel model = OrderModel(
-              orderNo: element["order_no"],
-              date: DateTime.parse(element["date"])
-            );
+                orderNo: element["order_no"],
+                date: DateTime.parse(element["date"]));
             _orderList.add(model);
           });
           notifyListeners();
         }
 
         ///Get Notifications
-        if(jsonData['content']['notifications'].isNotEmpty){
+        if (jsonData['content']['notifications'].isNotEmpty) {
           _notificationList.clear();
-          jsonData['content']['notifications'].forEach((element){
+          jsonData['content']['notifications'].forEach((element) {
             Notifications notifications = Notifications(
                 notificationType: element['notificationType'],
                 notificationText: element['notificationText'],
                 link: element['link'],
-                status: element['status']
-            );
+                status: element['status']);
             _notificationList.add(notifications);
           });
-        }else _notificationList.clear();
+        } else
+          _notificationList.clear();
         notifyListeners();
         return true;
-      }else{
+      } else {
         return false;
       }
-    }on SocketException{
+    } on SocketException {
       showInfo('No Internet Connection!');
       return false;
     }
-
   }
 
-  Future<bool> updateUserInfo(Map map)async{
+  Future<bool> updateUserInfo(Map map) async {
     var body = json.encode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/updadeMyAccount'),
@@ -557,17 +555,16 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail,
         },
-        body: body
-    );
+        body: body);
     var jsonData = jsonDecode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       return jsonData['content']['success'];
-    }
-    else return false;
+    } else
+      return false;
   }
 
-  Future<void> getSocialContactInfo()async{
-    try{
+  Future<void> getSocialContactInfo() async {
+    try {
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/socialContactInfo'),
           headers: {
@@ -575,18 +572,18 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail
           });
-      if(response.statusCode==200){
+      if (response.statusCode == 200) {
         String responseString = response.body;
-        _socialContactInfo= socialContactInfoFromJson(responseString);
+        _socialContactInfo = socialContactInfoFromJson(responseString);
         notifyListeners();
-      }else showInfo('failed to get Social Data');
-    }on SocketException{
+      } else
+        showInfo('failed to get Social Data');
+    } on SocketException {
       showInfo('No Internet Connection !');
     }
-
   }
 
-  Future<void> getBasicContactInfo()async{
+  Future<void> getBasicContactInfo() async {
     var response = await http.post(
       Uri.parse('https://baghmama.com.bd/graph/api/v4/basicContactInfo'),
       headers: {
@@ -594,35 +591,35 @@ class APIProvider extends ChangeNotifier{
         'X-Auth-Key': _xAuthKey,
         'X-Auth-Email': _xAuthEmail
       },
-        );
-    if(response.statusCode==200){
+    );
+    if (response.statusCode == 200) {
       String responseString = response.body;
-      _basicContactInfo= basicContactInfoFromJson(responseString);
+      _basicContactInfo = basicContactInfoFromJson(responseString);
       notifyListeners();
-    }else showInfo('failed to get Social Data');
+    } else
+      showInfo('failed to get Social Data');
   }
 
-  Future<String> createSupportTicket(Map map)async{
+  Future<String> createSupportTicket(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/newSupportTicket'),
-      headers: {
-        'Content-Type': _contentType,
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail
-      },
-      body: body
-    );
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/newSupportTicket'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail
+        },
+        body: body);
     final String responseString = response.body;
-    final CreateSupportTokenModel _createSupportTokenModel=
-    createSupportTokenModelFromJson(responseString);
-    if(_createSupportTokenModel.status=='SUCCESS'){
+    final CreateSupportTokenModel _createSupportTokenModel =
+        createSupportTokenModelFromJson(responseString);
+    if (_createSupportTokenModel.status == 'SUCCESS') {
       return 'Token no: ${_createSupportTokenModel.content.tokenNo.toString()}';
-    }
-    else return 'Failed! try again later';
+    } else
+      return 'Failed! try again later';
   }
-  
-  Future<RegisterUserModel> registerUser(Map data)async{
+
+  Future<RegisterUserModel> registerUser(Map data) async {
     var body = json.encode(data);
     var response = await http.post(
       Uri.parse('https://baghmama.com.bd/graph/api/v4/registerUser'),
@@ -633,11 +630,11 @@ class APIProvider extends ChangeNotifier{
       },
       body: body,
     );
-    String responseString= response.body;
+    String responseString = response.body;
     return registerUserModelFromJson(responseString);
   }
 
-  Future<bool> addProductToWishlist(Map map)async{
+  Future<bool> addProductToWishlist(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/addItemToWishlist'),
@@ -646,19 +643,18 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail
         },
-        body: body
-    );
+        body: body);
     var jsonData = jsonDecode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       return jsonData['content']['success'];
-    }
-    else return jsonData['content']['success'];
+    } else
+      return jsonData['content']['success'];
   }
 
-  Future<void> getWishListProduct()async{
+  Future<void> getWishListProduct() async {
     _wishList.clear();
-    _wishListIdList.forEach((element) async{
-      Map map = {"product_id":element};
+    _wishListIdList.forEach((element) async {
+      Map map = {"product_id": element};
       var body = jsonEncode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/productInfo'),
@@ -667,40 +663,37 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail
           },
-          body: body
-      );
+          body: body);
       var jsonData = jsonDecode(response.body);
       WishListModel wishListModel = WishListModel(
-        pId: jsonData['content']['product_id'].toString(),
-        pName: jsonData['content']['name'],
-        pPrice: jsonData['content']['price_stock']['price'].toString(),
-        pImageLink:jsonData['content']['thumnail_image']
-      );
+          pId: jsonData['content']['product_id'].toString(),
+          pName: jsonData['content']['name'],
+          pPrice: jsonData['content']['price_stock']['price'].toString(),
+          pImageLink: jsonData['content']['thumnail_image']);
       _wishList.add(wishListModel);
       notifyListeners();
     });
-
   }
 
-  Future<bool> removeItemFromWishList(Map map)async{
+  Future<bool> removeItemFromWishList(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/removeItemFromWishlist'),
+        Uri.parse(
+            'https://baghmama.com.bd/graph/api/v4/removeItemFromWishlist'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail
         },
-        body: body
-    );
+        body: body);
     var jsonData = jsonDecode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       return jsonData['content']['success'];
-    }
-    else return jsonData['content']['success'];
+    } else
+      return jsonData['content']['success'];
   }
 
-  Future<bool> updatePassword(Map map)async{
+  Future<bool> updatePassword(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/updateUserPassword'),
@@ -709,52 +702,51 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail
         },
-        body: body
-    );
+        body: body);
     var jsonData = jsonDecode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       return jsonData['content']['success'];
-    }
-    else return jsonData['content']['success'];
+    } else
+      return jsonData['content']['success'];
   }
 
-  Future<String> sendVerificationCode(Map map)async{
+  Future<String> sendVerificationCode(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/forgotPasswordSendVerification'),
+        Uri.parse(
+            'https://baghmama.com.bd/graph/api/v4/forgotPasswordSendVerification'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail
         },
-        body: body
-    );
+        body: body);
     var jsonData = jsonDecode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       return jsonData['content']['session_token'];
-    }
-    else return '';
+    } else
+      return '';
   }
 
-  Future<bool> resetPassword(Map map)async{
+  Future<bool> resetPassword(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/forgotPasswordSubmitPasword'),
+        Uri.parse(
+            'https://baghmama.com.bd/graph/api/v4/forgotPasswordSubmitPasword'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail
         },
-        body: body
-    );
+        body: body);
     var jsonData = jsonDecode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       return jsonData['content']['success'];
-    }
-    else return jsonData['content']['success'];
+    } else
+      return jsonData['content']['success'];
   }
 
-  Future<dynamic> getCouponDiscount(Map map)async{
+  Future<dynamic> getCouponDiscount(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/couponDiscount'),
@@ -763,34 +755,35 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail
         },
-        body: body
-    );
-    if(response.statusCode==200){
+        body: body);
+    if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
-      if(jsonData['content']['success']==true){
+      if (jsonData['content']['success'] == true) {
         String responseString = response.body;
-        CouponDiscountModel _couponDiscountModel = couponDiscountModelFromJson(responseString);
+        CouponDiscountModel _couponDiscountModel =
+            couponDiscountModelFromJson(responseString);
         return _couponDiscountModel;
-      }else{
+      } else {
         return false;
       }
-    }else return false;
+    } else
+      return false;
   }
 
-  Future<bool> getShippingLocations()async{
+  Future<bool> getShippingLocations() async {
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/shippingLocations'),
-        headers: {
-          'Content-Type': _contentType,
-          'X-Auth-Key': _xAuthKey,
-          'X-Auth-Email': _xAuthEmail
-        },
+      Uri.parse('https://baghmama.com.bd/graph/api/v4/shippingLocations'),
+      headers: {
+        'Content-Type': _contentType,
+        'X-Auth-Key': _xAuthKey,
+        'X-Auth-Email': _xAuthEmail
+      },
     );
     var jsonData = json.decode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       _shippingLocationList.clear();
       _shippingLocationSubList.clear();
-      jsonData['content'].forEach((element){
+      jsonData['content'].forEach((element) {
         ShippingLocationModel model = ShippingLocationModel(
           id: element['id'],
           location: element['location'],
@@ -798,39 +791,39 @@ class APIProvider extends ChangeNotifier{
           status: element['status'],
         );
         _shippingLocationList.add(model);
-        if(!_shippingLocationSubList.contains(element['city'])){
+        if (!_shippingLocationSubList.contains(element['city'])) {
           _shippingLocationSubList.add(element['city']);
         }
       });
       notifyListeners();
       return true;
-     } else return false;
+    } else
+      return false;
   }
 
-  void getShippingCity(String city){
+  void getShippingCity(String city) {
     _shippingCityList.clear();
-    for(int i=0; i<_shippingLocationList.length;i++){
-      if(_shippingLocationList[i].city==city){
+    for (int i = 0; i < _shippingLocationList.length; i++) {
+      if (_shippingLocationList[i].city == city) {
         _shippingCityList.add(_shippingLocationList[i].location);
       }
     }
   }
 
-  Future<bool> getShippingMethods(Map map)async{
+  Future<bool> getShippingMethods(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/shippingMethods'),
-      headers: {
-        'Content-Type': _contentType,
-        'X-Auth-Key': _xAuthKey,
-        'X-Auth-Email': _xAuthEmail
-      },
-      body: body
-    );
+        Uri.parse('https://baghmama.com.bd/graph/api/v4/shippingMethods'),
+        headers: {
+          'Content-Type': _contentType,
+          'X-Auth-Key': _xAuthKey,
+          'X-Auth-Email': _xAuthEmail
+        },
+        body: body);
     var jsonData = json.decode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       _shippingMethodsList.clear();
-      jsonData['content'].forEach((element){
+      jsonData['content'].forEach((element) {
         ShippingMethodsModel model = ShippingMethodsModel(
           id: element['id'],
           methodLogo: element['method_logo'],
@@ -845,15 +838,16 @@ class APIProvider extends ChangeNotifier{
       notifyListeners();
       print('Method length: ${_shippingMethodsList.length}');
       return true;
-    } else return false;
+    } else
+      return false;
   }
 
-  void clearShippingMethods(){
+  void clearShippingMethods() {
     _shippingMethodsList.clear();
     notifyListeners();
   }
 
-  Future<String> getPageContent(Map map)async{
+  Future<String> getPageContent(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
         Uri.parse('https://baghmama.com.bd/graph/api/v4/pageContents'),
@@ -862,19 +856,18 @@ class APIProvider extends ChangeNotifier{
           'X-Auth-Key': _xAuthKey,
           'X-Auth-Email': _xAuthEmail
         },
-        body: body
-    );
+        body: body);
     var jsonData = json.decode(response.body);
-    if(jsonData['status']=='SUCCESS'){
+    if (jsonData['status'] == 'SUCCESS') {
       return jsonData['content']['content'];
-    }
-    else return 'Failed to Load !';
+    } else
+      return 'Failed to Load !';
   }
 
-  Future<bool> placeOrder(Map map)async{
+  Future<bool> placeOrder(Map map) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String userName= pref.getString('username');
-    try{
+    String userName = pref.getString('username');
+    try {
       var body = jsonEncode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/orderSubmit'),
@@ -883,26 +876,22 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail
           },
-          body: body
-      );
+          body: body);
       var jsonData = json.decode(response.body);
-      if(jsonData['status']=='SUCCESS'){
-       await getUserInfo(userName);
-       return true;
-      }else{
+      if (jsonData['status'] == 'SUCCESS') {
+        await getUserInfo(userName);
+        return true;
+      } else {
         return false;
       }
-
-    }on SocketException{
+    } on SocketException {
       showInfo('No Internet Connection !');
       return false;
     }
-
-
   }
 
-  Future<bool> getOrderInfo(Map map)async{
-    try{
+  Future<bool> getOrderInfo(Map map) async {
+    try {
       var body = jsonEncode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/orderInfo'),
@@ -911,21 +900,20 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         _orderInfoModel = orderInfoModelFromJson(response.body);
         notifyListeners();
         return true;
-      }else return false;
-
-    }on SocketException{
+      } else
+        return false;
+    } on SocketException {
       showInfo('No Internet Connection !');
       return false;
     }
   }
 
-  Future<void> getCampaignsDate({Map map})async{
+  Future<void> getCampaignsDate({Map map}) async {
     var response = await http.post(
       Uri.parse('https://baghmama.com.bd/graph/api/v4/campaigns'),
       headers: {
@@ -934,15 +922,15 @@ class APIProvider extends ChangeNotifier{
         'X-Auth-Email': _xAuthEmail,
       },
     );
-    if(response.statusCode==200){
+    if (response.statusCode == 200) {
       final String responseString = response.body;
-      _campaignsDateModel= campaignsDateModelFromJson(responseString);
+      _campaignsDateModel = campaignsDateModelFromJson(responseString);
       notifyListeners();
     }
   }
 
-  Future<bool> getCampaignProductList(Map map)async{
-    try{
+  Future<bool> getCampaignProductList(Map map) async {
+    try {
       var body = jsonEncode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/campaignProducts'),
@@ -951,22 +939,21 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         _campaignProductModel = campaignProductModelFromJson(response.body);
         notifyListeners();
         return true;
-      }else return false;
-
-    }on SocketException{
+      } else
+        return false;
+    } on SocketException {
       showInfo('No Internet Connection !');
       return false;
     }
   }
 
-  Future<bool> initNagadPayment(Map map)async{
-    try{
+  Future<bool> initNagadPayment(Map map) async {
+    try {
       var body = jsonEncode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/nagadPaymentInit'),
@@ -975,22 +962,21 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         _initNagadModel = initNagadModelFromJson(response.body);
         notifyListeners();
         return true;
-      }else return false;
-
-    }on SocketException{
+      } else
+        return false;
+    } on SocketException {
       showInfo('No Internet Connection !');
       return false;
     }
   }
 
-  Future<bool> nagadPaymentCheck(Map map)async{
-    try{
+  Future<bool> nagadPaymentCheck(Map map) async {
+    try {
       var body = jsonEncode(map);
       var response = await http.post(
           Uri.parse('https://baghmama.com.bd/graph/api/v4/nagadPaymentCheck'),
@@ -999,53 +985,179 @@ class APIProvider extends ChangeNotifier{
             'X-Auth-Key': _xAuthKey,
             'X-Auth-Email': _xAuthEmail
           },
-          body: body
-      );
-      if(response.statusCode==200){
+          body: body);
+      if (response.statusCode == 200) {
         _nagadPaymentModel = nagadPaymentModelFromJson(response.body);
         notifyListeners();
         return true;
-      }else return false;
-
-    }on SocketException{
+      } else
+        return false;
+    } on SocketException {
       showInfo('No Internet Connection !');
       return false;
     }
   }
 
-  Future<User> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+  Future<bool> signInWithGoogle(BuildContext context) async {
+    try {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      await GoogleSignIn().signOut();
+      final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+      showLoadingDialog('Please wait');
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      UserCredential cred =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      //closeLoadingDialog();
+      User user = cred.user;
 
-    showLoadingDialog('please wait');
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      ///get userInfo
+      Map map = {"column_type": "username", "field": "${user.email}"};
+      var body = json.encode(map);
+      var response = await http.post(
+          Uri.parse('https://baghmama.com.bd/graph/api/v4/userInfo'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail,
+          },
+          body: body);
+      if (response.statusCode == 200) {
+        var jsonData = jsonDecode(response.body);
+        //Login here
+        if (jsonData['content'] != null) {
+          _userInfoModel = userInfoModelFromJson(response.body);
 
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-    // Once signed in, return the UserCredential
-    UserCredential cred = await FirebaseAuth.instance.signInWithCredential(credential);
-    closeLoadingDialog();
-    print('Success with: ${cred.user.email}');
-    return cred.user;
+          await pref.setString('username', _userInfoModel.content.username);
+          await pref.setString('userId', _userInfoModel.content.id.toString());
+          await pref.setString(
+              'mobile', _userInfoModel.content.mobileNumber.toString());
+          await pref.setString(
+              'fullAddress',
+              '${_userInfoModel.content.address},${_userInfoModel.content.postalcode},'
+                  '${_userInfoModel.content.city},${_userInfoModel.content.state},'
+                  '${_userInfoModel.content.country}');
+          await pref.setString('name',
+              '${_userInfoModel.content.firstName} ${_userInfoModel.content.lastName}');
+
+          ///Get Wishlist ID
+          if (_userInfoModel.content.wishlists.isNotEmpty) {
+            _wishListIdList.clear();
+            _userInfoModel.content.wishlists.forEach((element) {
+              _wishListIdList.add(element);
+            });
+          } else
+            _wishListIdList.clear();
+
+          if (jsonData['content']['customer_orders'].isNotEmpty) {
+            _orderList.clear();
+            jsonData['content']['customer_orders'].forEach((element) {
+              OrderModel model = OrderModel(
+                  orderNo: element["order_no"],
+                  date: DateTime.parse(element["date"]));
+              _orderList.add(model);
+            });
+            notifyListeners();
+          }
+
+          ///Get Notifications
+          if (jsonData['content']['notifications'].isNotEmpty) {
+            _notificationList.clear();
+            jsonData['content']['notifications'].forEach((element) {
+              Notifications notifications = Notifications(
+                  notificationType: element['notificationType'],
+                  notificationText: element['notificationText'],
+                  link: element['link'],
+                  status: element['status']);
+              _notificationList.add(notifications);
+            });
+          } else
+            _notificationList.clear();
+          notifyListeners();
+          closeLoadingDialog();
+          Navigator.pop(context);
+        }
+        //Don't have account sothat register
+        else {
+          Map data = {
+            "username": "${user.email}",
+            "password": "",
+            "confirm-password": "",
+            "first_name": "${user.displayName}",
+            "last_name": "",
+            "email": "${user.email}",
+            "address": "",
+            "city": "",
+            "state": "",
+            "postalcode": "",
+            "mobile_number": "${user.phoneNumber ?? ''}",
+            "country": "Bangladesh"
+          };
+          registerUser(data).then((registerUserModel) async {
+            if (registerUserModel.content.success == true) {
+              await getUserInfo(user.email).then((value) {
+                if (value) {
+                  closeLoadingDialog();
+                  Navigator.pop(context);
+                } else {
+                  closeLoadingDialog();
+                  showErrorMgs('Something went wrong! Try again');
+                }
+              });
+            } else {
+              closeLoadingDialog();
+              showErrorMgs(registerUserModel.content.errordesc.toString());
+            }
+          });
+        }
+      } else {
+        closeLoadingDialog();
+        showInfo('Something went wromg! Try Again');
+      }
+      return true;
+    } on SocketException {
+      showInfo('No Internet Connection !');
+      return false;
+    } catch (error) {
+      showErrorMgs(error.toString());
+      return false;
+    }
   }
-
   Future<User> signInWithFacebook() async {
-    // Trigger the sign-in flow
-    final LoginResult loginResult = await FacebookAuth.instance.login();
+    // Create an instance of FacebookLogin
+    final fb = FacebookLogin();
 
-    // Create a credential from the access token
-    final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken.token);
-
-    // Once signed in, return the UserCredential
-    UserCredential cred= await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
-    print("Success with: ${cred.user.email}, ${cred.user.displayName}");
-
-    return cred.user;
+    // Log in
+    final res = await fb.logIn(permissions: [
+      FacebookPermission.publicProfile,
+      FacebookPermission.email,
+    ]);
+    if(res.status==FacebookLoginStatus.success){
+      // Send access token to server for validation and auth
+      final FacebookAccessToken accessToken = res.accessToken;
+      print('Access token: ${accessToken.token}');
+    }else print('Token Error!!!!!!');
   }
 
+  // Future<User> signInWithFacebook() async {
+  //   // Trigger the sign-in flow
+  //   await FacebookAuth.instance.logOut();
+  //   final LoginResult loginResult = await FacebookAuth.instance.login();
+  //
+  //   print('Status:::::${loginResult.status}');
+  //   // Create a credential from the access token
+  //   final OAuthCredential facebookAuthCredential =
+  //       FacebookAuthProvider.credential(loginResult.accessToken.token);
+  //
+  //   // Once signed in, return the UserCredential
+  //   UserCredential cred = await FirebaseAuth.instance
+  //       .signInWithCredential(facebookAuthCredential);
+  //   print("Success with: ${cred.user.email}, ${cred.user.displayName}");
+  //
+  //   return cred.user;
+  // }
 }
-
