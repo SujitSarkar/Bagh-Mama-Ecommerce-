@@ -308,16 +308,16 @@ class _ProductDetailsState extends State<ProductDetails> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // apiProvider.productInfoModel.content.discount != 0
-                  //     ? Text(
-                  //         '${themeProvider.currency}${themeProvider.toggleCurrency((apiProvider.productInfoModel.content.priceStock.price + (apiProvider.productInfoModel.content.priceStock.price) * (apiProvider.productInfoModel.content.discount / 100)).toString())}',
-                  //         textAlign: TextAlign.justify,
-                  //         style: TextStyle(
-                  //             fontSize: size.width * .05,
-                  //             color: themeProvider.orangeWhiteToggleColor(),
-                  //             fontWeight: FontWeight.bold),
-                  //       )
-                  //     :
+                  apiProvider.productInfoModel.content.discount != 0
+                      ? Text(
+                          '${themeProvider.currency}${themeProvider.toggleCurrency((apiProvider.productInfoModel.content.priceStock.price - (apiProvider.productInfoModel.content.priceStock.price) * (apiProvider.productInfoModel.content.discount / 100)).toString())}',
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(
+                              fontSize: size.width * .05,
+                              color: themeProvider.orangeWhiteToggleColor(),
+                              fontWeight: FontWeight.bold),
+                        )
+                      :
                   Text('${themeProvider.currency}${themeProvider.toggleCurrency(apiProvider.productInfoModel.content.priceStock.price.toString())}',
                           style: TextStyle(
                               fontSize: size.width * .05,

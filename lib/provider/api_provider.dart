@@ -10,7 +10,6 @@ import 'package:bagh_mama/models/init_nagad_model.dart';
 import 'package:bagh_mama/models/nagad_payment_model.dart';
 import 'package:bagh_mama/models/new_arrival_products_model.dart';
 import 'package:bagh_mama/models/order_info_model.dart';
-import 'package:bagh_mama/models/order_model.dart';
 import 'package:bagh_mama/models/popular_product_model.dart';
 import 'package:bagh_mama/models/product_category_model.dart';
 import 'package:bagh_mama/models/product_info_model.dart';
@@ -23,7 +22,7 @@ import 'package:bagh_mama/models/user_info_model.dart';
 import 'package:bagh_mama/widget/notification_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_login_facebook/flutter_login_facebook.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -45,7 +44,6 @@ class APIProvider extends ChangeNotifier {
   List<String> _mainCategoryList = [];
   List<ProductCategoryModel> _subCategoryList = [];
   List<WishListModel> _wishList = [];
-  List<OrderModel> _orderList = [];
   AllProductModel _allProductModel;
   NewArrivalProductModel _newArrivalProductModel;
   PopularProductModel _popularProductModel;
@@ -91,7 +89,6 @@ class APIProvider extends ChangeNotifier {
   get profileImageLink => _profileImageLink;
   get wishListIdList => _wishListIdList;
   get wishList => _wishList;
-  get orderList => _orderList;
   get notificationList => _notificationList;
   //get shippingLocationList=> _shippingLocationList;
   get shippingLocationSubList => _shippingLocationSubList;
@@ -130,7 +127,7 @@ class APIProvider extends ChangeNotifier {
     var result;
     var request;
     var uri =
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/profilePicUpdate');
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/profilePicUpdate');
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     request = new http.MultipartRequest("POST", uri)
@@ -162,7 +159,7 @@ class APIProvider extends ChangeNotifier {
 
       await http
           .post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/bannerSlider'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/bannerSlider'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -195,7 +192,7 @@ class APIProvider extends ChangeNotifier {
       final Map map = {"fetch_all": "true"};
       var body = json.encode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/productCategories'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -231,7 +228,7 @@ class APIProvider extends ChangeNotifier {
   Future<void> getMainCategoryWithId() async {
     try {
       var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/productCategories'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/productCategories'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -276,7 +273,7 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = json.encode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/products'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -298,7 +295,7 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = json.encode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/products'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -321,7 +318,7 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = json.encode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/products'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -342,7 +339,7 @@ class APIProvider extends ChangeNotifier {
   Future<void> getCategoryProducts(Map map) async {
     var body = json.encode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/products'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -360,7 +357,7 @@ class APIProvider extends ChangeNotifier {
     Map map = {"category_id": "$categoryId"};
     var body = json.encode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/products'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/products'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -378,7 +375,7 @@ class APIProvider extends ChangeNotifier {
     Map map = {"product_id": "$id"};
     var body = json.encode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/productInfo'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/productInfo'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -421,7 +418,7 @@ class APIProvider extends ChangeNotifier {
   Future<bool> replyProductQuestion(Map map) async {
     var body = json.encode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/productQuestion'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/productQuestion'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -438,7 +435,7 @@ class APIProvider extends ChangeNotifier {
   Future<bool> writeProductReview(Map map) async {
     var body = json.encode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/productReview'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/productReview'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -456,7 +453,7 @@ class APIProvider extends ChangeNotifier {
     var body = json.encode(map);
 
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/userValidate'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/userValidate'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -477,7 +474,7 @@ class APIProvider extends ChangeNotifier {
       var body = json.encode(map);
 
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/userInfo'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/userInfo'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -487,8 +484,8 @@ class APIProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
         _userInfoModel = userInfoModelFromJson(response.body);
+        _userInfoModel.content.customerOrders[0].pstatus;
 
-        print(_userInfoModel.content.profilePic);
 
         await pref.setString('username', _userInfoModel.content.username);
         await pref.setString('userId', _userInfoModel.content.id.toString());
@@ -510,17 +507,6 @@ class APIProvider extends ChangeNotifier {
           });
         } else
           _wishListIdList.clear();
-
-        if (jsonData['content']['customer_orders'].isNotEmpty) {
-          _orderList.clear();
-          jsonData['content']['customer_orders'].forEach((element) {
-            OrderModel model = OrderModel(
-                orderNo: element["order_no"],
-                date: DateTime.parse(element["date"]));
-            _orderList.add(model);
-          });
-          notifyListeners();
-        }
 
         ///Get Notifications
         if (jsonData['content']['notifications'].isNotEmpty) {
@@ -549,7 +535,7 @@ class APIProvider extends ChangeNotifier {
   Future<bool> updateUserInfo(Map map) async {
     var body = json.encode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/updadeMyAccount'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/updadeMyAccount'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -566,7 +552,7 @@ class APIProvider extends ChangeNotifier {
   Future<void> getSocialContactInfo() async {
     try {
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/socialContactInfo'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/socialContactInfo'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -585,7 +571,7 @@ class APIProvider extends ChangeNotifier {
 
   Future<void> getBasicContactInfo() async {
     var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/basicContactInfo'),
+      Uri.parse('https://www.baghmama.com.bd/graph/api/v4/basicContactInfo'),
       headers: {
         'Content-Type': _contentType,
         'X-Auth-Key': _xAuthKey,
@@ -603,7 +589,7 @@ class APIProvider extends ChangeNotifier {
   Future<String> createSupportTicket(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/newSupportTicket'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/newSupportTicket'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -622,7 +608,7 @@ class APIProvider extends ChangeNotifier {
   Future<RegisterUserModel> registerUser(Map data) async {
     var body = json.encode(data);
     var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/registerUser'),
+      Uri.parse('https://www.baghmama.com.bd/graph/api/v4/registerUser'),
       headers: {
         'Content-Type': _contentType,
         'X-Auth-Key': _xAuthKey,
@@ -637,7 +623,7 @@ class APIProvider extends ChangeNotifier {
   Future<bool> addProductToWishlist(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/addItemToWishlist'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/addItemToWishlist'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -657,7 +643,7 @@ class APIProvider extends ChangeNotifier {
       Map map = {"product_id": element};
       var body = jsonEncode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/productInfo'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/productInfo'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -679,7 +665,7 @@ class APIProvider extends ChangeNotifier {
     var body = jsonEncode(map);
     var response = await http.post(
         Uri.parse(
-            'https://baghmama.com.bd/graph/api/v4/removeItemFromWishlist'),
+            'https://www.baghmama.com.bd/graph/api/v4/removeItemFromWishlist'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -696,7 +682,7 @@ class APIProvider extends ChangeNotifier {
   Future<bool> updatePassword(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/updateUserPassword'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/updateUserPassword'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -714,7 +700,7 @@ class APIProvider extends ChangeNotifier {
     var body = jsonEncode(map);
     var response = await http.post(
         Uri.parse(
-            'https://baghmama.com.bd/graph/api/v4/forgotPasswordSendVerification'),
+            'https://www.baghmama.com.bd/graph/api/v4/forgotPasswordSendVerification'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -732,7 +718,7 @@ class APIProvider extends ChangeNotifier {
     var body = jsonEncode(map);
     var response = await http.post(
         Uri.parse(
-            'https://baghmama.com.bd/graph/api/v4/forgotPasswordSubmitPasword'),
+            'https://www.baghmama.com.bd/graph/api/v4/forgotPasswordSubmitPasword'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -749,7 +735,7 @@ class APIProvider extends ChangeNotifier {
   Future<dynamic> getCouponDiscount(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/couponDiscount'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/couponDiscount'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -772,7 +758,7 @@ class APIProvider extends ChangeNotifier {
 
   Future<bool> getShippingLocations() async {
     var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/shippingLocations'),
+      Uri.parse('https://www.baghmama.com.bd/graph/api/v4/shippingLocations'),
       headers: {
         'Content-Type': _contentType,
         'X-Auth-Key': _xAuthKey,
@@ -813,7 +799,7 @@ class APIProvider extends ChangeNotifier {
   Future<bool> getShippingMethods(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/shippingMethods'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/shippingMethods'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -850,7 +836,7 @@ class APIProvider extends ChangeNotifier {
   Future<String> getPageContent(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://baghmama.com.bd/graph/api/v4/pageContents'),
+        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/pageContents'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -870,7 +856,7 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = jsonEncode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/orderSubmit'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/orderSubmit'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -894,7 +880,7 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = jsonEncode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/orderInfo'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/orderInfo'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -915,7 +901,7 @@ class APIProvider extends ChangeNotifier {
 
   Future<void> getCampaignsDate({Map map}) async {
     var response = await http.post(
-      Uri.parse('https://baghmama.com.bd/graph/api/v4/campaigns'),
+      Uri.parse('https://www.baghmama.com.bd/graph/api/v4/campaigns'),
       headers: {
         'Content-Type': _contentType,
         'X-Auth-Key': _xAuthKey,
@@ -933,7 +919,7 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = jsonEncode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/campaignProducts'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/campaignProducts'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -956,7 +942,7 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = jsonEncode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/nagadPaymentInit'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/nagadPaymentInit'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -979,7 +965,7 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = jsonEncode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/nagadPaymentCheck'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/nagadPaymentCheck'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -1019,7 +1005,7 @@ class APIProvider extends ChangeNotifier {
       Map map = {"column_type": "username", "field": "${user.email}"};
       var body = json.encode(map);
       var response = await http.post(
-          Uri.parse('https://baghmama.com.bd/graph/api/v4/userInfo'),
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/userInfo'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -1050,19 +1036,7 @@ class APIProvider extends ChangeNotifier {
             _userInfoModel.content.wishlists.forEach((element) {
               _wishListIdList.add(element);
             });
-          } else
-            _wishListIdList.clear();
-
-          if (jsonData['content']['customer_orders'].isNotEmpty) {
-            _orderList.clear();
-            jsonData['content']['customer_orders'].forEach((element) {
-              OrderModel model = OrderModel(
-                  orderNo: element["order_no"],
-                  date: DateTime.parse(element["date"]));
-              _orderList.add(model);
-            });
-            notifyListeners();
-          }
+          } else _wishListIdList.clear();
 
           ///Get Notifications
           if (jsonData['content']['notifications'].isNotEmpty) {
@@ -1127,37 +1101,38 @@ class APIProvider extends ChangeNotifier {
       return false;
     }
   }
-  Future<User> signInWithFacebook() async {
-    // Create an instance of FacebookLogin
-    final fb = FacebookLogin();
-
-    // Log in
-    final res = await fb.logIn(permissions: [
-      FacebookPermission.publicProfile,
-      FacebookPermission.email,
-    ]);
-    if(res.status==FacebookLoginStatus.success){
-      // Send access token to server for validation and auth
-      final FacebookAccessToken accessToken = res.accessToken;
-      print('Access token: ${accessToken.token}');
-    }else print('Token Error!!!!!!');
-  }
 
   // Future<User> signInWithFacebook() async {
-  //   // Trigger the sign-in flow
-  //   await FacebookAuth.instance.logOut();
-  //   final LoginResult loginResult = await FacebookAuth.instance.login();
+  //   // Create an instance of FacebookLogin
+  //   final fb = FacebookLogin();
   //
-  //   print('Status:::::${loginResult.status}');
-  //   // Create a credential from the access token
-  //   final OAuthCredential facebookAuthCredential =
-  //       FacebookAuthProvider.credential(loginResult.accessToken.token);
-  //
-  //   // Once signed in, return the UserCredential
-  //   UserCredential cred = await FirebaseAuth.instance
-  //       .signInWithCredential(facebookAuthCredential);
-  //   print("Success with: ${cred.user.email}, ${cred.user.displayName}");
-  //
-  //   return cred.user;
+  //   // Log in
+  //   final res = await fb.logIn(permissions: [
+  //     FacebookPermission.publicProfile,
+  //     FacebookPermission.email,
+  //   ]);
+  //   if(res.status==FacebookLoginStatus.success){
+  //     // Send access token to server for validation and auth
+  //     final FacebookAccessToken accessToken = res.accessToken;
+  //     print('Access token: ${accessToken.token}');
+  //   }else print('Token Error!!!!!!');
   // }
+
+  Future<User> signInWithFacebook() async {
+    // Trigger the sign-in flow
+    //await FacebookAuth.instance.logOut();
+    final LoginResult loginResult = await FacebookAuth.instance.login();
+
+    print('Status:::::${loginResult.status}');
+    // Create a credential from the access token
+    final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(loginResult.accessToken.token);
+
+    // Once signed in, return the UserCredential
+    UserCredential cred = await FirebaseAuth.instance
+        .signInWithCredential(facebookAuthCredential);
+    print("Success with: ${cred.user.email}, ${cred.user.displayName}");
+
+    return cred.user;
+  }
 }

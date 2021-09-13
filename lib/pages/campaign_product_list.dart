@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 
 class CampaignProductList extends StatefulWidget {
   String dealId;
-  CampaignProductList({this.dealId});
+  DateTime startFrom;
+  DateTime endIn;
+  CampaignProductList({this.dealId,this.startFrom,this.endIn});
 
   @override
   _CampaignProductListState createState() => _CampaignProductListState();
@@ -30,7 +32,7 @@ class _CampaignProductListState extends State<CampaignProductList> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final Size size = MediaQuery.of(context).size;
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
@@ -83,12 +85,18 @@ class _CampaignProductListState extends State<CampaignProductList> {
         itemBuilder: (context, index){
           return InkWell(
               onTap: (){
-                print(apiProvider.campaignProductModel.content[index].id);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
-                  productId: apiProvider.campaignProductModel.content[index].id,
-                  categoryId: apiProvider.campaignProductModel.content[index].categoryId,
-                  isCampaign: true
-                )));
+                if(DateTime.now().millisecondsSinceEpoch>widget.startFrom.millisecondsSinceEpoch
+                    && DateTime.now().millisecondsSinceEpoch<widget.endIn.millisecondsSinceEpoch){
+                  print(apiProvider.campaignProductModel.content[index].id);
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetails(
+                      productId: apiProvider.campaignProductModel.content[index].id,
+                      categoryId: apiProvider.campaignProductModel.content[index].categoryId,
+                      isCampaign: true
+                  )));
+                }else{
+                  showInfo('Not Available');
+                }
+
               },
               child: ProductCartTile(index: index,productsModel: apiProvider.campaignProductModel));
         },

@@ -4,7 +4,7 @@ import 'package:bagh_mama/pages/change_theme.dart';
 import 'package:bagh_mama/pages/login_page.dart';
 import 'package:bagh_mama/pages/no_internet_page.dart';
 import 'package:bagh_mama/pages/notification_list.dart';
-import 'package:bagh_mama/pages/order_history_list.dart';
+import 'package:bagh_mama/pages/order_history_page.dart';
 import 'package:bagh_mama/pages/update_profile.dart';
 import 'package:bagh_mama/pages/wishlist_page.dart';
 import 'package:bagh_mama/provider/api_provider.dart';

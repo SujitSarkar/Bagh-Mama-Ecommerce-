@@ -1,3 +1,4 @@
+import 'package:bagh_mama/pages/order_details.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:bagh_mama/widget/order_history_tile.dart';
@@ -19,7 +20,7 @@ class _OrderHistoryState extends State<OrderHistory> {
     final APIProvider apiProvider = Provider.of<APIProvider>(context);
 
     return Scaffold(
-      backgroundColor: themeProvider.whiteBlackToggleColor(),
+      backgroundColor: themeProvider.togglePageBgColor(),
       appBar: AppBar(
         backgroundColor: themeProvider.whiteBlackToggleColor(),
         elevation: 0.0,
@@ -33,7 +34,7 @@ class _OrderHistoryState extends State<OrderHistory> {
               fontSize: size.width * .045),
         ),
       ),
-      body: apiProvider.orderList.isEmpty
+      body: apiProvider.userInfoModel.content.customerOrders.isEmpty
           ? Center(child: Text('No order placed by you !',style: TextStyle(
           color: themeProvider.toggleTextColor(),
           fontSize: size.width*.045
@@ -50,8 +51,12 @@ class _OrderHistoryState extends State<OrderHistory> {
     backgroundColor: themeProvider.togglePageBgColor(),
     child: ListView.builder(
       physics: BouncingScrollPhysics(),
-      itemCount: apiProvider.orderList.length,
-      itemBuilder: (context, index)=>OrderHistoryTile(orderModel: apiProvider.orderList[index]),
+      itemCount: apiProvider.userInfoModel.content.customerOrders.length,
+      itemBuilder: (context, index)=>InkWell(
+        onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderDetails(
+          orderId: apiProvider.userInfoModel.content.customerOrders[index].orderNo,
+        ))),
+          child: OrderHistoryTile(orderModel: apiProvider.userInfoModel.content.customerOrders[index])),
     ),
   );
 }

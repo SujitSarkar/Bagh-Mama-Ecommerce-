@@ -79,7 +79,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                   fontWeight: FontWeight.bold,
               fontSize: size.width*.04)),
 
-              Text('Ordering Date: ${DateFormat('dd-MM-yy – hh:mm aa').format(apiProvider.orderInfoModel.content.orderDate)}',
+              Text('Ordering Date: ${DateFormat('dd-MM-yy, hh:mm aa').format(apiProvider.orderInfoModel.content.orderDate)}',
                 style: TextStyle(color: themeProvider.toggleTextColor(),
                     fontSize: size.width*.034))
             ],
@@ -234,33 +234,6 @@ class _OrderDetailsState extends State<OrderDetails> {
                         color: Colors.grey,
                         fontWeight: FontWeight.w400),
                   )
-
-                  ///Price Row
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.start,
-                  //   crossAxisAlignment: CrossAxisAlignment.center,
-                  //   children: [
-                  //     Text(
-                  //       discountPrice!=0
-                  //           ? '${themeProvider.currency}${themeProvider.toggleCurrency(discountPrice.toString())}'
-                  //           : '${themeProvider.currency}${themeProvider.toggleCurrency(databaseHelper.cartList[index].pPrice)}',
-                  //       maxLines: 1,
-                  //       style: TextStyle(
-                  //           fontSize:  size.width*.04, color: themeProvider.orangeWhiteToggleColor(),fontWeight: FontWeight.w500),
-                  //     ),
-                  //     SizedBox(width: size.width*.02),
-                  //
-                  //     databaseHelper.cartList[index].pDiscount!='0'
-                  //         ?Text('(${themeProvider.currency}${themeProvider.toggleCurrency(databaseHelper.cartList[index].pPrice)})',
-                  //       maxLines: 1,
-                  //       style: TextStyle(
-                  //           fontSize:  size.width*.035,
-                  //           color: Colors.grey,
-                  //           fontWeight: FontWeight.w400,
-                  //           decoration: TextDecoration.lineThrough),
-                  //     ):Container(),
-                  //   ],
-                  // ),
 
                 ],
               ),

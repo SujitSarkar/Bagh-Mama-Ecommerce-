@@ -64,6 +64,8 @@ class _CampaignsListPageState extends State<CampaignsListPage> {
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>CampaignProductList(
                       dealId: apiProvider.campaignsDateModel.content[index].dealId,
+                      startFrom: apiProvider.campaignsDateModel.content[index].startFrom,
+                      endIn: apiProvider.campaignsDateModel.content[index].endIn,
                     )));
                   },
                   child: CampaignDateTile(index: index,campaignList: apiProvider.campaignsDateModel.content)),

@@ -58,6 +58,7 @@ class Content {
     this.mobileNumber,
     this.profilePic,
     this.wishlists,
+    this.customerOrders
   });
 
   String id;
@@ -76,6 +77,7 @@ class Content {
   String mobileNumber;
   String profilePic;
   List<String> wishlists;
+  List<CustomerOrder> customerOrders;
 
   factory Content.fromJson(Map<String, dynamic> json) => Content(
     id: json["id"],
@@ -94,6 +96,7 @@ class Content {
     mobileNumber: json["mobile_number"],
     profilePic: json["profile_pic"],
     wishlists: List<String>.from(json["wishlists"].map((x) => x)),
+    customerOrders: List<CustomerOrder>.from(json["customer_orders"].map((x) => CustomerOrder.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -113,8 +116,66 @@ class Content {
     "mobile_number": mobileNumber,
     "profile_pic": profilePic,
     "wishlists": List<dynamic>.from(wishlists.map((x) => x)),
+    "customer_orders": List<dynamic>.from(customerOrders.map((x) => x.toJson())),
   };
 }
+
+class CustomerOrder {
+  CustomerOrder({
+    this.orderNo,
+    this.date,
+    this.products,
+    this.pstatus,
+    this.usedCoupon,
+  });
+
+  String orderNo;
+  DateTime date;
+  List<Product> products;
+  String pstatus;
+  dynamic usedCoupon;
+
+  factory CustomerOrder.fromJson(Map<String, dynamic> json) => CustomerOrder(
+    orderNo: json["order_no"],
+    date: DateTime.parse(json["date"]),
+    products: List<Product>.from(json["products"].map((x) => Product.fromJson(x))),
+    pstatus: json["pstatus"],
+    usedCoupon: json["usedCoupon"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "order_no": orderNo,
+    "date": date.toIso8601String(),
+    "products": List<dynamic>.from(products.map((x) => x.toJson())),
+    "pstatus": pstatus,
+    "usedCoupon": usedCoupon,
+  };
+}
+
+class Product {
+  Product({
+    this.productImage,
+    this.productName,
+    this.productPrice,
+  });
+
+  String productImage;
+  String productName;
+  int productPrice;
+
+  factory Product.fromJson(Map<String, dynamic> json) => Product(
+    productImage: json["productImage"],
+    productName: json["productName"],
+    productPrice: json["productPrice"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "productImage": productImage,
+    "productName": productName,
+    "productPrice": productPrice,
+  };
+}
+
 
 
 

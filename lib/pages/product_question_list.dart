@@ -195,7 +195,7 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
                     ),
                     SizedBox(height: 3),
                     Text(
-                        DateFormat('dd-MMM-yyyy – hh:mm aa').format(apiProvider.productQuestionList[index].date),
+                        DateFormat('dd-MMM-yyyy, hh:mm aa').format(apiProvider.productQuestionList[index].date),
                       maxLines: 2,
                       style: TextStyle(
                           fontSize:  size.width*.03, color: Colors.grey[600]),
@@ -259,7 +259,7 @@ class _ProductQuestionListState extends State<ProductQuestionList> {
                           ),
                           SizedBox(height: 3),
                           Text(
-                            DateFormat('dd-MMM-yyyy – hh:mm aa').format(apiProvider.productQuestionList[index].replies[ind].date),
+                            DateFormat('dd-MMM-yyyy, hh:mm aa').format(apiProvider.productQuestionList[index].replies[ind].date),
                             maxLines: 2,
                             style: TextStyle(
                                 fontSize:  size.width*.03, color: Colors.grey[600]),

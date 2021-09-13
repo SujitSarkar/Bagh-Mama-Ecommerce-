@@ -1,6 +1,8 @@
 import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class CampaignDateTile extends StatelessWidget {
@@ -17,7 +19,7 @@ class CampaignDateTile extends StatelessWidget {
     return StreamBuilder(
       stream: Stream.periodic(Duration(seconds: 1), (i) => i),
       builder: (BuildContext context, AsyncSnapshot<int> snapshot){
-        int remainingSec = campaignList[index].endIn.difference(DateTime.now()).inSeconds;
+        int remainingSec = campaignList[index].startFrom.difference(DateTime.now()).inSeconds;
         int day = remainingSec~/(24*3600);
         remainingSec = remainingSec%(24*3600);
         int hours= remainingSec~/3600;
@@ -50,7 +52,7 @@ class CampaignDateTile extends StatelessWidget {
                 top: size.width*.02,
                 right:size.width*.02,
                 child: Container(
-                  width: size.width*.4,
+                  width: size.width*.45,
                   height: size.width*.09,
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.symmetric(horizontal: size.width*.01),
@@ -62,6 +64,7 @@ class CampaignDateTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
+                      Text('Starts in ',style: _counterTitleStyle(size)),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,

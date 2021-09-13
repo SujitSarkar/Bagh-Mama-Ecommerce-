@@ -70,8 +70,7 @@ class _HomeScreenState extends State<HomeScreen>
       await apiProvider.getBannerImageList();
 
     if (apiProvider.newArrivalProductModel == null)
-      await apiProvider
-          .getNewArrivalProducts({"product_limit": 51, "sort": "2"});
+      await apiProvider.getNewArrivalProducts({"product_limit": 51, "sort": "2"});
     if (apiProvider.popularProductModel == null)
       await apiProvider.getPopularProducts({"product_limit": 51, "sort": "1"});
     if (apiProvider.allProductModel == null)
