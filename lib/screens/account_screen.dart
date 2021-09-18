@@ -42,12 +42,12 @@ class _AccountScreenState extends State<AccountScreen> {
     //await themeProvider.checkConnectivity();
     if (databaseHelper.cartList.isEmpty) await databaseHelper.getCartList();
     if (pref.getString('username') != null) {
-      if (apiProvider.userInfoModel == null) {
+      if (apiProvider.userInfoModel == null)
         await apiProvider.getUserInfo(pref.getString('username'));
-      }
+
     }
-    if (apiProvider.basicContactInfo == null)
-      await apiProvider.getBasicContactInfo();
+    if(themeProvider.siteSettingModel==null) await themeProvider.getSiteSetting();
+    if (apiProvider.basicContactInfo == null) await apiProvider.getBasicContactInfo();
     setState(() => _isLoading = false);
   }
 

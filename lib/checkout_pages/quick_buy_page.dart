@@ -1,6 +1,5 @@
 import 'package:bagh_mama/checkout_pages/nagad_payment_webview.dart';
 import 'package:bagh_mama/models/nagad_payment_model.dart';
-import 'package:bagh_mama/models/shipping_location_model.dart';
 import 'package:bagh_mama/models/shipping_methods_model.dart';
 import 'package:bagh_mama/provider/api_provider.dart';
 import 'package:bagh_mama/provider/theme_provider.dart';
@@ -49,7 +48,7 @@ class QuickBuyPage extends StatefulWidget {
 class _QuickBuyPageState extends State<QuickBuyPage> {
   int productQuantity = 1;
 
-  //bool _isLoading1=true;
+  bool _isLoading=true;
   bool _isLoading2 = true;
   String totalPrice;
   ShippingMethodsModel _shippingMethod;
@@ -70,9 +69,12 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
     pref = await SharedPreferences.getInstance();
     Map map;
     if (widget.isCampaign) {
-      map = {"location":"1","campaigns": true};
-    }else{map = {"location":"1","campaigns": false};}
-    apiProvider.getShippingMethods(map).then((value) {
+      map={"location":"1","campaignMethods": true};
+    }else{map={"location":"1","campaignMethods": false};}
+    await apiProvider.getPaymentGateways().then((value){
+      setState(()=>_isLoading=false);
+    });
+    await apiProvider.getShippingMethods(map).then((value) {
       setState(()=>_isLoading2 = false);
     });
     if(pref.getString('username')!=null){
@@ -119,7 +121,8 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
               fontSize: size.width * .045),
         ),
       ),
-      body: _bodyUI(themeProvider, apiProvider, size),
+      body: _isLoading? Center(child: threeBounce(themeProvider))
+          :_bodyUI(themeProvider, apiProvider, size),
     );
   }
 
@@ -446,7 +449,7 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
                   style: TextStyle(
                       color: themeProvider.toggleTextColor(),
                       fontSize: size.width * .04)),
-              Row(
+              apiProvider.paymentGateways.contains('SSLCommerz')? Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -467,8 +470,8 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
                     height: 30,
                   ),
                 ],
-              ),
-              Row(
+              ):Container(),
+              apiProvider.paymentGateways.contains('Nagad')? Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -489,8 +492,8 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
                     height: 30,
                   ),
                 ],
-              ),
-              _radioTileBuilder(3, 'Cash On Delivery', themeProvider, size),
+              ):Container(),
+              apiProvider.paymentGateways.contains('Cash On Delivery')? _radioTileBuilder(3, 'Cash On Delivery', themeProvider, size):Container(),
               SizedBox(height: size.width * .07),
 
               ElevatedButton(

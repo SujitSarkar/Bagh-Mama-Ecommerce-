@@ -58,7 +58,8 @@ class Content {
     this.mobileNumber,
     this.profilePic,
     this.wishlists,
-    this.customerOrders
+    this.customerOrders,
+    this.notifications,
   });
 
   String id;
@@ -78,6 +79,7 @@ class Content {
   String profilePic;
   List<String> wishlists;
   List<CustomerOrder> customerOrders;
+  List<Notification> notifications;
 
   factory Content.fromJson(Map<String, dynamic> json) => Content(
     id: json["id"],
@@ -97,6 +99,7 @@ class Content {
     profilePic: json["profile_pic"],
     wishlists: List<String>.from(json["wishlists"].map((x) => x)),
     customerOrders: List<CustomerOrder>.from(json["customer_orders"].map((x) => CustomerOrder.fromJson(x))),
+    notifications: List<Notification>.from(json["notifications"].map((x) => Notification.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -117,6 +120,7 @@ class Content {
     "profile_pic": profilePic,
     "wishlists": List<dynamic>.from(wishlists.map((x) => x)),
     "customer_orders": List<dynamic>.from(customerOrders.map((x) => x.toJson())),
+    "notifications": List<dynamic>.from(notifications.map((x) => x.toJson())),
   };
 }
 
@@ -127,6 +131,7 @@ class CustomerOrder {
     this.products,
     this.pstatus,
     this.usedCoupon,
+    this.paymentStatus,
   });
 
   String orderNo;
@@ -134,6 +139,7 @@ class CustomerOrder {
   List<Product> products;
   String pstatus;
   dynamic usedCoupon;
+  String paymentStatus;
 
   factory CustomerOrder.fromJson(Map<String, dynamic> json) => CustomerOrder(
     orderNo: json["order_no"],
@@ -141,6 +147,7 @@ class CustomerOrder {
     products: List<Product>.from(json["products"].map((x) => Product.fromJson(x))),
     pstatus: json["pstatus"],
     usedCoupon: json["usedCoupon"],
+    paymentStatus: json["payment_status"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -149,6 +156,7 @@ class CustomerOrder {
     "products": List<dynamic>.from(products.map((x) => x.toJson())),
     "pstatus": pstatus,
     "usedCoupon": usedCoupon,
+    "payment_status": paymentStatus,
   };
 }
 
@@ -165,16 +173,45 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) => Product(
     productImage: json["productImage"],
-    productName: json["productName"],
+    productName: json["productName"] == null ? null : json["productName"],
     productPrice: json["productPrice"],
   );
 
   Map<String, dynamic> toJson() => {
     "productImage": productImage,
-    "productName": productName,
+    "productName": productName == null ? null : productName,
     "productPrice": productPrice,
   };
 }
+
+class Notification {
+  Notification({
+    this.notificationType,
+    this.notificationText,
+    this.link,
+    this.status,
+  });
+
+  String notificationType;
+  String notificationText;
+  String link;
+  String status;
+
+  factory Notification.fromJson(Map<String, dynamic> json) => Notification(
+    notificationType: json["notificationType"],
+    notificationText: json["notificationText"],
+    link: json["link"],
+    status: json["status"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "notificationType": notificationType,
+    "notificationText": notificationText,
+    "link": link,
+    "status": status,
+  };
+}
+
 
 
 
@@ -184,7 +221,6 @@ class WishListModel{
   String pName;
   String pPrice;
   String pImageLink;
-
   WishListModel({this.pId, this.pName, this.pPrice, this.pImageLink});
 }
 

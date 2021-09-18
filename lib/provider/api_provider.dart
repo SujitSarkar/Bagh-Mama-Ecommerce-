@@ -67,6 +67,7 @@ class APIProvider extends ChangeNotifier {
   CampaignProductModel _campaignProductModel;
   InitNagadModel _initNagadModel;
   NagadPaymentModel _nagadPaymentModel;
+  List<String> _paymentGateways=[];
 
   get selectedIndex => _selectedIndex;
   get bannerImageList => _bannerImageList;
@@ -99,6 +100,7 @@ class APIProvider extends ChangeNotifier {
   get campaignProductModel => _campaignProductModel;
   get initNagadModel => _initNagadModel;
   get nagadPaymentModel => _nagadPaymentModel;
+  get paymentGateways=>_paymentGateways;
 
   set userInfoModel(UserInfoModel value) {
     _userInfoModel = value;
@@ -484,7 +486,7 @@ class APIProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         var jsonData = jsonDecode(response.body);
         _userInfoModel = userInfoModelFromJson(response.body);
-        _userInfoModel.content.customerOrders[0].pstatus;
+        //_userInfoModel.content.customerOrders[0].pstatus;
 
 
         await pref.setString('username', _userInfoModel.content.username);
@@ -974,6 +976,31 @@ class APIProvider extends ChangeNotifier {
           body: body);
       if (response.statusCode == 200) {
         _nagadPaymentModel = nagadPaymentModelFromJson(response.body);
+        notifyListeners();
+        return true;
+      } else
+        return false;
+    } on SocketException {
+      showInfo('No Internet Connection !');
+      return false;
+    }
+  }
+  Future<bool> getPaymentGateways() async {
+    try {
+      var response = await http.post(
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/paymentGateways'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail
+          });
+      if (response.statusCode == 200) {
+        _paymentGateways.clear();
+        var jsonData= jsonDecode(response.body);
+        jsonData['content'].forEach((element){
+          _paymentGateways.add(element['gatewayName']);
+        });
+        _paymentGateways.contains('');
         notifyListeners();
         return true;
       } else

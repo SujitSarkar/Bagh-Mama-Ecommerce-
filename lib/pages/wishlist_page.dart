@@ -73,7 +73,7 @@ class _WishListPageState extends State<WishListPage> {
   );
 
   Widget _wishListCartTile(ThemeProvider themeProvider, APIProvider apiProvider, Size size,int index){
-    return Container(
+    return apiProvider.wishList[index].pName==null?Container(): Container(
       padding: EdgeInsets.symmetric(vertical: 10,horizontal: size.width*.03),
       margin: EdgeInsets.only(bottom: 5),
       child: Column(

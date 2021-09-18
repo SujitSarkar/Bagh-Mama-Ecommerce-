@@ -62,13 +62,17 @@ class _CampaignsListPageState extends State<CampaignsListPage> {
               itemCount: apiProvider.campaignsDateModel.content.length,
               itemBuilder: (context, index)=>InkWell(
                   onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>CampaignProductList(
-                      dealId: apiProvider.campaignsDateModel.content[index].dealId,
-                      startFrom: apiProvider.campaignsDateModel.content[index].startFrom,
-                      endIn: apiProvider.campaignsDateModel.content[index].endIn,
-                    )));
+                    if(DateTime.now().millisecondsSinceEpoch>apiProvider.campaignsDateModel.content[index].endIn.millisecondsSinceEpoch){
+                      showToast('Campaign Expired');
+                    }else{
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>CampaignProductList(
+                        dealId: apiProvider.campaignsDateModel.content[index].dealId,
+                        startFrom: apiProvider.campaignsDateModel.content[index].startFrom,
+                        endIn: apiProvider.campaignsDateModel.content[index].endIn,
+                      )));
+                    }
                   },
-                  child: CampaignDateTile(index: index,campaignList: apiProvider.campaignsDateModel.content)),
+                  child: CampaignDateTile(index: index,campaignList: apiProvider.campaignsDateModel.content[index])),
             ),
           ):Center(child: Text('No Campaigns !',
               style: TextStyle(color: themeProvider.toggleTextColor(),fontSize: size.width*.04)))

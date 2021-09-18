@@ -48,6 +48,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
   String totalWithDeliveryCost='';
   int _paymentRadioValue=0;
   int _counter = 0;
+  bool _isLoading=true;
 
   @override
   void initState() {
@@ -68,6 +69,8 @@ class _ReviewOrderState extends State<ReviewOrder> {
         await apiProvider.getUserInfo(pref.getString('username'));
       }
     }
+    await apiProvider.getPaymentGateways();
+    setState(()=>_isLoading=false);
   }
 
   @override
@@ -93,7 +96,8 @@ class _ReviewOrderState extends State<ReviewOrder> {
               fontSize: size.width * .045),
         ),
       ),
-      body: _bodyUI(themeProvider,apiProvider,databaseHelper,size),
+      body: _isLoading? Center(child: threeBounce(themeProvider))
+          :_bodyUI(themeProvider,apiProvider,databaseHelper,size),
     );
   }
 
@@ -199,7 +203,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
               SizedBox(height: size.width * .04),
 
               ///SSL Commerz Radio
-              Row(
+              apiProvider.paymentGateways.contains('SSLCommerz')? Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -217,9 +221,9 @@ class _ReviewOrderState extends State<ReviewOrder> {
                   ),
                   Image.asset('assets/ssl_commerz.png',height: 30,),
                 ],
-              ),
+              ):Container(),
               ///Nagad Radio
-              Row(
+              apiProvider.paymentGateways.contains('Nagad')? Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -240,8 +244,9 @@ class _ReviewOrderState extends State<ReviewOrder> {
                     height: 30,
                   ),
                 ],
-              ),
-              _radioTileBuilder(3, 'Cash On Delivery', themeProvider, size),
+              ):Container(),
+              apiProvider.paymentGateways.contains('Cash On Delivery')
+                  ? _radioTileBuilder(3, 'Cash On Delivery', themeProvider, size):Container(),
               SizedBox(height: size.width * .07),
 
               ElevatedButton(

@@ -104,7 +104,12 @@ class _OrderDetailsState extends State<OrderDetails> {
                 style: TextStyle(fontSize: size.width*.04,color: themeProvider.toggleTextColor()),
                 children: <TextSpan>[
                   TextSpan(text: 'Payment Type: ',style: TextStyle(fontWeight: FontWeight.w500)),
-                  TextSpan(text: apiProvider.orderInfoModel.content.paymentInfo.paymentType),
+                  TextSpan(text: '${apiProvider.orderInfoModel.content.paymentInfo.paymentType}'),
+                  TextSpan(text: '\nPayment Status: ',style: TextStyle(fontWeight: FontWeight.w500)),
+                  TextSpan(text: apiProvider.orderInfoModel.content.paymentInfo.paymentStatus,style: TextStyle(
+                    color: apiProvider.orderInfoModel.content.paymentInfo.paymentStatus.toLowerCase()=='paid'? Colors.green
+                        :Colors.amber.shade900,
+                  )),
                   TextSpan(text: '\n\nShipping Address: ',style: TextStyle(fontWeight: FontWeight.w500)),
                   TextSpan(text: apiProvider.orderInfoModel.content.shippingInfo.shippingAddress),
 
@@ -149,7 +154,9 @@ class _OrderDetailsState extends State<OrderDetails> {
   Widget _productTile(int index,ThemeProvider themeProvider, APIProvider apiProvider,Size size)=>Container(
     padding: EdgeInsets.symmetric(vertical: 10),
     margin: EdgeInsets.only(bottom: 5),
-    child: Column(
+    child:apiProvider.orderInfoModel.content.products[index].productName==null
+        ? Container()
+        : Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

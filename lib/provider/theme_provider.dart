@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'dart:math';
-
+import 'package:bagh_mama/models/site_setting_model.dart';
 import 'package:bagh_mama/variables/color_variables.dart';
+import 'package:bagh_mama/widget/notification_widget.dart';
 // import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class ThemeProvider extends ChangeNotifier{
   ThemeData _themeData;
@@ -12,12 +15,14 @@ class ThemeProvider extends ChangeNotifier{
   bool _internetConnected=true;
   String _currencyTo='BDT';
   String _currency='TK.';
+  SiteSettingModel _siteSettingModel;
 
   get themeData => _themeData;
   get isLight => _isLight;
   get internetConnected=> _internetConnected;
   get currencyTo=> _currencyTo;
   get currency=> _currency;
+  get siteSettingModel=>_siteSettingModel;
 
   set currencyTo(String val){
     _currencyTo = val;
@@ -70,7 +75,6 @@ class ThemeProvider extends ChangeNotifier{
       pref.setBool('isLight', false);
     }
   }
-
   // Future<void> checkConnectivity() async {
   //   var result = await (Connectivity().checkConnectivity());
   //   if (result == ConnectivityResult.none) {
@@ -90,13 +94,34 @@ class ThemeProvider extends ChangeNotifier{
     return ((value * mod).round().toDouble() / mod);
   }
 
+  Future<void> getSiteSetting()async{
+    try{
+      var response = await http.post(
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/siteSettings'),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Auth-Key': 'aHR0cHN+YmFnaG1hbWEuY29tLmJkfmFwaQ',
+            'X-Auth-Email': 'info@baghmama.com.bd'
+          });
+      if (response.statusCode == 200) {
+        _siteSettingModel = siteSettingModelFromJson(response.body);
+        notifyListeners();
+        print(_siteSettingModel.content.currencyRate.bdt);
+      }
+    }on SocketException{
+      showToast('No Internet Connection');
+    }
+    catch(error){
+      showToast(error.toString());
+    }
+  }
+
   String toggleCurrency(String amount){
     if(_currencyTo=='USD'){
-      double result= roundDouble(double.parse(amount)*0.012, 3);
+      double result= roundDouble(double.parse(amount)/double.parse(_siteSettingModel.content.currencyRate.bdt), 2);
       return result.toString();
     }
     else return amount;
-
   }
   Color toggleBgColor()=> _isLight? Colors.white:CColor.darkThemeColor;
   Color toggleTextColor()=> _isLight? Colors.grey[800]:Colors.grey[300];

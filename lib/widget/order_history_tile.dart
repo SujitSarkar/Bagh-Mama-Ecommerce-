@@ -41,8 +41,18 @@ class OrderHistoryTile extends StatelessWidget {
                     ]
                 ),
               ),
-              Text(orderModel.pstatus,
-                  style: TextStyle(color: Colors.grey,fontSize: size.width*.04,fontStyle: FontStyle.italic))
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(orderModel.pstatus,
+                      style: TextStyle(color: Colors.grey,fontSize: size.width*.04,fontStyle: FontStyle.italic)),
+                  Text(orderModel.paymentStatus,
+                      style: TextStyle(
+                          color: orderModel.paymentStatus.toLowerCase()=='paid'? Colors.green
+                              :Colors.amber.shade900,
+                          fontSize: size.width*.038)),
+                ],
+              )
             ],
           ),
           RichText(
@@ -72,7 +82,9 @@ class OrderHistoryTile extends StatelessWidget {
 
   Widget _productTile(Product product,ThemeProvider themeProvider,Size size)=>Container(
     padding: EdgeInsets.symmetric(vertical: 10),
-    child: Column(
+    child: product.productName==null
+        ?Container()
+        :Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

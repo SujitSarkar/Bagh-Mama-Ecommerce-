@@ -2,7 +2,6 @@ import 'package:bagh_mama/provider/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class CampaignDateTile extends StatelessWidget {
@@ -19,21 +18,36 @@ class CampaignDateTile extends StatelessWidget {
     return StreamBuilder(
       stream: Stream.periodic(Duration(seconds: 1), (i) => i),
       builder: (BuildContext context, AsyncSnapshot<int> snapshot){
-        int remainingSec = campaignList[index].startFrom.difference(DateTime.now()).inSeconds;
-        int day = remainingSec~/(24*3600);
-        remainingSec = remainingSec%(24*3600);
-        int hours= remainingSec~/3600;
-        remainingSec%=3600;
-        int minute=remainingSec~/60;
-        remainingSec%=60;
-        int second = remainingSec;
+        int remainingSec, day,hours,minute,second;
+
+        if(DateTime.now().millisecondsSinceEpoch>campaignList.startFrom.millisecondsSinceEpoch){
+
+          remainingSec = campaignList.endIn.difference(DateTime.now()).inSeconds;
+          day = remainingSec~/(24*3600);
+          remainingSec = remainingSec%(24*3600);
+          hours= remainingSec~/3600;
+          remainingSec%=3600;
+          minute=remainingSec~/60;
+          remainingSec%=60;
+          second = remainingSec;
+        }else{
+          remainingSec = campaignList.startFrom.difference(DateTime.now()).inSeconds;
+          day = remainingSec~/(24*3600);
+          remainingSec = remainingSec%(24*3600);
+          hours= remainingSec~/3600;
+          remainingSec%=3600;
+          minute=remainingSec~/60;
+          remainingSec%=60;
+          second = remainingSec;
+        }
+
         return Container(
           margin: EdgeInsets.only(bottom: 15,left: size.width*.03,right: size.width*.03),
           child: Stack(
             children: [
               ///Thumbnail Image
               CachedNetworkImage(
-                  imageUrl:campaignList[index].banner,
+                  imageUrl:campaignList.banner,
                   placeholder: (context, url) => Image.asset('assets/placeholder.png',
                       height: size.width*.5,
                       width: size.width,
@@ -52,19 +66,25 @@ class CampaignDateTile extends StatelessWidget {
                 top: size.width*.02,
                 right:size.width*.02,
                 child: Container(
-                  width: size.width*.45,
+                  width:DateTime.now().millisecondsSinceEpoch>campaignList.endIn.millisecondsSinceEpoch
+                      ?size.width*.2: size.width*.45,
                   height: size.width*.09,
-                  alignment: Alignment.centerLeft,
+                  alignment: DateTime.now().millisecondsSinceEpoch>campaignList.endIn.millisecondsSinceEpoch
+                      ?Alignment.center: Alignment.centerLeft,
                   padding: EdgeInsets.symmetric(horizontal: size.width*.01),
                  decoration: BoxDecoration(
                    color: Colors.black.withOpacity(0.7),
                    borderRadius: BorderRadius.all(Radius.circular(size.width*.3))
                  ),
-                  child: Row(
+                  child: DateTime.now().millisecondsSinceEpoch>campaignList.endIn.millisecondsSinceEpoch
+                      ? Text('Expired',textAlign:TextAlign.center,style: _counterTitleStyle(size))
+                      : Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text('Starts in ',style: _counterTitleStyle(size)),
+                      DateTime.now().millisecondsSinceEpoch>campaignList.startFrom.millisecondsSinceEpoch
+                          ?Container()
+                          :Text('Starts in ',style: _counterTitleStyle(size)),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +128,7 @@ class CampaignDateTile extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: size.width*.03),
                   height: size.width*.08,
                   color: Colors.black.withOpacity(0.7),
-                  child: Text('${campaignList[index].campaignTitle}',
+                  child: Text('${campaignList.campaignTitle}',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: size.width*.04

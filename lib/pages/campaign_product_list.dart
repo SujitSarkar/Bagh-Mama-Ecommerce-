@@ -94,9 +94,8 @@ class _CampaignProductListState extends State<CampaignProductList> {
                       isCampaign: true
                   )));
                 }else{
-                  showInfo('Not Available');
+                  showInfo('Campaign Not Available');
                 }
-
               },
               child: ProductCartTile(index: index,productsModel: apiProvider.campaignProductModel));
         },
