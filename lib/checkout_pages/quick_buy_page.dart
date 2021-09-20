@@ -674,13 +674,14 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
   Future<void> _payNagad(APIProvider apiProvider)async{
     showLoadingDialog('Please wait');
     Map map={
-      "payment_amount":  totalPrice
+      "payment_amount": totalPrice,
+      "delivery_cost": _shippingMethod.cost,
     };
     await apiProvider.initNagadPayment(map).then((value)async{
       if(value){
         closeLoadingDialog();
         print(apiProvider.initNagadModel.content.redirectUrl);
-        bool result =await Navigator.push(context, MaterialPageRoute(builder: (context)=>
+        bool result = await Navigator.push(context, MaterialPageRoute(builder: (context)=>
             NagadPaymentWebView(initUrl: apiProvider.initNagadModel.content.redirectUrl)));
 
         if(result==true){
@@ -688,7 +689,7 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
           Map map={ "payment_ref_id":apiProvider.initNagadModel.content.paymentRefId};
           await apiProvider.nagadPaymentCheck(map).then((value){
             closeLoadingDialog();
-            if(apiProvider.nagadPaymentModel.content.status.toLowerCase()=='success'){
+            if(apiProvider.nagadPaymentModel['status'].toLowerCase()=='success'){
               placeOrder(apiProvider, nagadPaymentModel: apiProvider.nagadPaymentModel);
             }
           });
@@ -705,8 +706,10 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
   }
 
   void placeOrder(APIProvider apiProvider,
-      {SSLCTransactionInfoModel model, NagadPaymentModel nagadPaymentModel}) async {
+      {SSLCTransactionInfoModel model, var nagadPaymentModel}) async {
+
     showLoadingDialog('Ordering...');
+
     var paymentResponseObject;
     if (model != null && nagadPaymentModel==null) {
       paymentResponseObject =
@@ -730,22 +733,7 @@ class _QuickBuyPageState extends State<QuickBuyPage> {
         };
     }
     else if(model == null && nagadPaymentModel!=null){
-      paymentResponseObject={
-        "merchantId": nagadPaymentModel.content.merchantId,
-        "orderId": nagadPaymentModel.content.orderId,
-        "paymentRefId": nagadPaymentModel.content.paymentRefId,
-        "amount": nagadPaymentModel.content.amount,
-        "clientMobileNo": nagadPaymentModel.content.clientMobileNo,
-        "merchantMobileNo": nagadPaymentModel.content.merchantMobileNo,
-        "orderDateTime": nagadPaymentModel.content.orderDateTime,
-        "issuerPaymentDateTime": nagadPaymentModel.content.issuerPaymentDateTime,
-        "issuerPaymentRefNo": nagadPaymentModel.content.issuerPaymentRefNo,
-        "additionalMerchantInfo": nagadPaymentModel.content.additionalMerchantInfo,
-        "status": nagadPaymentModel.content.status,
-        "statusCode": nagadPaymentModel.content.statusCode,
-        "cancelIssuerDateTime": nagadPaymentModel.content.cancelIssuerDateTime,
-        "cancelIssuerRefNo": nagadPaymentModel.content.cancelIssuerRefNo
-      };
+      paymentResponseObject= nagadPaymentModel;
     }
     else {
       paymentResponseObject = '';

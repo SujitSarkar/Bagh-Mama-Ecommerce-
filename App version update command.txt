@@ -1,0 +1,4 @@
+###To release app from vs code...
+>>> flutter build apk --build-name=1.0.4 --build-number=5
+
+>>> flutter build appbundle --build-name=1.0.2 --build-number=3

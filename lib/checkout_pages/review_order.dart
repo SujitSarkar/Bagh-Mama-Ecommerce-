@@ -389,8 +389,10 @@ class _ReviewOrderState extends State<ReviewOrder> {
 
   Future<void> _payNagad(APIProvider apiProvider, DatabaseHelper databaseHelper)async{
     showLoadingDialog('Please wait');
+
     Map map={
-      "payment_amount":  double.parse(totalWithDeliveryCost)
+      "payment_amount": totalWithDeliveryCost,
+      "delivery_cost": widget.shippingMethod.cost
     };
     await apiProvider.initNagadPayment(map).then((value)async{
       if(value){
@@ -404,7 +406,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
           Map map={ "payment_ref_id":apiProvider.initNagadModel.content.paymentRefId};
           await apiProvider.nagadPaymentCheck(map).then((value){
             closeLoadingDialog();
-            if(apiProvider.nagadPaymentModel.content.status.toLowerCase()=='success'){
+            if(apiProvider.nagadPaymentModel['status'].toLowerCase()=='success'){
               placeOrder(apiProvider, databaseHelper, nagadPaymentModel: apiProvider.nagadPaymentModel);
             }
           });
@@ -421,7 +423,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
   }
 
   void placeOrder(APIProvider apiProvider, DatabaseHelper databaseHelper,
-      {SSLCTransactionInfoModel model,NagadPaymentModel nagadPaymentModel})async{
+      {SSLCTransactionInfoModel model,var nagadPaymentModel})async{
     showLoadingDialog('Ordering...');
 
     var _orderingProductList=[];
@@ -457,22 +459,7 @@ class _ReviewOrderState extends State<ReviewOrder> {
       };
     }
     else if(model == null && nagadPaymentModel!=null){
-      paymentResponseObject={
-        "merchantId": nagadPaymentModel.content.merchantId,
-        "orderId": nagadPaymentModel.content.orderId,
-        "paymentRefId": nagadPaymentModel.content.paymentRefId,
-        "amount": nagadPaymentModel.content.amount,
-        "clientMobileNo": nagadPaymentModel.content.clientMobileNo,
-        "merchantMobileNo": nagadPaymentModel.content.merchantMobileNo,
-        "orderDateTime": nagadPaymentModel.content.orderDateTime,
-        "issuerPaymentDateTime": nagadPaymentModel.content.issuerPaymentDateTime,
-        "issuerPaymentRefNo": nagadPaymentModel.content.issuerPaymentRefNo,
-        "additionalMerchantInfo": nagadPaymentModel.content.additionalMerchantInfo,
-        "status": nagadPaymentModel.content.status,
-        "statusCode": nagadPaymentModel.content.statusCode,
-        "cancelIssuerDateTime": nagadPaymentModel.content.cancelIssuerDateTime,
-        "cancelIssuerRefNo": nagadPaymentModel.content.cancelIssuerRefNo
-      };
+      paymentResponseObject= nagadPaymentModel;
     }
     else {
       paymentResponseObject = '';
@@ -491,9 +478,10 @@ class _ReviewOrderState extends State<ReviewOrder> {
       "gatewayResponse": paymentResponseObject,
       "pmntMethod": _paymentRadioValue == 1
           ? 'SSLCommerz'
-          : _paymentRadioValue == 2 ?'Nagad'
+          : _paymentRadioValue == 2
+          ? 'Nagad'
           : 'Cash On Delivery',
-      "pmntAmount":"$totalWithDeliveryCost",
+      "pmntAmount": "$totalWithDeliveryCost",
       "pmntCurrency":"BDT"
     };
     await apiProvider.placeOrder(map).then((value){

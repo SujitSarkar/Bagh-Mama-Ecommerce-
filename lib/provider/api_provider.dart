@@ -66,7 +66,7 @@ class APIProvider extends ChangeNotifier {
   OrderInfoModel _orderInfoModel;
   CampaignProductModel _campaignProductModel;
   InitNagadModel _initNagadModel;
-  NagadPaymentModel _nagadPaymentModel;
+  var _nagadPaymentModel;
   List<String> _paymentGateways=[];
 
   get selectedIndex => _selectedIndex;
@@ -856,7 +856,7 @@ class APIProvider extends ChangeNotifier {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String userName = pref.getString('username');
     try {
-      var body = jsonEncode(map);
+      var body = json.encode(map);
       var response = await http.post(
           Uri.parse('https://www.baghmama.com.bd/graph/api/v4/orderSubmit'),
           headers: {
@@ -965,7 +965,7 @@ class APIProvider extends ChangeNotifier {
 
   Future<bool> nagadPaymentCheck(Map map) async {
     try {
-      var body = jsonEncode(map);
+      var body = json.encode(map);
       var response = await http.post(
           Uri.parse('https://www.baghmama.com.bd/graph/api/v4/nagadPaymentCheck'),
           headers: {
@@ -975,7 +975,8 @@ class APIProvider extends ChangeNotifier {
           },
           body: body);
       if (response.statusCode == 200) {
-        _nagadPaymentModel = nagadPaymentModelFromJson(response.body);
+        var jsonResponse = jsonDecode(response.body);
+        _nagadPaymentModel = jsonResponse['content'];
         notifyListeners();
         return true;
       } else

@@ -5,8 +5,10 @@ import 'package:bagh_mama/screens/account_screen.dart';
 import 'package:bagh_mama/screens/cart_screen.dart';
 import 'package:bagh_mama/screens/category_screen.dart';
 import 'package:bagh_mama/screens/home_screen.dart';
+import 'package:bagh_mama/variables/color_variables.dart';
 import 'package:bagh_mama/variables/public_data.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
@@ -25,11 +27,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    // final systemTheme = SystemUiOverlayStyle.light.copyWith(
-    //   systemNavigationBarColor: HexColor('#373A36'),
-    //   systemNavigationBarIconBrightness: Brightness.light,
-    // );
-    // SystemChrome.setSystemUIOverlayStyle(systemTheme);
 
     _animationController = AnimationController(
       duration: Duration(milliseconds: 300),//center button animation duration
@@ -66,6 +63,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     final Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: themeProvider.toggleBgColor(),
       extendBody: true,

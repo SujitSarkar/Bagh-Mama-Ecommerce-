@@ -16,12 +16,14 @@ void main() async{
   firebase_core.Firebase.initializeApp();
   SharedPreferences pref= await SharedPreferences.getInstance();
   final bool isLight = pref.getBool('isLight') ?? true;
+  print('Theme: $isLight');
+  runApp(MyApp(isLight));
   SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        //statusBarBrightness: isLight? Brightness.light:Brightness.dark,
-        statusBarColor:Colors.white,
-  ));
-  runApp(MyApp(isLight));
+          //statusBarBrightness:Brightness.light,
+          statusBarColor:Colors.white,
+          statusBarIconBrightness:Brightness.dark
+      ));
 }
 
 // ignore: must_be_immutable

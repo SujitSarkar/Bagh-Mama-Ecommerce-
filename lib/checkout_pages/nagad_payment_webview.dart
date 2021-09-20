@@ -59,12 +59,12 @@ class _NagadPaymentWebViewState extends State<NagadPaymentWebView> {
                         initialUrlRequest: URLRequest(
                             url: Uri.parse(widget.initUrl.toString())),
                         onPageCommitVisible:
-                            (InAppWebViewController controller, Uri uri) {
+                            (InAppWebViewController controller, Uri uri){
                           print(uri);
-                          if (uri == Uri.parse('https://baghmama.com.bd/nagadSuccess')){
+                          if (uri == Uri.parse('https://www.baghmama.com.bd/?nagadSuccess')){
                             print(uri);
                             Navigator.pop(context, true);
-                          }else if(uri == Uri.parse('https://baghmama.com.bd/nagadFailed')){
+                          }else if(uri == Uri.parse('https://www.baghmama.com.bd/?nagadFailed')){
                             Navigator.pop(context, false);
                           }
                         },

@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final nagadPaymentModel = nagadPaymentModelFromJson(jsonString);
+
 import 'dart:convert';
 
 NagadPaymentModel nagadPaymentModelFromJson(String str) => NagadPaymentModel.fromJson(json.decode(str));
@@ -58,11 +62,11 @@ class Content {
   String orderId;
   String paymentRefId;
   String amount;
-  dynamic clientMobileNo;
+  String clientMobileNo;
   String merchantMobileNo;
   DateTime orderDateTime;
-  dynamic issuerPaymentDateTime;
-  dynamic issuerPaymentRefNo;
+  DateTime issuerPaymentDateTime;
+  String issuerPaymentRefNo;
   dynamic additionalMerchantInfo;
   String status;
   String statusCode;
@@ -77,7 +81,7 @@ class Content {
     clientMobileNo: json["clientMobileNo"],
     merchantMobileNo: json["merchantMobileNo"],
     orderDateTime: DateTime.parse(json["orderDateTime"]),
-    issuerPaymentDateTime: json["issuerPaymentDateTime"],
+    issuerPaymentDateTime: DateTime.parse(json["issuerPaymentDateTime"]),
     issuerPaymentRefNo: json["issuerPaymentRefNo"],
     additionalMerchantInfo: json["additionalMerchantInfo"],
     status: json["status"],
@@ -94,7 +98,7 @@ class Content {
     "clientMobileNo": clientMobileNo,
     "merchantMobileNo": merchantMobileNo,
     "orderDateTime": orderDateTime.toIso8601String(),
-    "issuerPaymentDateTime": issuerPaymentDateTime,
+    "issuerPaymentDateTime": issuerPaymentDateTime.toIso8601String(),
     "issuerPaymentRefNo": issuerPaymentRefNo,
     "additionalMerchantInfo": additionalMerchantInfo,
     "status": status,
