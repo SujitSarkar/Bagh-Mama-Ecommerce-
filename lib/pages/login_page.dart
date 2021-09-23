@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                           size: size.width * .09)),
                   IconButton(
                       onPressed: () {
-                        apiProvider.signInWithFacebook();
+                        apiProvider.signInWithFacebook(context);
                       },
                       icon: Icon(FontAwesomeIcons.facebook,
                           color: themeProvider.toggleFacebookColor(),

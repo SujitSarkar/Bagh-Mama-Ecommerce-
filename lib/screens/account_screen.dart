@@ -16,6 +16,7 @@ import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -445,7 +446,7 @@ class _AccountScreenState extends State<AccountScreen> {
             //   });
             pref.clear();
             await GoogleSignIn().signOut();
-            //await FacebookAuth.instance.logOut();
+            await FacebookAuth.instance.logOut();
             apiProvider.userInfoModel = null;
             apiProvider.clearWishlist();
             apiProvider.clearNotificationList();

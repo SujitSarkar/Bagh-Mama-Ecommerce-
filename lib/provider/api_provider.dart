@@ -67,7 +67,7 @@ class APIProvider extends ChangeNotifier {
   CampaignProductModel _campaignProductModel;
   InitNagadModel _initNagadModel;
   var _nagadPaymentModel;
-  List<String> _paymentGateways=[];
+  List<String> _paymentGateways = [];
 
   get selectedIndex => _selectedIndex;
   get bannerImageList => _bannerImageList;
@@ -100,7 +100,7 @@ class APIProvider extends ChangeNotifier {
   get campaignProductModel => _campaignProductModel;
   get initNagadModel => _initNagadModel;
   get nagadPaymentModel => _nagadPaymentModel;
-  get paymentGateways=>_paymentGateways;
+  get paymentGateways => _paymentGateways;
 
   set userInfoModel(UserInfoModel value) {
     _userInfoModel = value;
@@ -194,7 +194,8 @@ class APIProvider extends ChangeNotifier {
       final Map map = {"fetch_all": "true"};
       var body = json.encode(map);
       var response = await http.post(
-          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/productCategories'),
+          Uri.parse(
+              'https://www.baghmama.com.bd/graph/api/v4/productCategories'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -488,7 +489,6 @@ class APIProvider extends ChangeNotifier {
         _userInfoModel = userInfoModelFromJson(response.body);
         //_userInfoModel.content.customerOrders[0].pstatus;
 
-
         await pref.setString('username', _userInfoModel.content.username);
         await pref.setString('userId', _userInfoModel.content.id.toString());
         await pref.setString(
@@ -554,7 +554,8 @@ class APIProvider extends ChangeNotifier {
   Future<void> getSocialContactInfo() async {
     try {
       var response = await http.post(
-          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/socialContactInfo'),
+          Uri.parse(
+              'https://www.baghmama.com.bd/graph/api/v4/socialContactInfo'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -684,7 +685,8 @@ class APIProvider extends ChangeNotifier {
   Future<bool> updatePassword(Map map) async {
     var body = jsonEncode(map);
     var response = await http.post(
-        Uri.parse('https://www.baghmama.com.bd/graph/api/v4/updateUserPassword'),
+        Uri.parse(
+            'https://www.baghmama.com.bd/graph/api/v4/updateUserPassword'),
         headers: {
           'Content-Type': _contentType,
           'X-Auth-Key': _xAuthKey,
@@ -921,7 +923,8 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = jsonEncode(map);
       var response = await http.post(
-          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/campaignProducts'),
+          Uri.parse(
+              'https://www.baghmama.com.bd/graph/api/v4/campaignProducts'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -944,7 +947,8 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = jsonEncode(map);
       var response = await http.post(
-          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/nagadPaymentInit'),
+          Uri.parse(
+              'https://www.baghmama.com.bd/graph/api/v4/nagadPaymentInit'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -967,7 +971,8 @@ class APIProvider extends ChangeNotifier {
     try {
       var body = json.encode(map);
       var response = await http.post(
-          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/nagadPaymentCheck'),
+          Uri.parse(
+              'https://www.baghmama.com.bd/graph/api/v4/nagadPaymentCheck'),
           headers: {
             'Content-Type': _contentType,
             'X-Auth-Key': _xAuthKey,
@@ -986,6 +991,7 @@ class APIProvider extends ChangeNotifier {
       return false;
     }
   }
+
   Future<bool> getPaymentGateways() async {
     try {
       var response = await http.post(
@@ -997,8 +1003,8 @@ class APIProvider extends ChangeNotifier {
           });
       if (response.statusCode == 200) {
         _paymentGateways.clear();
-        var jsonData= jsonDecode(response.body);
-        jsonData['content'].forEach((element){
+        var jsonData = jsonDecode(response.body);
+        jsonData['content'].forEach((element) {
           _paymentGateways.add(element['gatewayName']);
         });
         _paymentGateways.contains('');
@@ -1018,6 +1024,7 @@ class APIProvider extends ChangeNotifier {
       await GoogleSignIn().signOut();
       final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
       showLoadingDialog('Please wait');
+
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
@@ -1028,6 +1035,7 @@ class APIProvider extends ChangeNotifier {
           await FirebaseAuth.instance.signInWithCredential(credential);
       //closeLoadingDialog();
       User user = cred.user;
+      print(user.email);
 
       ///get userInfo
       Map map = {"column_type": "username", "field": "${user.email}"};
@@ -1064,7 +1072,8 @@ class APIProvider extends ChangeNotifier {
             _userInfoModel.content.wishlists.forEach((element) {
               _wishListIdList.add(element);
             });
-          } else _wishListIdList.clear();
+          } else
+            _wishListIdList.clear();
 
           ///Get Notifications
           if (jsonData['content']['notifications'].isNotEmpty) {
@@ -1130,37 +1139,122 @@ class APIProvider extends ChangeNotifier {
     }
   }
 
-  // Future<User> signInWithFacebook() async {
-  //   // Create an instance of FacebookLogin
-  //   final fb = FacebookLogin();
-  //
-  //   // Log in
-  //   final res = await fb.logIn(permissions: [
-  //     FacebookPermission.publicProfile,
-  //     FacebookPermission.email,
-  //   ]);
-  //   if(res.status==FacebookLoginStatus.success){
-  //     // Send access token to server for validation and auth
-  //     final FacebookAccessToken accessToken = res.accessToken;
-  //     print('Access token: ${accessToken.token}');
-  //   }else print('Token Error!!!!!!');
-  // }
+  Future signInWithFacebook(BuildContext context) async {
+    try {
+      SharedPreferences pref = await SharedPreferences.getInstance();
 
-  Future<User> signInWithFacebook() async {
-    // Trigger the sign-in flow
-    //await FacebookAuth.instance.logOut();
-    final LoginResult loginResult = await FacebookAuth.instance.login();
+      final LoginResult loginResult = await FacebookAuth.instance
+          .login(permissions: ["public_profile", "email"]);
+      final OAuthCredential facebookAuthCredential =
+          FacebookAuthProvider.credential(loginResult.accessToken.token);
 
-    print('Status:::::${loginResult.status}');
-    // Create a credential from the access token
-    final OAuthCredential facebookAuthCredential =
-        FacebookAuthProvider.credential(loginResult.accessToken.token);
+      showLoadingDialog('Please wait');
+      UserCredential cred = await FirebaseAuth.instance
+          .signInWithCredential(facebookAuthCredential);
+      User user = cred.user;
+      print('Facebook User: ${user.email}');
 
-    // Once signed in, return the UserCredential
-    UserCredential cred = await FirebaseAuth.instance
-        .signInWithCredential(facebookAuthCredential);
-    print("Success with: ${cred.user.email}, ${cred.user.displayName}");
+      ///get userInfo
+      Map map = {"column_type": "username", "field": "${user.email}"};
+      var body = json.encode(map);
+      var response = await http.post(
+          Uri.parse('https://www.baghmama.com.bd/graph/api/v4/userInfo'),
+          headers: {
+            'Content-Type': _contentType,
+            'X-Auth-Key': _xAuthKey,
+            'X-Auth-Email': _xAuthEmail,
+          },
+          body: body);
+      if (response.statusCode == 200) {
+        var jsonData = jsonDecode(response.body);
+        //Login here
+        if (jsonData['content'] != null) {
+          _userInfoModel = userInfoModelFromJson(response.body);
 
-    return cred.user;
+          await pref.setString('username', _userInfoModel.content.username);
+          await pref.setString('userId', _userInfoModel.content.id.toString());
+          await pref.setString(
+              'mobile', _userInfoModel.content.mobileNumber.toString());
+          await pref.setString(
+              'fullAddress',
+              '${_userInfoModel.content.address},${_userInfoModel.content.postalcode},'
+                  '${_userInfoModel.content.city},${_userInfoModel.content.state},'
+                  '${_userInfoModel.content.country}');
+          await pref.setString('name',
+              '${_userInfoModel.content.firstName} ${_userInfoModel.content.lastName}');
+
+          ///Get Wishlist ID
+          if (_userInfoModel.content.wishlists.isNotEmpty) {
+            _wishListIdList.clear();
+            _userInfoModel.content.wishlists.forEach((element) {
+              _wishListIdList.add(element);
+            });
+          } else
+            _wishListIdList.clear();
+
+          ///Get Notifications
+          if (jsonData['content']['notifications'].isNotEmpty) {
+            _notificationList.clear();
+            jsonData['content']['notifications'].forEach((element) {
+              Notifications notifications = Notifications(
+                  notificationType: element['notificationType'],
+                  notificationText: element['notificationText'],
+                  link: element['link'],
+                  status: element['status']);
+              _notificationList.add(notifications);
+            });
+          } else
+            _notificationList.clear();
+          notifyListeners();
+          closeLoadingDialog();
+          Navigator.pop(context);
+        }
+        //Don't have account sothat register
+        else {
+          Map data = {
+            "username": "${user.email}",
+            "password": "",
+            "confirm-password": "",
+            "first_name": "${user.displayName}",
+            "last_name": "",
+            "email": "${user.email}",
+            "address": "",
+            "city": "",
+            "state": "",
+            "postalcode": "",
+            "mobile_number": "${user.phoneNumber ?? ''}",
+            "country": "Bangladesh"
+          };
+          registerUser(data).then((registerUserModel) async {
+            if (registerUserModel.content.success == true) {
+              await getUserInfo(user.email).then((value) {
+                if (value) {
+                  closeLoadingDialog();
+                  Navigator.pop(context);
+                } else {
+                  closeLoadingDialog();
+                  showErrorMgs('Something went wrong! Try again');
+                }
+              });
+            } else {
+              closeLoadingDialog();
+              showErrorMgs(registerUserModel.content.errordesc.toString());
+            }
+          });
+        }
+      } else {
+        closeLoadingDialog();
+        showInfo('Something went wrong! Try Again');
+        return false;
+      }
+      return true;
+    } on SocketException {
+      showInfo('No internet connection !');
+      return false;
+    } catch (error) {
+      print(error.toString());
+      showInfo('Failed! try again');
+      return false;
+    }
   }
 }
