@@ -221,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   .then((value) {
                                 setState(() => _isLoading = false);
                               });
-                            }
+                            } 
                           },
                           isScrollable: true,
                           controller: _controller,

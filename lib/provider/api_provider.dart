@@ -159,8 +159,7 @@ class APIProvider extends ChangeNotifier {
       Map data = {"banner_type": "home page banners"};
       var body = json.encode(data);
 
-      await http
-          .post(
+      await http.post(
         Uri.parse('https://www.baghmama.com.bd/graph/api/v4/bannerSlider'),
         headers: {
           'Content-Type': _contentType,

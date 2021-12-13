@@ -6,7 +6,7 @@
         tools:replace="android:label"
         android:label="Baghmama"
         android:icon="@mipmap/launcher_icon"
-       android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".MainActivity"

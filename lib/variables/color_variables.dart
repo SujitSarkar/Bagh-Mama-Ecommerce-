@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CColor{
+class CColor {
+  List<int> lst = [255, 92, 0];
 
   static final Map<int, Color> lightThemeMapColor = {
     //RGB Color Code (0, 194, 162) Hex: 0xff0095B2
